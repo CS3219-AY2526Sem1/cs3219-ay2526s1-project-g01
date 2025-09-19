@@ -1,0 +1,82 @@
+# PeerPrep Docker Compose Configuration
+# TODO: when deploying to production, switch to using images from Docker Hub -> using 'image' and 'pull_policy' and remove 'build' sections
+services:
+  # API Gateway - Routes all external traffic
+  api-gateway:
+    image: honeydews/api-gateway:latest
+    pull_policy: never
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"   # HTTP traffic
+      - "443:443" # HTTPS traffic (if configured)
+    depends_on:
+      - frontend
+      - user-service
+    environment:
+      - FRONTEND_URL=http://frontend:3000
+      - USER_SERVICE_URL=http://user-service:4000
+
+  # Frontend Next.js Application
+  # Scalable service with port range mapping
+  # container_name is omitted for scaling
+  # which is important for peerprep where we do matching
+  frontend:
+    image: honeydews/frontend
+    pull_policy: never
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: runner # Production build target
+    # Remove external port exposure - accessed via API Gateway
+    expose:
+      - "3000" # Internal port only
+    environment:
+      - NODE_ENV=production # Set Node.js to production mode
+
+  user-service:
+    image: foochao/user-service
+    pull_policy: never
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+      # Use the runner stage from the multi-stage Dockerfile (not production)
+      target: runner
+    # Remove external port exposure - accessed via API Gateway
+    expose:
+      - "4000" # Internal port only
+    env_file:
+      - ./user-service/.env # Environment variables for user-service
+    environment:
+      - NODE_ENV=production # Set Node.js to production mode
+  
+  ### NOTE: LOCAL DATABASE SERVICES YET TO BE TESTED BY ME DO NOT USE YET ###
+
+  # MongoDB Database for User Services
+  mongodb-user-services:
+    image: mongo:7.0.12
+    container_name: peerprep-mongodb-user-services
+    volumes:
+      - mongodb-data-user-services:/data/db # Persistent data storage
+    env_file:
+      - ./mongodb/.env # Database credentials
+    profiles:
+      - localdb # Only runs with --profile localdb
+
+  # MongoDB Web Admin Interface
+  mongo-express:
+    image: mongo-express:1.0.2
+    container_name: peerprep-mongo-express
+    expose:
+      - "8081" # Internal port only - accessed via API Gateway at /admin/
+    env_file:
+      - ./mongo-express/.env # Connection settings
+    depends_on:
+      - mongodb-user-services # Requires MongoDB to be running
+    profiles:
+      - localdb # Only runs with --profile localdb
+
+# Named volumes for data persistence
+volumes:
+  mongodb-data-user-services:
