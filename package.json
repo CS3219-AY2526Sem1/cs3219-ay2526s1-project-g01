@@ -14,7 +14,8 @@
     "build:frontend": "cd frontend && npm run build",
     "build:user-service": "echo 'No build step for user-service'",
     "install:all": "npm install && cd frontend && npm install && cd ../user-service && npm install",
-    "clean": "cd frontend && rm -rf node_modules && cd ../user-service && rm -rf node_modules && rm -rf node_modules"
+    "clean": "cd frontend && rm -rf node_modules && cd ../user-service && rm -rf node_modules && rm -rf node_modules",
+    "localdb": "docker-compose up mongodb-user-services mongo-express -d"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
