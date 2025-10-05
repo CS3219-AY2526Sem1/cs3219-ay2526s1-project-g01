@@ -1,9 +1,16 @@
+"use client";
+
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronRightIcon } from "lucide-react";
 
-export default function ChatComponent() {
+interface ChatMessageProps {
+  messages: string[];
+  onSend: (msg: string) => void;
+}
+
+export default function ChatComponent({ messages, onSend }: ChatMessageProps) {
   const chatMessages = ["HELLO", "HOW ARE YOU?"];
 
   const currentUser = "ml-auto mr-2";
