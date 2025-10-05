@@ -21,6 +21,7 @@ import socketCommunication from "./SocketConnection";
 
 export default function CollabPage() {
   const [selectedLanguage, setSeletedLanguage] = useState<string>("JavaScript");
+  const [chatMessages, setChatMessages] = useState<string[]>([]);
 
   const [editorInstance, setEditorInstance] =
     useState<monaco.editor.IStandaloneCodeEditor>();
@@ -38,6 +39,7 @@ export default function CollabPage() {
     }
     const ydoc: Y.Doc = new Y.Doc();
     const yText: Y.Text = ydoc.getText("monaco");
+    const yArray: Y.Array<string> = ydoc.getArray("chat");
     const binding: MonacoBinding = new MonacoBinding(
       yText,
       editorInstance.getModel()!,
