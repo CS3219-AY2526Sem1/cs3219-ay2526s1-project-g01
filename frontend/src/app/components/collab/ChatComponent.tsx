@@ -4,6 +4,7 @@ import { Message, MessageContent } from "@/components/ai-elements/message";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronRightIcon } from "lucide-react";
+import { useState } from "react";
 
 interface ChatMessageProps {
   messages: string[];
@@ -11,10 +12,19 @@ interface ChatMessageProps {
 }
 
 export default function ChatComponent({ messages, onSend }: ChatMessageProps) {
+  const [inputValue, setInputValue] = useState("");
+
   const chatMessages = ["HELLO", "HOW ARE YOU?"];
 
   const currentUser = "ml-auto mr-2";
   const otherUser = "mr-auto";
+
+  function handleSend() {
+    if (inputValue.trim() !== "") {
+      onSend(inputValue);
+      setInputValue("");
+    }
+  }
 
   return (
     <div className="flex flex-col h-full bg-stone-900 p-1">
@@ -36,8 +46,23 @@ export default function ChatComponent({ messages, onSend }: ChatMessageProps) {
 
       {/* Chat Input */}
       <div className="flex w-full mt-auto gap-2">
-        <Input className="bg-white" />
-        <Button variant="secondary" size="icon" className="size-9">
+        <Input
+          className="bg-white"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              onSend(inputValue);
+              setInputValue("");
+            }
+          }}
+        />
+        <Button
+          variant="secondary"
+          size="icon"
+          className="size-9"
+          onClick={handleSend}
+        >
           <ChevronRightIcon />
         </Button>
       </div>
