@@ -2,9 +2,9 @@
  * AI Assistance Disclosure:
  * Tool: ChatGPT (model: GPT 5.0), date: 2025-10-6
  * Purpose: To understand how yDoc works to allow collaborative editing and to implement chat feature using Yjs Array
- * Author Review: I validated correctness of the code and created variables to keep track of yDoc Array changes which 
+ * Author Review: I validated correctness of the code and created variables to keep track of yDoc Array changes which
  * is then passed as props to Chat Component
-*/
+ */
 
 "use client";
 
@@ -28,10 +28,9 @@ import { ChevronDown, CircleUser } from "lucide-react";
 import socketCommunication from "./SocketConnection";
 
 export default function CollabPage() {
-
-  // Initialise shared document 
+  // Initialise shared document
   const yDocRef = useRef<Y.Doc>(new Y.Doc());
-  
+
   // User Info
   const user_id = String(Math.floor(Math.random() * 10000));
   const session_id = "123"; //HARDCODED FOR TESTING
