@@ -20,8 +20,6 @@ import { ChevronDown, CircleUser } from "lucide-react";
 import socketCommunication from "./SocketConnection";
 
 export default function CollabPage() {
-
-
   const yDocRef = useRef<Y.Doc>(new Y.Doc());
   // User Info
   const user_id = String(Math.floor(Math.random() * 10000));
@@ -52,7 +50,11 @@ export default function CollabPage() {
       new Set([editorInstance]),
     );
 
-    const clientWS: WebSocket = socketCommunication(user_id, session_id, yDocRef.current);
+    const clientWS: WebSocket = socketCommunication(
+      user_id,
+      session_id,
+      yDocRef.current,
+    );
     return () => {
       console.log("remove client websocket, binding and ydoc");
       clientWS.close();
@@ -128,7 +130,10 @@ export default function CollabPage() {
             onSend={(msg: string) => {
               // Push new message to Y.Array
               yDocRef.current.getArray("chat").push([msg]);
-              console.log("Pushed msg to yarray:", yDocRef.current.getArray("chat"));
+              console.log(
+                "Pushed msg to yarray:",
+                yDocRef.current.getArray("chat"),
+              );
             }}
           />
         </div>
