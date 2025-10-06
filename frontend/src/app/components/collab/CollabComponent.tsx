@@ -14,20 +14,26 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, CircleUser } from "lucide-react";
 import socketCommunication from "./SocketConnection";
 
 export default function CollabPage() {
-  const [selectedLanguage, setSeletedLanguage] = useState<string>("JavaScript");
-  const [chatMessages, setChatMessages] = useState<string[]>([]);
 
-  const [editorInstance, setEditorInstance] =
-    useState<monaco.editor.IStandaloneCodeEditor>();
 
+  const yDocRef = useRef<Y.Doc>(new Y.Doc());
+  // User Info
   const user_id = String(Math.floor(Math.random() * 10000));
   const session_id = "123"; //HARDCODED FOR TESTING
+
+  // Variable for chat messages
+  const [chatMessages, setChatMessages] = useState<string[]>([]);
+
+  // Monaco instance
+  const [editorInstance, setEditorInstance] =
+    useState<monaco.editor.IStandaloneCodeEditor>();
+  const [selectedLanguage, setSeletedLanguage] = useState<string>("JavaScript");
 
   function handleEditorMount(editor: monaco.editor.IStandaloneCodeEditor) {
     setEditorInstance(editor);
@@ -37,20 +43,20 @@ export default function CollabPage() {
     if (!editorInstance) {
       return;
     }
-    const ydoc: Y.Doc = new Y.Doc();
-    const yText: Y.Text = ydoc.getText("monaco");
-    const yArray: Y.Array<string> = ydoc.getArray("chat");
+
+    const yText: Y.Text = yDocRef.current.getText("monaco");
+    const yArray: Y.Array<string> = yDocRef.current.getArray("chat");
     const binding: MonacoBinding = new MonacoBinding(
       yText,
       editorInstance.getModel()!,
       new Set([editorInstance]),
     );
 
-    const clientWS: WebSocket = socketCommunication(user_id, session_id, ydoc);
+    const clientWS: WebSocket = socketCommunication(user_id, session_id, yDocRef.current);
     return () => {
       console.log("remove client websocket, binding and ydoc");
       clientWS.close();
-      ydoc.destroy();
+      yDocRef.current.destroy();
       binding.destroy();
     };
   }, [editorInstance]);
@@ -118,10 +124,11 @@ export default function CollabPage() {
 
         <div className="flex-1 p-5">
           <ChatComponent
-            messages={chatMessages}
+            yArray={yDocRef.current.getArray("chat")}
             onSend={(msg: string) => {
               // Push new message to Y.Array
-              console.log("Sending message: ", msg);
+              yDocRef.current.getArray("chat").push([msg]);
+              console.log("Pushed msg to yarray:", yDocRef.current.getArray("chat"));
             }}
           />
         </div>

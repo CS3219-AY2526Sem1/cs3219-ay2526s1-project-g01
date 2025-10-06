@@ -5,13 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronRightIcon } from "lucide-react";
 import { useState } from "react";
+import * as Y from "yjs";
 
 interface ChatMessageProps {
-  messages: string[];
+  yArray: Y.Array<string>;
   onSend: (msg: string) => void;
 }
 
-export default function ChatComponent({ messages, onSend }: ChatMessageProps) {
+export default function ChatComponent({ yArray, onSend }: ChatMessageProps) {
   const [inputValue, setInputValue] = useState("");
 
   const chatMessages = ["HELLO", "HOW ARE YOU?"];
@@ -30,7 +31,7 @@ export default function ChatComponent({ messages, onSend }: ChatMessageProps) {
     <div className="flex flex-col h-full bg-stone-900 p-1">
       {/* Chat Box */}
       <div className="flex flex-col bg-stone-500 h-full mb-5 rounded-lg">
-        {chatMessages.map((message, index) => {
+        {yArray.map((message, index) => {
           return (
             <div key={index} className="flex">
               <Message
