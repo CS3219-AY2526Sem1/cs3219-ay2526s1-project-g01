@@ -1,3 +1,11 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: ChatGPT (model: GPT 5.0), date: 2025-10-6
+ * Purpose: To understand how yDoc works to allow collaborative editing and to implement chat feature using Yjs Array
+ * Author Review: I validated correctness of the code and created variables to keep track of yDoc Array changes which 
+ * is then passed as props to Chat Component
+*/
+
 "use client";
 
 import ChatComponent from "./ChatComponent";
@@ -20,7 +28,10 @@ import { ChevronDown, CircleUser } from "lucide-react";
 import socketCommunication from "./SocketConnection";
 
 export default function CollabPage() {
+
+  // Initialise shared document 
   const yDocRef = useRef<Y.Doc>(new Y.Doc());
+  
   // User Info
   const user_id = String(Math.floor(Math.random() * 10000));
   const session_id = "123"; //HARDCODED FOR TESTING
@@ -37,13 +48,24 @@ export default function CollabPage() {
     setEditorInstance(editor);
   }
 
+  // Initalise websocket connection and perform binding
   useEffect(() => {
     if (!editorInstance) {
       return;
     }
 
+    // Create yText and yArray
     const yText: Y.Text = yDocRef.current.getText("monaco");
-    const yArray: Y.Array<string> = yDocRef.current.getArray("chat");
+    const yArray = yDocRef.current.getArray<string>("chat");
+
+    const updateChat = () => {
+      setChatMessages(yDocRef.current.getArray<string>("chat").toArray());
+    };
+
+    // Bind chatMessages to yArray
+    yArray.observe(updateChat);
+
+    // Bind monaco editor with yText
     const binding: MonacoBinding = new MonacoBinding(
       yText,
       editorInstance.getModel()!,
@@ -126,7 +148,7 @@ export default function CollabPage() {
 
         <div className="flex-1 p-5">
           <ChatComponent
-            yArray={yDocRef.current.getArray("chat")}
+            messages={chatMessages}
             onSend={(msg: string) => {
               // Push new message to Y.Array
               yDocRef.current.getArray("chat").push([msg]);
