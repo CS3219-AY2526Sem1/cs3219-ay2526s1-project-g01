@@ -8,14 +8,12 @@ import { useState } from "react";
 import * as Y from "yjs";
 
 interface ChatMessageProps {
-  yArray: Y.Array<string>;
+  messages: string[];
   onSend: (msg: string) => void;
 }
 
-export default function ChatComponent({ yArray, onSend }: ChatMessageProps) {
+export default function ChatComponent({ messages, onSend }: ChatMessageProps) {
   const [inputValue, setInputValue] = useState("");
-
-  const chatMessages = ["HELLO", "HOW ARE YOU?"];
 
   const currentUser = "ml-auto mr-2";
   const otherUser = "mr-auto";
@@ -31,7 +29,7 @@ export default function ChatComponent({ yArray, onSend }: ChatMessageProps) {
     <div className="flex flex-col h-full bg-stone-900 p-1">
       {/* Chat Box */}
       <div className="flex flex-col bg-stone-500 h-full mb-5 rounded-lg">
-        {yArray.map((message, index) => {
+        {messages.map((message, index) => {
           return (
             <div key={index} className="flex">
               <Message
