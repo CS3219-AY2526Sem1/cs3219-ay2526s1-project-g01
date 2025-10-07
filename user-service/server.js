@@ -3,14 +3,15 @@ import index from "./index.js";
 import "dotenv/config";
 import { connectToDB } from "./model/repository.js";
 
-const port = 8080;
+const port = process.env.SERVICE_PORT || 8080;
+const host = "0.0.0.0"; 
 
 const server = http.createServer(index);
 
 await connectToDB().then(() => {
   console.log("MongoDB Connected!");
 
-  server.listen(port);
+  server.listen(port, host);
   console.log("User service server listening on http://localhost:" + port);
 }).catch((err) => {
   console.error("Failed to connect to DB");
