@@ -17,7 +17,6 @@ import { ChevronDown, CircleUser } from "lucide-react";
 import socketCommunication from "./SocketConnection";
 
 export default function CodingComponent() {
-  const [codeContent, setCodeContent] = useState<string>("");
   const [selectedLanguage, setSeletedLanguage] = useState<string>("JavaScript");
 
   const [editorInstance, setEditorInstance] =
@@ -25,12 +24,6 @@ export default function CodingComponent() {
 
   const user_id = String(Math.floor(Math.random() * 10000));
   const session_id = "123"; //HARDCODED FOR TESTING
-
-  function setInitialContent(value: string | undefined) {
-    if (value != undefined) {
-      setCodeContent(value);
-    }
-  }
 
   function handleEditorMount(editor: monaco.editor.IStandaloneCodeEditor) {
     setEditorInstance(editor);
@@ -98,7 +91,6 @@ export default function CodingComponent() {
         height="85vh"
         theme="vs-dark"
         language={selectedLanguage.toLowerCase()}
-        onChange={(value) => setInitialContent(value)}
         options={{ scrollBeyondLastLine: false }}
         onMount={handleEditorMount}
       ></Editor>
