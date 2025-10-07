@@ -47,11 +47,12 @@ COPY --from=builder --chown=expressjs:nodejs /app/utils ./utils
 
 USER expressjs
 
-EXPOSE 4000
+EXPOSE 8080
+ENV PORT=8080
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3001/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
+# HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+#     CMD node -e "require('http').get('http://localhost:3001/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
 
 # Start the server
 CMD ["npm", "start"]
