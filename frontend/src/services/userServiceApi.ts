@@ -41,11 +41,11 @@ const getBaseURL = () => {
     if (isServerSide) {
       // Server-side: Direct call to user-service container
       // This bypasses the API gateway for internal Docker networking
-      return "http://user-service:4000";
+      return "https://cs3219-ay2526s1-project-g01-user-service-151036034449.asia-southeast1.run.app:8080";
     } else {
       // Client-side: Through API Gateway
       // Browser requests go through the nginx proxy on localhost
-      return "https://cs3219-ay2526s1-project-g01-api-gateway-151036034449.asia-southeast1.run.app:8080/api";
+      return "https://cs3219-ay2526s1-project-g01-api-gateway-151036034449.asia-southeast1.run.app/api";
     }
   } else {
     // Development: Direct to user-service (no Docker containers)
