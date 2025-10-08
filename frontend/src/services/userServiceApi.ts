@@ -45,11 +45,11 @@ const getBaseURL = () => {
     } else {
       // Client-side: Through API Gateway
       // Browser requests go through the nginx proxy on localhost
-      return "http://localhost/api";
+      return "https://cs3219-ay2526s1-project-g01-api-gateway-151036034449.asia-southeast1.run.app:8080/api";
     }
   } else {
     // Development: Direct to user-service (no Docker containers)
-    return "http://localhost:4000";
+    return "https://cs3219-ay2526s1-project-g01-api-gateway-151036034449.asia-southeast1.run.app:8080/api";
   }
 };
 
