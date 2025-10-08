@@ -62,7 +62,7 @@ export function makeVerificationLink(email, username, rawToken) {
   // TODO: Update base URL logic if deploying to a real production domain
   let base;
   if (process.env.NODE_ENV === "production") {
-    base = "http://localhost";
+    base = "https://cs3219-ay2526s1-project-g01-user-service-151036034449.asia-southeast1.run.app";
   } else {
     base = "http://localhost:3000";
   }
