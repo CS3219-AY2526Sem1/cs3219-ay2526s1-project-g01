@@ -12,7 +12,24 @@ import { verifyToken } from "@/services/userServiceApi";
 // Middleware to protect routes and verify JWT token
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get("token")?.value;
+  
+  // Try multiple ways to get the token from cookies
+  let token = request.cookies.get("token")?.value;
+  
+  // Fallback: manually parse cookies if NextRequest method fails
+  if (!token) {
+    const cookieHeader = request.headers.get("cookie");
+    if (cookieHeader) {
+      const cookies = cookieHeader.split(";").map(c => c.trim());
+      const tokenCookie = cookies.find(c => c.startsWith("token="));
+      if (tokenCookie) {
+        token = tokenCookie.split("=")[1];
+      }
+    }
+  }
+  
+  console.log("Middleware: Path:", pathname, "Token found:", !!token);
+  
   const isAuthRoute = pathname.startsWith("/auth");
 
   // Allow static files (images, icons, etc.)
@@ -28,36 +45,25 @@ export async function middleware(request: NextRequest) {
 
   // If no token, redirect to login
   if (!token) {
+    console.log("Middleware: No token found, redirecting to login");
     const loginUrl = new URL("/auth/login", request.url);
-    const response = NextResponse.redirect(loginUrl);
-
-    // Clear any existing token cookie to ensure clean state
-    response.cookies.set("token", "", {
-      path: "/",
-      expires: new Date(0),
-    });
-
-    return response;
+    return NextResponse.redirect(loginUrl);
   }
 
   try {
+    console.log("Middleware: Found token, verifying...");
     // Verify token with backend
     const response = await verifyToken(token);
 
     if (response.status !== 200) {
-      // Token is invalid, redirect to login
+      console.log("Middleware: Token verification failed, status:", response.status);
+      // Token is invalid, redirect to login but don't clear cookie immediately
+      // Let the client handle cookie clearing to avoid interference
       const loginUrl = new URL("/auth/login", request.url);
-      const redirectResponse = NextResponse.redirect(loginUrl);
-
-      // Clear invalid token cookie
-      redirectResponse.cookies.set("token", "", {
-        path: "/",
-        expires: new Date(0),
-      });
-
-      return redirectResponse;
+      return NextResponse.redirect(loginUrl);
     }
 
+    console.log("Middleware: Token verified successfully");
     // Token is valid, allow access but add cache control headers
     const response_next = NextResponse.next();
 
@@ -71,18 +77,11 @@ export async function middleware(request: NextRequest) {
 
     return response_next;
   } catch (error) {
-    console.error("Token verification failed:", error);
-    // On error, redirect to login
+    console.error("Middleware: Token verification error:", error);
+    // On verification error, redirect to login but don't clear cookie
+    // This could be a temporary network issue, let client handle it
     const loginUrl = new URL("/auth/login", request.url);
-    const redirectResponse = NextResponse.redirect(loginUrl);
-
-    // Clear potentially corrupted token cookie
-    redirectResponse.cookies.set("token", "", {
-      path: "/",
-      expires: new Date(0),
-    });
-
-    return redirectResponse;
+    return NextResponse.redirect(loginUrl);
   }
 }
 
