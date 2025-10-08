@@ -1,119 +1,98 @@
 /**
- * Complete client-side authentication guard
- * Handles all token checking and verification since middleware is disabled
+ * AI Assistance Disclosure:
+ * Tool: GitHub Copilot (model: Claude Sonnet 4), date: 2025-09-16
+ * Purpose: To create a simple client-side auth guard that prevents browser back navigation to cached protected pages after logout.
+ * Author Review: I validated correctness, security, and performance of the code.
+ *
+ */
+
+/**
+ * Simple client-side auth guard that checks for token on page navigation.
+ * This catches cases where browser back button bypasses middleware cache controls.
  */
 
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { getToken, removeToken } from "@/services/userServiceCookies";
-import { verifyToken } from "@/services/userServiceApi";
-import { useUser } from "@/contexts/UserContext";
+import { getToken } from "@/services/userServiceCookies";
 
 export default function AuthGuard() {
   const pathname = usePathname();
   const router = useRouter();
-  const { setUser } = useUser();
-  const [isChecking, setIsChecking] = useState(false);
-  const verificationRef = useRef<Promise<void> | null>(null);
 
-  const isAuthRoute = pathname.startsWith("/auth");
-  const isProtectedRoute = !isAuthRoute && pathname !== "/" && !pathname.startsWith("/api");
-
-  const performAuthCheck = useCallback(async () => {
-    // Skip if already checking or not a protected route
-    if (isChecking || !isProtectedRoute) {
+  // Check token immediately on mount and pathname changes
+  useEffect(() => {
+    // Skip auth routes
+    if (pathname.startsWith("/auth")) {
       return;
     }
 
-    // Prevent multiple simultaneous checks
-    if (verificationRef.current) {
-      return verificationRef.current;
+    // Check for token
+    const token = getToken();
+    if (!token) {
+      console.log("AuthGuard: No token found, redirecting to login");
+      // Use setTimeout to ensure this runs after render
+      setTimeout(() => {
+        router.push("/auth/login");
+      }, 0);
     }
+  }, [pathname, router]);
 
-    console.log("AuthGuard: Starting auth check for:", pathname);
-    setIsChecking(true);
-
-    const checkPromise = (async () => {
-      try {
-        const token = getToken();
-        
-        if (!token) {
-          console.log("AuthGuard: No token found, redirecting to login");
-          removeToken(); // Clean up any stale cookies
-          router.replace("/auth/login");
-          return;
-        }
-
-        console.log("AuthGuard: Token found, verifying with backend...");
-        const response = await verifyToken(token);
-
-        if (response.status === 200 && response.data?.data) {
-          console.log("AuthGuard: Token verified successfully");
-          // Update user context with verified data
-          setUser({
-            username: response.data.data.username,
-            email: response.data.data.email,
-          });
-        } else {
-          console.log("AuthGuard: Token verification failed, status:", response.status);
-          removeToken();
-          router.replace("/auth/login");
-        }
-      } catch (error) {
-        console.error("AuthGuard: Token verification error:", error);
-        removeToken();
-        router.replace("/auth/login");
-      } finally {
-        setIsChecking(false);
-        verificationRef.current = null;
-      }
-    })();
-
-    verificationRef.current = checkPromise;
-    return checkPromise;
-  }, [isChecking, isProtectedRoute, pathname, router, setUser]);
-
-  // Main auth check on route changes
-  useEffect(() => {
-    performAuthCheck();
-  }, [performAuthCheck]);
-
-  // Check on browser navigation (back/forward)
+  // Add popstate listener specifically for browser back/forward navigation
   useEffect(() => {
     const handlePopState = () => {
-      console.log("AuthGuard: Browser navigation detected");
-      performAuthCheck();
+      if (!pathname.startsWith("/auth")) {
+        const token = getToken();
+        if (!token) {
+          console.log(
+            "AuthGuard: No token found on popstate (back/forward), redirecting to login",
+          );
+          router.push("/auth/login");
+        }
+      }
     };
 
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [performAuthCheck]);
+  }, [pathname, router]);
 
-  // Check when page becomes visible (tab switching)
+  // Add visibility change listener to catch tab switching scenarios
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        console.log("AuthGuard: Page became visible, checking auth");
-        performAuthCheck();
+      if (!document.hidden && !pathname.startsWith("/auth")) {
+        const token = getToken();
+        if (!token) {
+          console.log(
+            "AuthGuard: No token found on visibility change, redirecting to login",
+          );
+          router.push("/auth/login");
+        }
       }
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [performAuthCheck]);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [pathname, router]);
 
-  // Check when window gets focus
+  // Add focus listener for additional protection
   useEffect(() => {
     const handleFocus = () => {
-      console.log("AuthGuard: Window focused, checking auth");
-      performAuthCheck();
+      if (!pathname.startsWith("/auth")) {
+        const token = getToken();
+        if (!token) {
+          console.log(
+            "AuthGuard: No token found on focus, redirecting to login",
+          );
+          router.push("/auth/login");
+        }
+      }
     };
 
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
-  }, [performAuthCheck]);
+  }, [pathname, router]);
 
   return null; // This component renders nothing
 }

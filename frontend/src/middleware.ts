@@ -97,7 +97,16 @@ export async function middleware(request: NextRequest) {
   }
 }
 
-// MIDDLEWARE DISABLED - All auth logic moved to AuthGuard component
+// Configure which paths the middleware should run on
 export const config = {
-  matcher: [],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - auth (authentication routes)
+     * - api (API routes)
+     * - _next (Next.js internals)
+     * - favicon.ico
+     */
+    "/((?!auth|api|_next|favicon.ico).*)",
+  ],
 };
