@@ -13,22 +13,33 @@ import { verifyToken } from "@/services/userServiceApi";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
+  // Debug: Log all cookies and headers
+  const cookieHeader = request.headers.get("cookie");
+  const host = request.headers.get("host");
+  const userAgent = request.headers.get("user-agent");
+  
+  console.log("=== MIDDLEWARE DEBUG ===");
+  console.log("Middleware: Path:", pathname);
+  console.log("Middleware: Host:", host);
+  console.log("Middleware: User-Agent:", userAgent?.substring(0, 50));
+  console.log("Middleware: Cookie header:", cookieHeader);
+  console.log("Middleware: Request URL:", request.url);
+  
   // Try multiple ways to get the token from cookies
   let token = request.cookies.get("token")?.value;
   
   // Fallback: manually parse cookies if NextRequest method fails
-  if (!token) {
-    const cookieHeader = request.headers.get("cookie");
-    if (cookieHeader) {
-      const cookies = cookieHeader.split(";").map(c => c.trim());
-      const tokenCookie = cookies.find(c => c.startsWith("token="));
-      if (tokenCookie) {
-        token = tokenCookie.split("=")[1];
-      }
+  if (!token && cookieHeader) {
+    const cookies = cookieHeader.split(";").map(c => c.trim());
+    console.log("Middleware: Parsed cookies:", cookies);
+    const tokenCookie = cookies.find(c => c.startsWith("token="));
+    if (tokenCookie) {
+      token = tokenCookie.split("=")[1];
+      console.log("Middleware: Found token via manual parse:", token?.substring(0, 20) + "...");
     }
   }
   
-  console.log("Middleware: Path:", pathname, "Token found:", !!token);
+  console.log("Middleware: Final token found:", !!token, token ? `(${token.substring(0, 20)}...)` : "null");
   
   const isAuthRoute = pathname.startsWith("/auth");
 
@@ -46,6 +57,7 @@ export async function middleware(request: NextRequest) {
   // If no token, redirect to login
   if (!token) {
     console.log("Middleware: No token found, redirecting to login");
+    console.log("Middleware: Available cookies from NextRequest.cookies:", Array.from(request.cookies.getAll()));
     const loginUrl = new URL("/auth/login", request.url);
     return NextResponse.redirect(loginUrl);
   }
