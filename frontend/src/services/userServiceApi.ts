@@ -73,6 +73,7 @@ const createApiClient = () => {
       "Content-Type": "application/json",
     },
     timeout: 10000, // 10 seconds timeout
+    withCredentials: true, // Include cookies in cross-origin requests
   });
 };
 
