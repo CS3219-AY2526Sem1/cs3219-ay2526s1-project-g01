@@ -49,7 +49,7 @@ const getBaseURL = () => {
     }
   } else {
     // Development: Direct to user-service (no Docker containers)
-    return "https://cs3219-ay2526s1-project-g01-api-gateway-151036034449.asia-southeast1.run.app:8080/api";
+    return "http://localhost:4000";
   }
 };
 
