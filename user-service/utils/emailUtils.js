@@ -73,7 +73,7 @@ export function makeVerificationLink(email, username, rawToken) {
     token: rawToken,
   });
   
-  const fullUrl = `${base}/verification/verify?${params.toString()}`;
+  const fullUrl = `${base}/auth/verify?${params.toString()}`;
   
   return fullUrl;
 }
