@@ -8,6 +8,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { verifyToken } from "@/services/userServiceApi";
+import { cookies } from "next/headers";
 
 // Middleware to protect routes and verify JWT token
 export async function middleware(request: NextRequest) {
@@ -36,6 +37,15 @@ export async function middleware(request: NextRequest) {
     if (tokenCookie) {
       token = tokenCookie.split("=")[1];
       console.log("Middleware: Found token via manual parse:", token?.substring(0, 20) + "...");
+    }
+  }
+
+  // Fallback2: Use next/headers cookies (may not work in middleware)
+  if (!token) {
+    const nextCookies = await cookies();
+    token = nextCookies.get("token")?.value;
+    if (token) {
+      console.log("Middleware: Found token via next/headers:", token?.substring(0, 20) + "...");
     }
   }
   
