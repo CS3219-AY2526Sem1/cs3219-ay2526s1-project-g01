@@ -79,11 +79,11 @@ const createApiClient = () => {
 // API Endpoints
 const API_ENDPOINTS = {
   // users
-  USER_SERVICE: "/users/",
+  USER_SERVICE: "/users",
   // auth
-  AUTH_SERVICE: "/auth/",
+  AUTH_SERVICE: "/auth",
   // verification
-  VERIFICATION_SERVICE: "/verification/",
+  VERIFICATION_SERVICE: "/verification",
 };
 
 /**
