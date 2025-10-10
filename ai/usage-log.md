@@ -638,22 +638,27 @@ Request to create a check-email page with same instructions where check email ha
 2025-09-23 15:00
 
 # Tool:
+
 GitHub Copilot (model: Claude Sonnet 4)
 
 # Prompt/Command:
+
 Request to create error page for wrong verification, parsing email and username same way as check-email, and verify page with token parsing, spinner UI, redirects, and toast feedback.
 
 # Output Summary:
+
 - Created error/page.tsx for failed verification with search param parsing and matching styling
 - Created verify/page.tsx with spinner UI, token parsing, automatic redirects, and toast notifications
 - Both pages maintain visual consistency with logo, card layout, and proper TypeScript error handling
 
 # Action Taken:
+
 - [x] Accepted as-is
 - [ ] Modified
 - [ ] Rejected
 
 # Author Notes:
+
 - Validated token verification flow with proper error handling and user feedback
 - Confirmed visual consistency across all email verification pages
 - Security implications minimal: client-side UI handling only
@@ -883,3 +888,34 @@ Request for a code review of PR #18 https://github.com/CS3219-AY2526Sem1/cs3219-
 # Author Notes:
 
 - Validated the correctness of the spelling changes in the code
+
+## Entry 25
+
+# Date/Time:
+
+2025-10-06 09:25
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Request information on how to create custom cursors and send cursor information between users
+
+# Output Summary:
+
+- Provided the code outline on how to create a cursor decoration with CSS to be used with monaco editor and communicate
+  cursor information through sockets
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that CSS styling for cursor is appropriate, modified CSS styling to fit use case.
+- Researched on deltaDecorations suggested by model and decided that it was not appropriate as its a legacy api, searched online for more suitable modules and implemented cursor binding using IEditorDecorationsCollection instead.
+- Implemented communication logic using websockets myself, only using model for debugging.
