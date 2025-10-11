@@ -2,25 +2,35 @@
 import { Button } from "@/components/ui/button";
 import { Mic } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { endSession } from "@/services/matchingServiceApi";
+import { useUser } from "@/contexts/UserContext";
 
 export default function SessionHeader() {
   const router = useRouter();
+  const { user } = useUser();
 
-  function directToMatch() {
+  async function directToMatch() {
+    if (user?.id) {
+      try {
+        await endSession(user.id);
+      } catch (error) {
+        console.error("Failed to end session:", error);
+      }
+    }
     router.replace("/match");
   }
 
   return (
     <header
-      className="flex 
+      className="flex
         justify-end
-        items-center 
+        items-center
         gap-3
-        bg-stone-800 
-        w-full 
-        h-15 
-        text-white 
-        border-b-2 
+        bg-stone-800
+        w-full
+        h-15
+        text-white
+        border-b-2
         border-stone-700"
     >
       <Button>

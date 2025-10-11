@@ -19,9 +19,11 @@ services:
     depends_on:
       - frontend
       - user-service
+      - matching-service
     environment:
       - FRONTEND_URL=http://frontend:3000
       - USER_SERVICE_URL=http://user-service:4000
+      - MATCHING_SERVICE_URL=http://matching-service:3002
 
   # Frontend Next.js Application
   # Scalable service with port range mapping
@@ -56,6 +58,19 @@ services:
     environment:
       - NODE_ENV=production # Set Node.js to production mode
       - DB_LOCAL_URI=mongodb://root:example@mongodb-user-services:27017 # Override for container
+
+  matching-service:
+    image: yc17003/matching-service
+    pull_policy: never
+    build:
+      context: ./matching-service
+      dockerfile: Dockerfile
+    expose:
+      - "3002"
+    env_file:
+      - ./matching-service/.env
+    environment:
+      - REDIS_HOST=redis://redis-matching-service:6379
 
   collab-service:
     image: cjz/collab-service
@@ -112,7 +127,18 @@ services:
     volumes:
       - redis-data-collab-service:/data
 
+  # does not require password
+  redis-matching-service:
+    image: redis:latest
+    container_name: matching-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    env_file:
+      - ./matching-service/.env
+    volumes:
+      - redis-data-matching-service:/data
+
 # Named volumes for data persistence
 volumes:
   mongodb-data-user-services:
   redis-data-collab-service:
+  redis-data-matching-service:
