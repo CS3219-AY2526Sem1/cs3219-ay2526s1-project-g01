@@ -111,6 +111,15 @@ services:
       - ./collab-service/.env
     volumes:
       - redis-data-collab-service:/data
+  
+  question-service:
+    image: ignitioteo/question-service
+    build:
+      context: ./question-service
+      dockerfile: Dockerfile
+    env_file:
+      - ./question-service/.env
+
 
 # Named volumes for data persistence
 volumes:
