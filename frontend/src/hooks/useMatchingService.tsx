@@ -49,7 +49,7 @@ export function useMatchingService(userId: string | undefined) {
           setStatus("idle");
           setErrorMessage("Connection error. Please try again.");
         }
-      }, 2000);
+      }, 1000);
     },
     [clearPolling],
   );

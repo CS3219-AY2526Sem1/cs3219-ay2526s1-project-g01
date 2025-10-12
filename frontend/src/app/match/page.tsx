@@ -38,10 +38,12 @@ export default function MatchPage() {
   }, [clearPolling]);
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center px-4">
-      <div className="text-center mb-8">
-        <h1 className="text-5xl font-bold mb-4">Find your coding partner</h1>
-        <p className="text-lg text-gray-600">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-20">
+      <div className="text-center mb-8 w-full max-w-4xl px-4">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 break-words">
+          Find your coding partner
+        </h1>
+        <p className="text-sm sm:text-base md:text-lg text-gray-600 break-words">
           Set your preferences and we will find the best match for you!
         </p>
       </div>
