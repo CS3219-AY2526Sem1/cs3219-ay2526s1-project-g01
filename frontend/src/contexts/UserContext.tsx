@@ -18,6 +18,7 @@ import { getToken } from "@/services/userServiceCookies";
 import { verifyToken } from "@/services/userServiceApi";
 
 interface User {
+  id: string;
   username: string;
   email: string;
 }
@@ -61,6 +62,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             if (userData?.username && userData?.email) {
               console.log("Setting user data:", userData);
               setUser({
+                id: userData.id,
                 username: userData.username,
                 email: userData.email,
               });

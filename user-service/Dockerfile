@@ -43,6 +43,7 @@ COPY --from=builder --chown=expressjs:nodejs /app/controller ./controller
 COPY --from=builder --chown=expressjs:nodejs /app/middleware ./middleware
 COPY --from=builder --chown=expressjs:nodejs /app/model ./model
 COPY --from=builder --chown=expressjs:nodejs /app/routes ./routes
+COPY --from=builder --chown=expressjs:nodejs /app/utils ./utils
 
 USER expressjs
 

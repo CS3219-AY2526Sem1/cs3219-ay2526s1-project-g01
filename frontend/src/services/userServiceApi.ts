@@ -82,6 +82,8 @@ const API_ENDPOINTS = {
   USER_SERVICE: "/users",
   // auth
   AUTH_SERVICE: "/auth",
+  // verification
+  VERIFICATION_SERVICE: "/verification",
 };
 
 /**
@@ -151,5 +153,35 @@ const signup = async (username: string, email: string, password: string) => {
   }
 };
 
+const verifyUserEmail = async (
+  token: string,
+  username: string,
+  email: string,
+) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.get(
+      `${API_ENDPOINTS.VERIFICATION_SERVICE}/verify?token=${encodeURIComponent(token)}&username=${encodeURIComponent(username)}&email=${encodeURIComponent(email)}`,
+    );
+    return response;
+  } catch (error) {
+    console.error("Error verifying email:", error);
+    throw error;
+  }
+};
+
+const resendEmailVerification = async (username: string, email: string) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.post(
+      `${API_ENDPOINTS.VERIFICATION_SERVICE}/resend?username=${encodeURIComponent(username)}&email=${encodeURIComponent(email)}`,
+    );
+    return response;
+  } catch (error) {
+    console.error("Error resending verification email:", error);
+    throw error;
+  }
+};
+
 // Export configuration
-export { verifyToken, login, signup };
+export { verifyToken, login, signup, verifyUserEmail, resendEmailVerification };

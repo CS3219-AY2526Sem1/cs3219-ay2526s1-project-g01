@@ -469,37 +469,6 @@ Request to create a simple client-side auth guard that prevents browser back nav
 
 # Date/Time:
 
-2025-09-19 19:00
-
-# Tool:
-
-Gemini (Tried to google the answer online and Google's AI overview mentioned the recommendations)
-
-# Prompt/Command:
-
-Ask on how to disable scrollbar and to not create additional empty spaces when there is still sufficient space to enter code.
-
-# Output Summary:
-
-- Explain that Monaco Editor has a field called "scrollBeyondLastLine" that when disabled will cause the scrollbar to scroll only till the last line.
-
-# Action Taken:
-
-- [x] Accepted as-is
-- [ ] Modified
-- [ ] Rejected
-
-# Author Notes:
-
-- Add the field "scrollBeyondLastLine" and set it to false in the Monaco Editor configuration
-- Tested the UI and found that the scrollbar will not appear if there is sufficient space for code to be entered. If code entered has exceeded the maximum container height, the scrollbar will only allow the user to scroll till the last line.
-
----
-
-## Entry 14
-
-# Date/Time:
-
 2025-09-19 00:31
 
 # Tool:
@@ -524,6 +493,37 @@ Request information on how to add password to redis instance in compose.yml file
 
 - Validated that command is accurate by checking with stackoverflow posts
 - Modified output such that password is hidden and variable substitution is used by adding password to a.env file
+
+---
+
+## Entry 14
+
+# Date/Time:
+
+2025-09-19 19:00
+
+# Tool:
+
+Gemini (Tried to google the answer online and Google's AI overview mentioned the recommendations)
+
+# Prompt/Command:
+
+Ask on how to disable scrollbar and to not create additional empty spaces when there is still sufficient space to enter code.
+
+# Output Summary:
+
+- Explain that Monaco Editor has a field called "scrollBeyondLastLine" that when disabled will cause the scrollbar to scroll only till the last line.
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Add the field "scrollBeyondLastLine" and set it to false in the Monaco Editor configuration
+- Tested the UI and found that the scrollbar will not appear if there is sufficient space for code to be entered. If code entered has exceeded the maximum container height, the scrollbar will only allow the user to scroll till the last line.
 
 ---
 
@@ -566,6 +566,104 @@ to implement Yjs binding with Monaco editor
 
 # Date/Time:
 
+2025-09-23 14:30
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4)
+
+# Prompt/Command:
+
+Request to create an email unverified page with logo similar to login page, information about unverified email status, and clickable resend functionality with proper AI disclosure formatting.
+
+# Output Summary:
+
+- Created UnverifiedPage component (/app/auth/unverified/page.tsx) with consistent visual design
+- Implemented logo display matching login page layout using Next.js Image component
+- Included back to login navigation link for user convenience
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated visual consistency with existing login page design patterns
+- Confirmed accessibility features with proper button states and navigation
+- Maintainability: clean component structure ready for API integration
+
+---
+
+## Entry 17
+
+# Date/Time:
+
+2025-09-23 14:45
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4)
+
+# Prompt/Command:
+
+Request to create a check-email page with same instructions where check email happens after users first press sign up, with logo display and resend functionality.
+
+# Output Summary:
+
+- Created CheckEmailPage component (/app/auth/check-email/page.tsx) for post-signup email verification
+- Implemented logo display matching login page layout using Next.js Image component
+- Added resend email functionality with loading state and toast notifications
+- Included back to login navigation link for user convenience
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated visual consistency with existing auth page design patterns
+- Confirmed accessibility features with proper button states and navigation
+- Maintainability: clean component structure ready for API integration
+
+---
+
+## Entry 18
+
+# Date/Time:
+
+2025-09-23 15:00
+
+# Tool:
+GitHub Copilot (model: Claude Sonnet 4)
+
+# Prompt/Command:
+Request to create error page for wrong verification, parsing email and username same way as check-email, and verify page with token parsing, spinner UI, redirects, and toast feedback.
+
+# Output Summary:
+- Created error/page.tsx for failed verification with search param parsing and matching styling
+- Created verify/page.tsx with spinner UI, token parsing, automatic redirects, and toast notifications
+- Both pages maintain visual consistency with logo, card layout, and proper TypeScript error handling
+
+# Action Taken:
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+- Validated token verification flow with proper error handling and user feedback
+- Confirmed visual consistency across all email verification pages
+- Security implications minimal: client-side UI handling only
+
+---
+
+## Entry 19
+
+# Date/Time:
+
 2025-09-23 20:14
 
 # Tool:
@@ -594,3 +692,194 @@ Request information on how to maintain socket connection and prevent timeout
 - Tested that connection is now persistent
 
 ---
+
+## Entry 20
+
+# Date/Time:
+
+2025-09-24 00:25
+
+# Tool:
+
+ChatGPT (model: ChatGPT 5 thinking)
+
+# Prompt/Command:
+
+Request to create comprehensive email utility functions for sending verification emails using Nodemailer with SMTP configuration, verification link generation, and secure email templates.
+
+# Output Summary:
+
+- Created complete email utility module (/utils/emailUtils.js) with ESM support for Next.js
+- Implemented makeTransport() function for SMTP configuration using environment variables
+- Added boolEnv() helper function for parsing boolean environment variables
+- Created makeVerificationLink() function to generate secure verification URLs with encoded parameters
+- Developed sendVerificationEmail() function with comprehensive email template including:
+  - Plaintext fallback version for email clients that block HTML
+  - Lightweight HTML template with inline CSS to avoid spam filters
+  - Professional styling with system fonts and proper spacing
+  - Clear call-to-action button with fallback link
+  - Security footer with unsubscribe information
+  - Expiration notice (60 minutes)
+- Implemented environment variable validation with early error throwing for missing SMTP credentials
+- Added comprehensive JSDoc documentation for all functions
+- Included troubleshooting section with common SMTP issues and solutions
+- Added example usage documentation for server-side implementation
+- Configured secure defaults for Gmail SMTP (port 587, STARTTLS)
+- Implemented proper error handling and parameter validation
+- Added support for different environments (development/production) with appropriate base URLs
+- Asked for output summary
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Confirmed security best practices: environment variable usage, no hardcoded credentials, secure transport defaults
+- Reviewed email template design for inbox deliverability
+- Tested parameter encoding and URL generation for special characters in email/username
+- Maintainability: comprehensive documentation and error messages for easy debugging
+- Compliance: included proper unsubscribe information and sender identification
+
+---
+
+## Entry 21
+
+# Date/Time:
+
+2025-09-24 01:00
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4)
+
+# Prompt/Command:
+
+Update user controller createUser to send verification emails and handle email sending errors with user cleanup, update auth controller login to check user verification status, add AI disclosures.
+
+# Output Summary:
+
+- Enhanced createUser function to generate and send verification emails after user creation
+- Added proper error handling: if email sending fails, created user and verification records are cleaned up
+- Updated login function to check user.verified before allowing authentication (403 status for unverified users)
+- Added verified field to formatUserResponse function for frontend use
+- Integrated crypto for token generation and email utilities for sending verification emails
+- Added AI disclosures to both modified controller files
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated error handling maintains data consistency with proper cleanup on email failures
+- Confirmed security: unverified users cannot authenticate, proper 403 status codes
+- Email error uses same status code (500) as frontend expects for consistent error handling
+
+---
+
+## Entry 22
+
+# Date/Time:
+
+2025-09-24 01:05
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4)
+
+# Prompt/Command:
+
+Create verification routes for /verification/verify and /verification/resend endpoints, update index.js to include verification routes, update nginx configuration for API gateway routing.
+
+# Output Summary:
+
+- Created verification-routes.js with GET /verify and POST /resend endpoints
+- Updated index.js to import and mount verification routes at /verification path
+- Enhanced nginx default.conf with /api/verification/ location block for proper API gateway routing
+- Updated repository import naming convention in controllers to use underscore prefix
+- Added AI disclosures to all modified files
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Verified API routing structure follows RESTful conventions
+- Confirmed nginx configuration handles CORS and proxy headers properly
+- Validated consistent naming convention across all repository imports
+
+---
+
+## Entry 23
+
+# Date/Time:
+
+2025-09-24 03:14
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4)
+
+# Prompt/Command:
+
+Fix Next.js 15 production build failures caused by useSearchParams() requiring Suspense boundaries in auth pages, and update AI disclosure headers for transparency.
+
+# Output Summary:
+
+- Fixed Next.js 15 build compatibility by replacing useSearchParams() with window.location-based URL parsing in all auth pages
+- Updated 4 auth page files (check-email, error, unverified, verify) to use URLSearchParams(window.location.search) instead of useSearchParams hook
+- Added/updated AI disclosure headers in all modified auth pages for transparency
+- Resolved static generation errors that prevented Docker builds from completing successfully
+- Maintained existing functionality while ensuring production build compatibility
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated Docker build now completes successfully without Next.js static generation errors
+- Confirmed all auth page functionality remains intact with new URL parsing approach
+- Next.js 15 requires Suspense boundaries for useSearchParams in static generation, window.location approach bypasses this requirement
+- AI disclosure headers ensure transparency about AI assistance in code generation
+- Production-ready solution that maintains development workflow compatibility
+
+---
+
+## Entry 24
+
+# Date/Time:
+
+2025-10-02 08:08
+
+# Tool:
+
+GitHub Copilot (model: unknown) on GitHub
+
+# Prompt/Command:
+
+Request for a code review of PR #18 https://github.com/CS3219-AY2526Sem1/cs3219-ay2526s1-project-g01/pull/18
+
+# Output Summary:
+
+- Identified several grammar and spelling mistakes in comments and variable names
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated the correctness of the spelling changes in the code

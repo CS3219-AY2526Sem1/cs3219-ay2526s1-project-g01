@@ -56,6 +56,7 @@ export default function LoginForm() {
       const userData = response?.data?.data;
       if (userData?.username && userData?.email) {
         setUser({
+          id: userData.id,
           username: userData.username,
           email: userData.email,
         });
@@ -74,6 +75,32 @@ export default function LoginForm() {
         router.replace("/home");
       }, 1000);
     } catch (error) {
+      // check if it is error 403 with error "UNVERIFIED_EMAIL" and canResend is true
+      // if can redirect to auth/unverified
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof error?.response === "object" &&
+        error?.response !== null &&
+        "data" in error?.response &&
+        typeof error?.response?.data === "object" &&
+        error?.response?.data !== null &&
+        "status" in error?.response &&
+        error?.response?.status === 403 &&
+        "error" in error?.response?.data &&
+        error?.response?.data?.error === "UNVERIFIED_EMAIL" &&
+        "canResend" in error?.response?.data &&
+        error?.response?.data?.canResend &&
+        "username" in error?.response?.data &&
+        typeof error?.response?.data?.username === "string" &&
+        error?.response?.data?.username
+      ) {
+        router.push(
+          `/auth/unverified?email=${encodeURIComponent(email)}&username=${encodeURIComponent(error?.response?.data?.username)}`,
+        );
+        return;
+      }
       console.error("Login error details:", error);
       handleApiError(error, "Login failed");
     }

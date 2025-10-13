@@ -1,7 +1,9 @@
 import UserModel from "./user-model.js";
+import UserVerifyModel from "./user-verify-model.js";
 import "dotenv/config";
 import { connect } from "mongoose";
 
+//#region util fns
 export async function connectToDB() {
   let mongoDBUri =
     process.env.ENV === "PROD"
@@ -10,13 +12,15 @@ export async function connectToDB() {
 
   await connect(mongoDBUri);
 }
+//#endregion
 
+//#region User Model related fns
 export async function createUser(username, email, password) {
   return new UserModel({ username, email, password }).save();
 }
 
 export async function findUserByEmail(email) {
-  return UserModel.findOne({ email });
+  return UserModel.findOne({ emailCanonical: email.toLowerCase() });
 }
 
 export async function findUserById(userId) {
@@ -31,7 +35,17 @@ export async function findUserByUsernameOrEmail(username, email) {
   return UserModel.findOne({
     $or: [
       { username },
-      { email },
+      { emailCanonical: email.toLowerCase() },
+    ],
+  });
+}
+
+// for stricter matching when needed such as when verifying email ownership
+export async function findUserByUsernameAndEmail(username, email) {
+  return UserModel.findOne({
+    $and: [
+      { username },
+      { emailCanonical: email.toLowerCase() },
     ],
   });
 }
@@ -41,14 +55,20 @@ export async function findAllUsers() {
 }
 
 export async function updateUserById(userId, username, email, password) {
+  const updateFields = {
+    username,
+    password,
+  };
+  
+  if (email) {
+    updateFields.email = email;
+    updateFields.emailCanonical = email.toLowerCase();
+  }
+  
   return UserModel.findByIdAndUpdate(
     userId,
     {
-      $set: {
-        username,
-        email,
-        password,
-      },
+      $set: updateFields,
     },
     { new: true },  // return the updated user
   );
@@ -66,6 +86,44 @@ export async function updateUserPrivilegeById(userId, isAdmin) {
   );
 }
 
+export function updateUserVerificationStatusById(userId, verified) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        verified,
+      },
+    },
+    { new: true },  // return the updated user
+  );
+}
+
 export async function deleteUserById(userId) {
   return UserModel.findByIdAndDelete(userId);
 }
+//#endregion
+
+//#region User Verify Model related fns
+
+export async function createUserVerifyRecord(userId, token) {
+  return new UserVerifyModel({ userId, token }).save();
+}
+
+export async function findUserVerifyRecordByTokenAndId(token, userId) {
+  return UserVerifyModel.findOne({ 
+    $and: [
+      { token },
+      { userId },
+    ],
+  });
+}
+
+export async function findUserVerifyRecordById (userId) {
+  return UserVerifyModel.find({ userId });
+}
+
+export async function deleteUserVerifyRecordByUserId(userId) {
+  return UserVerifyModel.deleteMany({ userId });
+}
+
+//#endregion
