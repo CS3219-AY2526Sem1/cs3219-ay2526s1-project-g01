@@ -1,26 +1,20 @@
-import ChatComponent from "../components/collab/ChatComponent";
-import CodingComponentWrapper from "../components/collab/CodingComponentWrapper";
-import QuestionComponent from "../components/collab/QuestionComponent";
-import SessionHeader from "../components/collab/SessionHeader";
+//With reference to https://www.geeksforgeeks.org/reactjs/how-to-fix-the-error-window-is-not-defined-in-nextjs/ in solving bug
 
-export default function CollabPage() {
-  return (
-    <main className="bg-stone-900 h-screen flex flex-col items-center">
-      <SessionHeader />
+/**
+ * AI Assistance Disclosure:
+ * Tool: ChatGPT (model: GPT 5.0), date: 2025-09-23
+ * Purpose: To understand root cause of ReferenceError: window is not defined when CollabPage is being built by docker
+ * Author Review: I validated correctness of the code and modified the solution based on online research
+ */
+"use client";
 
-      <div className="flex flex-1 w-full bg-stone-800 ">
-        <div className="flex-1 p-5">
-          <QuestionComponent />
-        </div>
+import dynamic from "next/dynamic";
 
-        <div className="flex-[2]">
-          <CodingComponentWrapper />
-        </div>
+const CodingComponentWrapper = dynamic(
+  () => import("../components/collab/CollabComponent"),
+  {
+    ssr: false,
+  },
+);
 
-        <div className="flex-1 p-5">
-          <ChatComponent />
-        </div>
-      </div>
-    </main>
-  );
-}
+export default CodingComponentWrapper;
