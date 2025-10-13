@@ -44,9 +44,9 @@ export default function TopicsComponent({ setTopics }: TopicsProps) {
           <Button
             key={topic}
             onClick={() => handleTopicSelect(topic)}
-            className={`flex-1 min-w-[150px] h-[50px] relative bg-blue-200 text-black hover:bg-blue-200/90 flex items-center justify-center`}
+            className={`flex-1 min-w-[150px] min-h-[50px] py-2 relative bg-blue-200 text-black hover:bg-blue-200/90 flex items-center justify-center pr-10`}
           >
-            <span className="absolute left-1/2 -translate-x-1/2 truncate max-w-[calc(100%-64px)]">
+            <span className="px-4 whitespace-normal break-words text-center leading-snug">
               {topic}
             </span>
             <IoCheckmark
