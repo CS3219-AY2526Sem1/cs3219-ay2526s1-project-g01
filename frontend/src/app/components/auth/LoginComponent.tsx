@@ -56,6 +56,7 @@ export default function LoginForm() {
       const userData = response?.data?.data;
       if (userData?.username && userData?.email) {
         setUser({
+          id: userData.id,
           username: userData.username,
           email: userData.email,
         });
