@@ -33,7 +33,7 @@ export default function SearchComponent({
   };
 
   return (
-    <Dialog open={isSearching} onOpenChange={(open) => !open && onCancel()}>
+    <Dialog open={isSearching}>
       <DialogTrigger asChild>
         <Button
           className="mb-15 w-[80%] bg-black text-white"
@@ -44,7 +44,12 @@ export default function SearchComponent({
           Start Searching
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-[30%] flex flex-col items-center">
+      <DialogContent
+        className="w-[30%] flex flex-col items-center"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        showCloseButton={false}
+      >
         <DialogHeader className="flex items-center">
           <DialogTitle>Searching for a match...</DialogTitle>
           <DialogDescription>Hold on tight!</DialogDescription>
