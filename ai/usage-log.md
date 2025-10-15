@@ -889,6 +889,8 @@ Request for a code review of PR #18 https://github.com/CS3219-AY2526Sem1/cs3219-
 
 - Validated the correctness of the spelling changes in the code
 
+---
+
 ## Entry 25
 
 # Date/Time:
@@ -919,3 +921,88 @@ Request information on how to create custom cursors and send cursor information 
 - Validated that CSS styling for cursor is appropriate, modified CSS styling to fit use case.
 - Researched on deltaDecorations suggested by model and decided that it was not appropriate as its a legacy api, searched online for more suitable modules and implemented cursor binding using IEditorDecorationsCollection instead.
 - Implemented communication logic using websockets myself, only using model for debugging.
+
+---
+
+## Entry 26
+
+# Date/Time:
+
+2025-10-16 01:00
+
+# Tool:
+
+Github Copilot (GPT-5 mini)
+
+# Prompt/Command:
+
+"Help me to generate the routes, controller and model for my existing question-service"
+
+
+# Output Summary:
+
+- Generated a rough folder structure and some boilerplate code 
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Modified to add validation logic, and more parameters for the querying.
+- Wrote the Dockerfile and updated the api-gateway myself.
+- Tested incrementally.
+- Also documented with Github Copilot, but modified where necessary.
+
+---
+
+## Entry 27
+
+# Date/Time:
+
+2025-10-16 06:30
+
+# Tool:
+
+Claude Sonnet 4.5
+
+# Prompt/Command:
+
+"Based on this schema, help me to write 30 insert statements for coding interview questions. The topic is sorting. There are 3 difficulty levels: easy, medium, hard. There should be 10 questions for each difficulty level. The questions should NOT be leetcode questions but are original, and you should follow the schema below and ensure that I can just run these lines immediately. I should have 2 test cases per question, so the first test case is index = 1 and the second is index = 2.
+
+CREATE TABLE questions (
+	title TEXT, 
+	topic TEXT, 
+	difficulty TEXT, 
+	description TEXT, 
+	constraints TEXT,
+	PRIMARY KEY (title)
+);
+
+CREATE TABLE test_cases (
+	title TEXT,
+    index INTEGER, 
+    input TEXT,
+    output TEXT,
+	PRIMARY KEY (title, index),
+	FOREIGN KEY (title) REFERENCES questions(title)
+);"
+
+
+# Output Summary:
+
+- Insert statements based on the description
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Repeated this for topics: sorting, arrays, dynamic programming, hash table.
+
+---
