@@ -3,6 +3,6 @@ import { getAllQuestions } from '../controller/question-controller.js';
 
 const router = express.Router();
 
-router.get('/all', getAllQuestions);
+router.get('/', getAllQuestions);
 
 export default router;
