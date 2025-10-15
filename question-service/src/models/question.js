@@ -1,6 +1,14 @@
 import pool from '../db.js'
 
-export async function getAllQuestionsFromDb({ topic, difficulty, limit }) {
+/*
+  Fetch all questions from the database with optional filters.
+  Parameters:
+    - topic: filter questions by topic
+    - difficulty: filter questions by difficulty level (easy, medium, hard)
+    - limit: limit the number of questions returned
+    - random: if true, returns questions in random order
+*/
+export async function getAllQuestionsFromDb({ topic, difficulty, limit, random }) {
   let query = `
     SELECT 
         q.title,
@@ -34,8 +42,14 @@ export async function getAllQuestionsFromDb({ topic, difficulty, limit }) {
     query += ' WHERE ' + conditions.join(' AND ');
   }
 
-  // query += ' ORDER BY q.title;';
+  // Randomize order if random is true
+  if (random) {
+    query += ' ORDER BY RANDOM()';
+  } else {
+    query += ' ORDER BY q.title';
+  }
 
+  // Apply limit if specified
   if (limit) {
     values.push(limit);
     query += ` LIMIT $${values.length}`;

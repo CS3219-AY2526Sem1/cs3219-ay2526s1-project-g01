@@ -6,10 +6,17 @@ import { getAllQuestionsFromDb } from '../models/question.js';
     - topic: filter questions by topic
     - difficulty: filter questions by difficulty level (easy, medium, hard)
     - limit: limit the number of questions returned
+    - random: if true, returns questions in random order
 */
 export async function getAllQuestions(req, res) {
   try {
-    const {topic, difficulty, limit} = req.query;
+    let { topic, difficulty, limit, random } = req.query;
+
+    // Replace underscores with spaces 
+    if (topic) {
+      topic = topic.replace(/_/g, ' ');
+    }
+
 
     // Validate difficulty
     const validDifficulties = ['easy', 'medium', 'hard'];
@@ -23,8 +30,16 @@ export async function getAllQuestions(req, res) {
       return res.status(400).json({ message: 'Invalid limit value. Must be a positive number.' });
     }
 
+    // Check if random is set to true
+    const isRandom = random === 'true' ? true : false;
+
     // Fetch questions from the database
-    const questions = await getAllQuestionsFromDb({ topic, difficulty, limit:parsedLimit });
+    const questions = await getAllQuestionsFromDb({ 
+      topic, 
+      difficulty, 
+      limit: parsedLimit,
+      random: isRandom 
+    });
 
     res.status(200).json({ data: questions });
   } catch (err) {
@@ -34,14 +49,3 @@ export async function getAllQuestions(req, res) {
 }
 
 
-// export async function getQuestion(req, res) {
-//   try {
-//     const question = await questionModel.getQuestionById(req.params.id);
-//     if (!question) {
-//       return res.status(404).json({ message: 'Question not found' });
-//     }
-//     res.status(200).json({ data: question });
-//   } catch (err) {
-//     res.status(500).json({ message: 'Error retrieving question', error: err.message });
-//   }
-// }

@@ -451,3 +451,343 @@ INSERT INTO test_cases (title, index, input, output) VALUES
 ('Sliding Window Maximum', 2, '[1, -1], k=1', '[1, -1]');
 
 
+--####################################################--
+
+
+-- Topic: Dynamic Programming
+-- EASY DIFFICULTY QUESTIONS (10)
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Count Ways to Sum', 'Dynamic Programming', 'easy', 'Given a target integer n, count the number of ways to reach n by adding 1, 2, or 3 at each step. Order matters.', '1 <= n <= 100');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Count Ways to Sum', 1, '4', '7'),
+('Count Ways to Sum', 2, '3', '4');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Maximum Sum Subarray', 'Dynamic Programming', 'easy', 'Given an array of integers, find the maximum sum of any contiguous subarray.', '1 <= array length <= 1000, -100 <= array[i] <= 100');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Maximum Sum Subarray', 1, '[-2,1,-3,4,-1,2,1,-5,4]', '6'),
+('Maximum Sum Subarray', 2, '[5,4,-1,7,8]', '23');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Paint Fence', 'Dynamic Programming', 'easy', 'You have a fence with n posts. You can paint each post with k colors. No more than 2 adjacent posts can have the same color. Count the total number of ways to paint the fence.', '1 <= n <= 50, 1 <= k <= 10');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Paint Fence', 1, 'n=3, k=2', '6'),
+('Paint Fence', 2, 'n=4, k=3', '66');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Min Cost Path', 'Dynamic Programming', 'easy', 'Given a 2D grid of costs, find the minimum cost to reach the bottom-right corner from the top-left corner. You can only move right or down.', '1 <= rows, cols <= 100, 1 <= cost[i][j] <= 100');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Min Cost Path', 1, '[[1,3,1],[1,5,1],[4,2,1]]', '7'),
+('Min Cost Path', 2, '[[1,2],[3,4]]', '8');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Climbing Steps with Cost', 'Dynamic Programming', 'easy', 'You are climbing stairs. Each step has a cost. You can climb 1 or 2 steps at a time. Find the minimum cost to reach the top. You can start from step 0 or step 1.', '2 <= cost.length <= 1000, 0 <= cost[i] <= 999');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Climbing Steps with Cost', 1, '[10,15,20]', '15'),
+('Climbing Steps with Cost', 2, '[1,100,1,1,1,100,1,1,99,1]', '6');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Maximum Alternating Sum', 'Dynamic Programming', 'easy', 'Given an array of integers, find the maximum alternating sum. An alternating sum is computed by alternately adding and subtracting elements in a subsequence.', '1 <= array length <= 100, 1 <= array[i] <= 100');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Maximum Alternating Sum', 1, '[4,2,5,3]', '7'),
+('Maximum Alternating Sum', 2, '[5,6,7,8]', '8');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Count Binary Strings', 'Dynamic Programming', 'easy', 'Count the number of binary strings of length n that do not have consecutive 1s.', '1 <= n <= 30');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Count Binary Strings', 1, '3', '5'),
+('Count Binary Strings', 2, '4', '8');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Minimum Jumps', 'Dynamic Programming', 'easy', 'Given an array where each element represents the maximum jump length from that position, find the minimum number of jumps to reach the end.', '1 <= array length <= 100, 0 <= array[i] <= 50');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Minimum Jumps', 1, '[2,3,1,1,4]', '2'),
+('Minimum Jumps', 2, '[2,1,3,2,1,1]', '3');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('House Robber Linear', 'Dynamic Programming', 'easy', 'Given an array of house values, find the maximum sum you can rob without robbing two adjacent houses.', '1 <= array length <= 100, 0 <= array[i] <= 400');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('House Robber Linear', 1, '[1,2,3,1]', '4'),
+('House Robber Linear', 2, '[2,7,9,3,1]', '12');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Count Palindromic Substrings', 'Dynamic Programming', 'easy', 'Given a string, count the number of palindromic substrings in it.', '1 <= string length <= 100, string contains only lowercase letters');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Count Palindromic Substrings', 1, 'abc', '3'),
+('Count Palindromic Substrings', 2, 'aaa', '6');
+
+-- MEDIUM DIFFICULTY QUESTIONS (10)
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Longest Bitonic Subsequence', 'Dynamic Programming', 'medium', 'Find the length of the longest bitonic subsequence. A bitonic subsequence first increases then decreases.', '1 <= array length <= 1000, 1 <= array[i] <= 1000');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Longest Bitonic Subsequence', 1, '[1,11,2,10,4,5,2,1]', '6'),
+('Longest Bitonic Subsequence', 2, '[12,11,40,5,3,1]', '5');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Partition Equal Subset Sum', 'Dynamic Programming', 'medium', 'Determine if an array can be partitioned into two subsets with equal sum.', '1 <= array length <= 200, 1 <= array[i] <= 100');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Partition Equal Subset Sum', 1, '[1,5,11,5]', 'true'),
+('Partition Equal Subset Sum', 2, '[1,2,3,5]', 'false');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Box Stacking Problem', 'Dynamic Programming', 'medium', 'Given n boxes with dimensions (height, width, depth), find the maximum height stack. A box can only be placed on another if both width and depth are strictly smaller.', '1 <= n <= 100, 1 <= dimensions <= 1000');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Box Stacking Problem', 1, '[(4,6,7),(1,2,3),(4,5,6),(10,12,32)]', '60'),
+('Box Stacking Problem', 2, '[(1,1,1),(2,2,2),(3,3,3)]', '6');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Count Ways to Decode', 'Dynamic Programming', 'medium', 'A message containing letters A-Z is encoded as numbers 1-26. Given a digit string, count the number of ways to decode it. 0 cannot start a code.', '1 <= string length <= 100, string contains only digits');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Count Ways to Decode', 1, '12', '2'),
+('Count Ways to Decode', 2, '226', '3');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Maximum Product Subarray', 'Dynamic Programming', 'medium', 'Given an integer array, find the contiguous subarray with the largest product.', '1 <= array length <= 1000, -10 <= array[i] <= 10');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Maximum Product Subarray', 1, '[2,3,-2,4]', '6'),
+('Maximum Product Subarray', 2, '[-2,0,-1]', '0');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Min Deletions for Palindrome', 'Dynamic Programming', 'medium', 'Find the minimum number of deletions needed to make a string a palindrome.', '1 <= string length <= 500, string contains only lowercase letters');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Min Deletions for Palindrome', 1, 'aebcbda', '2'),
+('Min Deletions for Palindrome', 2, 'geeksforgeeks', '8');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Egg Drop Problem', 'Dynamic Programming', 'medium', 'Given n eggs and k floors, find the minimum number of egg drops needed to find the critical floor in the worst case.', '1 <= n <= 10, 1 <= k <= 100');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Egg Drop Problem', 1, 'n=2, k=10', '4'),
+('Egg Drop Problem', 2, 'n=3, k=14', '4');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Longest Common Subsequence with K Mismatches', 'Dynamic Programming', 'medium', 'Find the length of the longest common subsequence of two strings allowing at most k mismatches.', '1 <= string length <= 500, 0 <= k <= 10');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Longest Common Subsequence with K Mismatches', 1, 's1="abc", s2="adc", k=1', '3'),
+('Longest Common Subsequence with K Mismatches', 2, 's1="abcd", s2="efgh", k=2', '2');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Wildcard Pattern Matching', 'Dynamic Programming', 'medium', 'Implement wildcard pattern matching with support for ? (matches any single character) and * (matches any sequence of characters including empty).', '0 <= string length <= 2000, 0 <= pattern length <= 2000');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Wildcard Pattern Matching', 1, 's="aa", p="a"', 'false'),
+('Wildcard Pattern Matching', 2, 's="adceb", p="*a*b"', 'true');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Maximum Sum Rectangle', 'Dynamic Programming', 'medium', 'Given a 2D matrix of integers, find the rectangle with the maximum sum.', '1 <= rows, cols <= 100, -100 <= matrix[i][j] <= 100');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Maximum Sum Rectangle', 1, '[[1,2,-1],[-3,-1,2],[2,3,4]]', '12'),
+('Maximum Sum Rectangle', 2, '[[-1,-2],[-3,-4]]', '-1');
+
+-- HARD DIFFICULTY QUESTIONS (10)
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Edit Distance with Operations Cost', 'Dynamic Programming', 'hard', 'Find minimum cost to convert string s1 to s2. Insert costs a, delete costs b, replace costs c.', '1 <= string length <= 500, 1 <= a,b,c <= 100');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Edit Distance with Operations Cost', 1, 's1="horse", s2="ros", a=1, b=1, c=1', '3'),
+('Edit Distance with Operations Cost', 2, 's1="intention", s2="execution", a=2, b=3, c=1', '5');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Burst Balloons', 'Dynamic Programming', 'hard', 'Given n balloons with values, burst them to maximize coins. When you burst balloon i, you get arr[left]*arr[i]*arr[right] coins. Assume arr[-1]=arr[n]=1.', '1 <= n <= 300, 0 <= arr[i] <= 100');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Burst Balloons', 1, '[3,1,5,8]', '167'),
+('Burst Balloons', 2, '[1,5]', '10');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Interleaving String Check', 'Dynamic Programming', 'hard', 'Given strings s1, s2, s3, check if s3 is formed by interleaving s1 and s2 while preserving the order of characters.', '0 <= s1.length, s2.length <= 100');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Interleaving String Check', 1, 's1="aabcc", s2="dbbca", s3="aadbbcbcac"', 'true'),
+('Interleaving String Check', 2, 's1="aabcc", s2="dbbca", s3="aadbbbaccc"', 'false');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Optimal BST Construction', 'Dynamic Programming', 'hard', 'Given n keys and their search frequencies, construct a BST that minimizes the total search cost.', '1 <= n <= 100, 1 <= frequency[i] <= 1000');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Optimal BST Construction', 1, 'keys=[10,12,20], freq=[34,8,50]', '142'),
+('Optimal BST Construction', 2, 'keys=[10,12], freq=[50,50]', '150');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Regular Expression Matching Extended', 'Dynamic Programming', 'hard', 'Implement regex matching with . (any char), * (0+ of previous), and + (1+ of previous).', '1 <= string length <= 1000, 1 <= pattern length <= 1000');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Regular Expression Matching Extended', 1, 's="aa", p="a+"', 'true'),
+('Regular Expression Matching Extended', 2, 's="mississippi", p="mis*is*.p+."', 'true');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Matrix Chain Multiplication 3D', 'Dynamic Programming', 'hard', 'Given dimensions of n 3D matrices, find the minimum number of scalar multiplications needed to compute their product.', '2 <= n <= 100, 1 <= dimensions <= 500');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Matrix Chain Multiplication 3D', 1, '[(10,20,30),(30,40,50),(50,60,70)]', '87000'),
+('Matrix Chain Multiplication 3D', 2, '[(5,10,15),(15,20,25)]', '3750');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Palindrome Partitioning with Min Cuts', 'Dynamic Programming', 'hard', 'Given a string, partition it into substrings such that every substring is a palindrome. Find the minimum cuts needed.', '1 <= string length <= 1000');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Palindrome Partitioning with Min Cuts', 1, 'aab', '1'),
+('Palindrome Partitioning with Min Cuts', 2, 'aabababaxx', '3');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Count Distinct Subsequences', 'Dynamic Programming', 'hard', 'Given two strings s and t, count the number of distinct subsequences of s that equal t.', '1 <= s.length <= 1000, 1 <= t.length <= 1000');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Count Distinct Subsequences', 1, 's="rabbbit", t="rabbit"', '3'),
+('Count Distinct Subsequences', 2, 's="babgbag", t="bag"', '5');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Maximize Expression Value', 'Dynamic Programming', 'hard', 'Given an array, maximize |arr[a] - arr[b]| + |arr[b] - arr[c]| + |arr[c] - arr[d]| where a < b < c < d.', '4 <= array length <= 10000, 1 <= arr[i] <= 1000000');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Maximize Expression Value', 1, '[3,9,10,1,30,40]', '76'),
+('Maximize Expression Value', 2, '[1,2,3,4,5]', '6');
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES 
+('Minimum Path Sum with K Moves', 'Dynamic Programming', 'hard', 'Given a grid, find minimum sum path from top-left to bottom-right with exactly k moves. You can move in all 4 directions.', '1 <= rows, cols <= 50, k <= 100, 1 <= grid[i][j] <= 100');
+
+INSERT INTO test_cases (title, index, input, output) VALUES 
+('Minimum Path Sum with K Moves', 1, 'grid=[[1,2,3],[4,5,6]], k=4', '13'),
+('Minimum Path Sum with K Moves', 2, 'grid=[[1,1],[1,1]], k=2', '3');
+
+
+
+
+--####################################################--
+
+
+-- Topic: Hash Table
+-- EASY QUESTIONS (10)
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES
+('First Unique Character', 'Hash Table', 'easy', 'Given a string, find the first non-repeating character and return its index. If no such character exists, return -1.', '1 <= s.length <= 10^5; s consists of only lowercase English letters'),
+('Employee Department Count', 'Hash Table', 'easy', 'Given a list of employee records where each record contains [employee_id, department], return the count of employees in each department as a dictionary.', '1 <= records.length <= 1000; department names are non-empty strings'),
+('Missing Number in Sequence', 'Hash Table', 'easy', 'Given an array containing n distinct numbers from 0 to n, find the one missing number. Use a hash-based approach.', '1 <= n <= 10^4; array contains n numbers from range [0, n]'),
+('Character Frequency Map', 'Hash Table', 'easy', 'Given a string, return a dictionary containing the frequency of each character in the string.', '0 <= s.length <= 10^5; s consists of printable ASCII characters'),
+('Check Anagram', 'Hash Table', 'easy', 'Determine if two strings are anagrams of each other using a hash table approach.', '1 <= s.length, t.length <= 5 * 10^4; s and t consist of lowercase English letters'),
+('Sum of Unique Elements', 'Hash Table', 'easy', 'Given an integer array, return the sum of all unique elements (elements that appear exactly once).', '1 <= nums.length <= 100; 1 <= nums[i] <= 100'),
+('First Duplicate', 'Hash Table', 'easy', 'Given an array of integers, find the first element that appears twice. Return -1 if no duplicates exist.', '1 <= arr.length <= 10^5; 1 <= arr[i] <= 10^6'),
+('Majority Element', 'Hash Table', 'easy', 'Find the element that appears more than n/2 times in an array. You may assume such element always exists.', '1 <= nums.length <= 5 * 10^4; -10^9 <= nums[i] <= 10^9'),
+('Valid Parentheses Pairs', 'Hash Table', 'easy', 'Given a string containing only parentheses characters "()[]{}", determine if the input string is valid using a hash map for bracket matching.', '1 <= s.length <= 10^4; s consists of parentheses only'),
+('Complement Pair Exists', 'Hash Table', 'easy', 'Given an array of integers and a target sum, determine if there exists a pair of numbers that add up to the target.', '2 <= nums.length <= 10^4; -10^9 <= nums[i] <= 10^9; -10^9 <= target <= 10^9');
+
+INSERT INTO test_cases (title, index, input, output) VALUES
+('First Unique Character', 1, '{"s": "leetcode"}', '0'),
+('First Unique Character', 2, '{"s": "aabbcc"}', '-1'),
+('Employee Department Count', 1, '{"records": [[1, "Engineering"], [2, "HR"], [3, "Engineering"], [4, "Sales"], [5, "Engineering"]]}', '{"Engineering": 3, "HR": 1, "Sales": 1}'),
+('Employee Department Count', 2, '{"records": [[1, "IT"], [2, "IT"]]}', '{"IT": 2}'),
+('Missing Number in Sequence', 1, '{"nums": [3, 0, 1]}', '2'),
+('Missing Number in Sequence', 2, '{"nums": [9,6,4,2,3,5,7,0,1]}', '8'),
+('Character Frequency Map', 1, '{"s": "hello"}', '{"h": 1, "e": 1, "l": 2, "o": 1}'),
+('Character Frequency Map', 2, '{"s": "aaa"}', '{"a": 3}'),
+('Check Anagram', 1, '{"s": "listen", "t": "silent"}', 'true'),
+('Check Anagram', 2, '{"s": "hello", "t": "world"}', 'false'),
+('Sum of Unique Elements', 1, '{"nums": [1,2,3,2]}', '4'),
+('Sum of Unique Elements', 2, '{"nums": [1,1,1,1]}', '0'),
+('First Duplicate', 1, '{"arr": [2,5,1,2,3,5]}', '2'),
+('First Duplicate', 2, '{"arr": [1,2,3,4,5]}', '-1'),
+('Majority Element', 1, '{"nums": [3,2,3]}', '3'),
+('Majority Element', 2, '{"nums": [2,2,1,1,1,2,2]}', '2'),
+('Valid Parentheses Pairs', 1, '{"s": "()[]{}"}', 'true'),
+('Valid Parentheses Pairs', 2, '{"s": "([)]"}', 'false'),
+('Complement Pair Exists', 1, '{"nums": [2,7,11,15], "target": 9}', 'true'),
+('Complement Pair Exists', 2, '{"nums": [1,2,3], "target": 10}', 'false');
+
+-- MEDIUM QUESTIONS (9)
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES
+('Group Shifted Strings', 'Hash Table', 'medium', 'Given an array of strings, group strings that are shifted versions of each other. For example, "abc" and "bcd" are shifted versions.', '1 <= strings.length <= 200; 1 <= strings[i].length <= 50; strings[i] consists of lowercase English letters'),
+('Longest Consecutive Sequence', 'Hash Table', 'medium', 'Given an unsorted array of integers, find the length of the longest consecutive elements sequence using hash table.', '0 <= nums.length <= 10^5; -10^9 <= nums[i] <= 10^9'),
+('Top K Frequent Elements', 'Hash Table', 'medium', 'Given an integer array, return the k most frequent elements. You may return the answer in any order.', '1 <= nums.length <= 10^5; k is in range [1, number of unique elements]'),
+('Valid Sudoku', 'Hash Table', 'medium', 'Determine if a 9x9 Sudoku board is valid using hash tables to track row, column, and sub-box constraints.', 'board.length == 9; board[i].length == 9; board[i][j] is a digit 1-9 or "."'),
+('Encode and Decode Strings', 'Hash Table', 'medium', 'Design an algorithm to encode a list of strings to a single string and decode it back. Use hash-based length encoding.', '1 <= strs.length <= 200; 0 <= strs[i].length <= 200; strs[i] contains any possible characters'),
+('Find All Anagrams', 'Hash Table', 'medium', 'Given two strings s and p, find all start indices of p''s anagrams in s using a sliding window hash approach.', '1 <= s.length, p.length <= 3 * 10^4; s and p consist of lowercase English letters'),
+('Longest Substring K Distinct', 'Hash Table', 'medium', 'Find the length of the longest substring with at most k distinct characters using hash table.', '1 <= s.length <= 5 * 10^4; 0 <= k <= 50; s consists of English letters'),
+('Four Sum Count', 'Hash Table', 'medium', 'Given four integer arrays, compute how many tuples (i,j,k,l) exist such that nums1[i] + nums2[j] + nums3[k] + nums4[l] == 0.', '1 <= n <= 200; -2^28 <= nums[i][j] <= 2^28'),
+('Fraction to Recurring Decimal', 'Hash Table', 'medium', 'Given numerator and denominator of a fraction, return the fraction in string format. If the decimal part is repeating, enclose it in parentheses using hash table to detect cycles.', '-2^31 <= numerator, denominator <= 2^31 - 1; denominator != 0');
+
+INSERT INTO test_cases (title, index, input, output) VALUES
+('Group Shifted Strings', 1, '{"strings": ["abc","bcd","acef","xyz","az","ba","a","z"]}', '[["acef"],["a","z"],["abc","bcd","xyz"],["az","ba"]]'),
+('Group Shifted Strings', 2, '{"strings": ["a","b","c"]}', '[["a"],["b"],["c"]]'),
+('Longest Consecutive Sequence', 1, '{"nums": [100,4,200,1,3,2]}', '4'),
+('Longest Consecutive Sequence', 2, '{"nums": [0,3,7,2,5,8,4,6,0,1]}', '9'),
+('Top K Frequent Elements', 1, '{"nums": [1,1,1,2,2,3], "k": 2}', '[1,2]'),
+('Top K Frequent Elements', 2, '{"nums": [4,1,1,1,2,2,3], "k": 2}', '[1,2]'),
+('Valid Sudoku', 1, '{"board": [["5","3",".",".","7",".",".",".","."],["6",".",".","1","9","5",".",".","."],[".","9","8",".",".",".",".","6","."],["8",".",".",".","6",".",".",".","3"],["4",".",".","8",".","3",".",".","1"],["7",".",".",".","2",".",".",".","6"],[".","6",".",".",".",".","2","8","."],[".",".",".","4","1","9",".",".","5"],[".",".",".",".","8",".",".","7","9"]]}', 'true'),
+('Valid Sudoku', 2, '{"board": [["8","3",".",".","7",".",".",".","."],["6",".",".","1","9","5",".",".","."],[".","9","8",".",".",".",".","6","."],["8",".",".",".","6",".",".",".","3"],["4",".",".","8",".","3",".",".","1"],["7",".",".",".","2",".",".",".","6"],[".","6",".",".",".",".","2","8","."],[".",".",".","4","1","9",".",".","5"],[".",".",".",".","8",".",".","7","9"]]}', 'false'),
+('Encode and Decode Strings', 1, '{"strs": ["hello","world"]}', '"5#hello5#world"'),
+('Encode and Decode Strings', 2, '{"strs": ["a","bc","def"]}', '"1#a2#bc3#def"'),
+('Find All Anagrams', 1, '{"s": "cbaebabacd", "p": "abc"}', '[0,6]'),
+('Find All Anagrams', 2, '{"s": "abab", "p": "ab"}', '[0,1,2]'),
+('Longest Substring K Distinct', 1, '{"s": "eceba", "k": 2}', '3'),
+('Longest Substring K Distinct', 2, '{"s": "aa", "k": 1}', '2'),
+('Four Sum Count', 1, '{"nums1": [1,2], "nums2": [-2,-1], "nums3": [-1,2], "nums4": [0,2]}', '2'),
+('Four Sum Count', 2, '{"nums1": [0], "nums2": [0], "nums3": [0], "nums4": [0]}', '1'),
+('Fraction to Recurring Decimal', 1, '{"numerator": 1, "denominator": 2}', '"0.5"'),
+('Fraction to Recurring Decimal', 2, '{"numerator": 2, "denominator": 3}', '"0.(6)"');
+
+-- HARD QUESTIONS (10)
+
+INSERT INTO questions (title, topic, difficulty, description, constraints) VALUES
+('Substring Concatenation All Words', 'Hash Table', 'hard', 'Given a string s and an array of words, find all starting indices where s contains a concatenation of all words (in any order) using hash table.', '1 <= s.length <= 10^4; 1 <= words.length <= 5000; 1 <= words[i].length <= 30; all words have same length'),
+('Minimum Window Substring', 'Hash Table', 'hard', 'Given strings s and t, return the minimum window substring of s that contains all characters in t using hash table tracking.', '1 <= s.length, t.length <= 10^5; s and t consist of uppercase and lowercase English letters'),
+('Palindrome Pairs', 'Hash Table', 'hard', 'Given a list of unique words, find all pairs of distinct indices (i,j) such that concatenating words[i] + words[j] forms a palindrome.', '1 <= words.length <= 5000; 0 <= words[i].length <= 300; words[i] consists of lowercase English letters'),
+('Alien Dictionary', 'Hash Table', 'hard', 'Given a sorted dictionary of an alien language, derive the order of characters using hash table and topological sort.', '1 <= words.length <= 100; 1 <= words[i].length <= 100; words[i] consists of lowercase English letters'),
+('Count Distinct Substrings', 'Hash Table', 'hard', 'Given a string, count the number of distinct substrings using rolling hash technique.', '1 <= s.length <= 5000; s consists of lowercase English letters'),
+('Max Points on Line', 'Hash Table', 'hard', 'Given n points on a 2D plane, find the maximum number of points that lie on the same straight line using hash map for slope storage.', '1 <= points.length <= 300; points[i].length == 2; -10^4 <= xi, yi <= 10^4'),
+('Longest Duplicate Substring', 'Hash Table', 'hard', 'Given a string s, find the longest duplicate substring using binary search with rolling hash.', '2 <= s.length <= 5 * 10^4; s consists of lowercase English letters'),
+('Bus Routes', 'Hash Table', 'hard', 'You are given an array routes where routes[i] is a bus route. Find minimum buses needed to travel from source to target using hash-based BFS.', '1 <= routes.length <= 500; 1 <= routes[i].length <= 10^5; 0 <= routes[i][j] < 10^6'),
+('Shortest Path All Keys', 'Hash Table', 'hard', 'Given a 2D grid with keys and locks, find shortest path to collect all keys using hash table to track state (position + keys collected).', '1 <= grid.length, grid[i].length <= 30; grid consists of characters: ".", "#", "@", lowercase letters, uppercase letters'),
+('Word Squares', 'Hash Table', 'hard', 'Given an array of unique strings, return all word squares you can build using hash table for efficient prefix lookup.', '1 <= words.length <= 1000; 1 <= words[i].length <= 4; all words have same length');
+
+INSERT INTO test_cases (title, index, input, output) VALUES
+('Substring Concatenation All Words', 1, '{"s": "barfoothefoobarman", "words": ["foo","bar"]}', '[0,9]'),
+('Substring Concatenation All Words', 2, '{"s": "wordgoodgoodgoodbestword", "words": ["word","good","best","word"]}', '[]'),
+('Minimum Window Substring', 1, '{"s": "ADOBECODEBANC", "t": "ABC"}', '"BANC"'),
+('Minimum Window Substring', 2, '{"s": "a", "t": "a"}', '"a"'),
+('Palindrome Pairs', 1, '{"words": ["abcd","dcba","lls","s","sssll"]}', '[[0,1],[1,0],[3,2],[2,4]]'),
+('Palindrome Pairs', 2, '{"words": ["bat","tab","cat"]}', '[[0,1],[1,0]]'),
+('Alien Dictionary', 1, '{"words": ["wrt","wrf","er","ett","rftt"]}', '"wertf"'),
+('Alien Dictionary', 2, '{"words": ["z","x"]}', '"zx"'),
+('Count Distinct Substrings', 1, '{"s": "abab"}', '7'),
+('Count Distinct Substrings', 2, '{"s": "aaa"}', '3'),
+('Max Points on Line', 1, '{"points": [[1,1],[2,2],[3,3]]}', '3'),
+('Max Points on Line', 2, '{"points": [[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]]}', '4'),
+('Longest Duplicate Substring', 1, '{"s": "banana"}', '"ana"'),
+('Longest Duplicate Substring', 2, '{"s": "abcd"}', '""'),
+('Bus Routes', 1, '{"routes": [[1,2,7],[3,6,7]], "source": 1, "target": 6}', '2'),
+('Bus Routes', 2, '{"routes": [[7,12],[4,5,15],[6],[15,19],[9,12,13]], "source": 15, "target": 12}', '-1'),
+('Shortest Path All Keys', 1, '{"grid": ["@.a..","###.#","b.A.B"]}', '8'),
+('Shortest Path All Keys', 2, '{"grid": ["@..aA","..B#.","....b"]}', '6'),
+('Word Squares', 1, '{"words": ["area","lead","wall","lady","ball"]}', '[["wall","area","lead","lady"],["ball","area","lead","lady"]]'),
+('Word Squares', 2, '{"words": ["abat","baba","atan","atal"]}', '[["baba","abat","baba","atan"],["baba","abat","baba","atal"]]');
+
+
+
+
+--####################################################--
+
+UPDATE questions 
+SET topic = LOWER(topic);
+
