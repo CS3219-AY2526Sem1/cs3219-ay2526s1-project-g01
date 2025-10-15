@@ -1,25 +1,21 @@
-import pkg from 'pg';
-import dotenv from 'dotenv';
+import pool from '../db.js'
 
-dotenv.config();
 
-const { Pool } = pkg;
-
-// const pool = new Pool({
-//   connectionString: process.env.DATABASE_URL,
-//   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-// });
-
-const pool = new Pool({
-  user: process.env.DB_USER,           
-  host: process.env.DB_HOST,          
-  database: process.env.DB_NAME,    
-  password: process.env.DB_PASSWORD,          
-  port: process.env.DB_PORT || 5432,                 
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-});
-
-export async function getAllQuestions() {
+export async function getAllQuestionsFromDb() {
   const result = await pool.query('SELECT * FROM questions');
   return result.rows;
 }
+
+// export async function getQuestionById(id) {
+//   const result = await pool.query('SELECT * FROM questions WHERE id = $1', [id]);
+//   return result.rows[0]; // Return single question or undefined
+// }
+
+// export async function createQuestion(questionData) {
+//   const { title, content, user_id } = questionData;
+//   const result = await pool.query(
+//     'INSERT INTO questions (title, content, user_id) VALUES ($1, $2, $3) RETURNING *',
+//     [title, content, user_id]
+//   );
+//   return result.rows[0];
+// }

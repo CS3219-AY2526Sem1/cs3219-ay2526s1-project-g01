@@ -126,7 +126,46 @@ services:
       - ./collab-service/.env
     volumes:
       - redis-data-collab-service:/data
+
+  ## postgres-question-service:
+  ##   image: postgres:16
+  ##   container_name: question-service-postgres-gateway
+  ##   environment:
+  ##     POSTGRES_USER: ${QUESTION_SERVICE_USER}
+  ##     POSTGRES_PASSWORD: ${QUESTION_SERVICE_PASSWORD}
+  ##     POSTGRES_DB: ${QUESTION_SERVICE_DB}
+  ##   ports:
+  ##     - "7001:5432"
+  ##   env_file:
+  ##     - ./.env
+  ##   volumes:
+  ##     - postgres-question-data:/var/lib/postgresql/data
+
+  # postgres-db:
+  #   image: postgres:16
+  #   ports: 
+  #     -  5432:5432
+  #   environment:
+  #     POSTGRES_USER: ${QUESTION_SERVICE_USER}
+  #     POSTGRES_PASSWORD: ${QUESTION_SERVICE_PASSWORD}
+  #     POSTGRES_DB: ${QUESTION_SERVICE_DB}
+  #   volumes:
+  #     - postgres-data-question-service:/var/lib/postgresql/data
+  #     - ./question-service/db-init2.sql:/docker-entrypoint-initdb.d/db-init2.sql:ro
   
+  pg-question-service:
+    image: postgres:16
+    container_name: pg-question-service ## matches DB_HOST
+    ports:
+      - 5432:5432 ## matches DB_PORT
+    environment:
+      POSTGRES_USER: ${QUESTION_SERVICE_USER} ## matches DB_USER
+      POSTGRES_PASSWORD: ${QUESTION_SERVICE_PASSWORD}
+      POSTGRES_DB: ${QUESTION_SERVICE_DB} ## matches DB_NAME
+    volumes:
+      - pg-data-question-service:/var/lib/postgresql/data
+      - ./question-service/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
   question-service:
     image: ignitioteo/question-service
     build:
@@ -134,6 +173,11 @@ services:
       dockerfile: Dockerfile
     env_file:
       - ./question-service/.env
+      - ./.env
+    depends_on:
+      - pg-question-service
+    ports:
+      - "7000:7000"
 
 
   # does not require password
@@ -151,3 +195,4 @@ volumes:
   mongodb-data-user-services:
   redis-data-collab-service:
   redis-data-matching-service:
+  pg-data-question-service:
