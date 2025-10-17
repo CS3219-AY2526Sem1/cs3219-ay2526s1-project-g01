@@ -31,14 +31,11 @@ export async function getAllQuestions(req, res) {
     // Validate difficulties
     const validDifficulties = ['easy', 'medium', 'hard'];
     if (difficulty) {
-      difficulty = difficulty.map(d => d.toLowerCase()); // 👈 changed
+      difficulty = difficulty.map(d => d.toLowerCase()); // 
       if (!difficulty.every(d => validDifficulties.includes(d))) {
         return res.status(400).json({ message: 'Invalid difficulty value(s)' });
       }
     }
-    // if (difficulty && !difficulty.every(d => validDifficulties.includes(d.toLowerCase()))) {
-    //   return res.status(400).json({ message: 'Invalid difficulty value(s)' });
-    // }
 
     // Parse and validate limit
     const parsedLimit = limit ? parseInt(limit, 10) : null;

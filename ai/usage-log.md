@@ -1006,3 +1006,33 @@ CREATE TABLE test_cases (
 - Repeated this for topics: sorting, arrays, dynamic programming, hash table.
 
 ---
+
+## Entry 28
+
+# Date/Time:
+
+2025-10-16 17:00
+
+# Tool:
+
+Github Copilot (GPT-5 mini)
+
+# Prompt/Command:
+
+Help me to refactor my controller to handle multiple difficulties
+
+# Output Summary:
+
+- Proposed code changes
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Modified to ensure the code does minimal disruption to existing logic
+
+---

@@ -8,7 +8,7 @@ import pool from '../db.js'
     - limit: limit the number of questions returned
     - random: if true, returns questions in random order
 */
-export async function getAllQuestionsFromDb({ topics, difficulties, limit, random }) {
+export async function getAllQuestionsFromDb({ topic, difficulty, limit, random }) {
   let query = `
     SELECT 
         q.title,
@@ -28,16 +28,14 @@ export async function getAllQuestionsFromDb({ topics, difficulties, limit, rando
   const conditions = [];
   const values = [];
 
-  if (topics && topics.length > 0) {
-    const placeholders = topics.map((_, i) => `$${values.length + i + 1}`).join(', ');
-    values.push(...topics);
-    conditions.push(`q.topic IN (${placeholders})`);
+  if (topic) {
+    values.push(topic);
+    conditions.push(`q.topic = $${values.length}`);
   }
 
-  if (difficulties && difficulties.length > 0) {
-    const placeholders = difficulties.map((_, i) => `$${values.length + i + 1}`).join(', ');
-    values.push(...difficulties);
-    conditions.push(`q.difficulty IN (${placeholders})`);
+  if (difficulty) {
+    values.push(difficulty);
+    conditions.push(`q.difficulty = $${values.length}`);
   }
 
   if (conditions.length > 0) {
