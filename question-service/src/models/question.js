@@ -8,7 +8,7 @@ import pool from '../db.js'
     - limit: limit the number of questions returned
     - random: if true, returns questions in random order
 */
-export async function getAllQuestionsFromDb({ topic, difficulty, limit, random }) {
+export async function getAllQuestionsFromDb({ topics, difficulties, limit, random }) {
   let query = `
     SELECT 
         q.title,
@@ -28,14 +28,16 @@ export async function getAllQuestionsFromDb({ topic, difficulty, limit, random }
   const conditions = [];
   const values = [];
 
-  if (topic) {
-    values.push(topic);
-    conditions.push(`q.topic = $${values.length}`);
+  if (topics && topics.length > 0) {
+    const placeholders = topics.map((_, i) => `$${values.length + i + 1}`).join(', ');
+    values.push(...topics);
+    conditions.push(`q.topic IN (${placeholders})`);
   }
 
-  if (difficulty) {
-    values.push(difficulty);
-    conditions.push(`q.difficulty = $${values.length}`);
+  if (difficulties && difficulties.length > 0) {
+    const placeholders = difficulties.map((_, i) => `$${values.length + i + 1}`).join(', ');
+    values.push(...difficulties);
+    conditions.push(`q.difficulty IN (${placeholders})`);
   }
 
   if (conditions.length > 0) {
@@ -50,19 +52,9 @@ export async function getAllQuestionsFromDb({ topic, difficulty, limit, random }
   }
 
   // Apply limit if specified
-  if (limit) {
-    values.push(limit);
-    query += ` LIMIT $${values.length}`;
-  }
-
-  // Default limit to 20 if not specified
-  const DEFAULT_LIMIT = 20;
-  if (!limit) {
-    values.push(DEFAULT_LIMIT);
-    query += ` LIMIT $${values.length}`;
-  }
-
-  query += ';';
+  const finalLimit = limit || 20;
+  values.push(finalLimit);
+  query += ` LIMIT $${values.length};`;
 
   const result = await pool.query(query, values);
   return result.rows;
