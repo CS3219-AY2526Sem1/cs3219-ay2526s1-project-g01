@@ -47,7 +47,7 @@ COPY --from=builder --chown=expressjs:nodejs /app/utils ./utils
 
 USER expressjs
 
-EXPOSE 4000
+EXPOSE ${PORT}
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \

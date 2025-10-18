@@ -6,8 +6,15 @@
  */
 
 // API Configuration for PeerPrep Frontend
-// Based on docker-compose.yml configuration with API Gateway
 import axios from "axios";
+
+const API_GATEWAY_BASE_URL: string =
+  process.env.NEXT_PUBLIC_API_GATEWAY_BASE_URL || "http://localhost";
+// note that for actual deployment to cloud, we will set it to same as API Gateway URL
+// this is only for local dev with docker-compose
+// because for some weird reason it doesn't work with localhost in middleware
+const USER_SERVICE_URL: string =
+  process.env.NEXT_PUBLIC_USER_SERVICE_URL || "http://user-service:4000";
 
 // TypeScript interfaces for API responses
 export interface User {
@@ -41,21 +48,20 @@ const getBaseURL = () => {
     if (isServerSide) {
       // Server-side: Direct call to user-service container
       // This bypasses the API gateway for internal Docker networking
-      return "http://user-service:4000";
+      return `${USER_SERVICE_URL}`;
     } else {
       // Client-side: Through API Gateway
       // Browser requests go through the nginx proxy on localhost
-      return "http://localhost/api";
+      return `${API_GATEWAY_BASE_URL}/api`;
     }
   } else {
-    // Development: Direct to user-service (no Docker containers)
-    return "http://localhost:4000";
+    // Development: Direct to api gateway no weirdness
+    return `${API_GATEWAY_BASE_URL}/api`;
   }
 };
 
 /**
  * Dynamic Axios Client Creation
- *
  * We create a new axios instance for each request instead of using a module-level singleton.
  * This is necessary because:
  *

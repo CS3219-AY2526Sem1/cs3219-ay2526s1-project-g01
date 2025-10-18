@@ -1,13 +1,20 @@
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+
+
+RUN npm ci --only=production
+
+COPY . .
+
 FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package*.json .
+COPY --from=builder /app /app
 
-RUN npm install
+EXPOSE ${PORT}
 
-COPY . .
-
-EXPOSE 8000
-
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
