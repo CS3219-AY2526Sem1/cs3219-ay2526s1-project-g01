@@ -9,6 +9,7 @@ export default function initWebSocketServer() {
 
   //Handles client connection
   webSocketServer.on("connection", (ws, request) => {
+    logger.info("WebsocketServer started");
     initialiseWebSocket(webSocketServer, ws, request, roomToData);
   });
 

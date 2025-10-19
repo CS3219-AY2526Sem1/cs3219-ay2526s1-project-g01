@@ -889,6 +889,8 @@ Request for a code review of PR #18 https://github.com/CS3219-AY2526Sem1/cs3219-
 
 - Validated the correctness of the spelling changes in the code
 
+---
+
 ## Entry 25
 
 # Date/Time:
@@ -919,3 +921,48 @@ Request information on how to create custom cursors and send cursor information 
 - Validated that CSS styling for cursor is appropriate, modified CSS styling to fit use case.
 - Researched on deltaDecorations suggested by model and decided that it was not appropriate as its a legacy api, searched online for more suitable modules and implemented cursor binding using IEditorDecorationsCollection instead.
 - Implemented communication logic using websockets myself, only using model for debugging.
+
+---
+
+## Entry 26
+
+# Date/Time:
+
+2025-10-13 14:30
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4)
+
+# Prompt/Command:
+
+Request to implement live reload for all microservices in Docker Compose setup, update npm scripts for hybrid development workflow, and troubleshoot Windows/WSL2 compatibility issues for file watching.
+
+# Output Summary:
+
+- Enhanced docker-compose.yml with live reload configuration for all microservices (user-service, matching-service, collab-service)
+- Implemented nodemon with polling configuration (--legacy-watch --polling-interval 1000) for Windows/WSL2 compatibility
+- Added volume mounting for source code directories with cached performance and node_modules exclusions
+- Updated npm scripts in root package.json for hybrid development workflow (Docker microservices + host frontend)
+- Configured development environment variables and direct port access for debugging
+- Implemented hybrid architecture: frontend runs via npm dev for optimal HMR, microservices run in Docker with live reload
+- Added comprehensive documentation in docker-compose.yml explaining the development setup and workflow
+- Troubleshot and resolved file system watching issues specific to Docker on Windows/WSL2 environments
+- Created production frontend service with profile-based deployment for full Docker stack option
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated nodemon polling configuration successfully resolves Windows/WSL2 file watching limitations
+- Confirmed hybrid architecture provides optimal development experience with both Docker consistency and native performance
+- Tested live reload functionality by modifying controller files and verifying automatic service restarts
+- Verified Docker networking allows proper communication between containerized microservices and host frontend
+- Performance optimized with cached volume mounts and selective node_modules exclusions
+- Maintainability: comprehensive documentation and flexible deployment options (hybrid vs full Docker)
+- Windows/WSL2 compatibility: polling-based file watching ensures reliable live reload across development environments
+
