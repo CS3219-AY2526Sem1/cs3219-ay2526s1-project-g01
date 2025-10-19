@@ -1,60 +1,82 @@
-import pool from '../db.js'
+/**
+ * AI Assistance Disclosure:
+ * Tool: ChatGPT, date: 2025-10-20
+ * Purpose: To query for al questions by topic and difficulty with optional limit and randomization.
+ * Author Review: I checked correctness and performance of the code.
+ */
 
-/*
-  Fetch all questions from the database with optional filters.
-  Parameters:
-    - topic: filter questions by topic
-    - difficulty: filter questions by difficulty level (easy, medium, hard)
-    - limit: limit the number of questions returned
-    - random: if true, returns questions in random order
-*/
-export async function getAllQuestionsFromDb({ topic, difficulty, limit, random }) {
-  let query = `
-    SELECT 
+import pool from '../db.js';
+
+export async function getAllQuestionsFromDb({ topics, difficulties, limit, random }) {
+  try {
+    let query = `
+      SELECT 
+        q.id,
         q.title,
-        q.topic,
         q.difficulty,
         q.description,
         q.constraints,
-        tc1.input AS test_case_1_input,
-        tc1.output AS test_case_1_output,
-        tc2.input AS test_case_2_input,
-        tc2.output AS test_case_2_output
+        -- Aggregate all topics
+        COALESCE(
+          (
+            SELECT JSON_AGG(JSON_BUILD_OBJECT('id', t.id, 'topic', t.name))
+            FROM question_topics qt
+            JOIN topics t ON qt.topic_id = t.id
+            WHERE qt.question_id = q.id
+          ), '[]'
+        ) AS topics,
+        -- Aggregate all test cases in order
+        COALESCE(
+          (
+            SELECT JSON_AGG(JSON_BUILD_OBJECT('index', tc.index, 'input', tc.input, 'output', tc.output) 
+                            ORDER BY tc.index ASC)
+            FROM test_cases tc
+            WHERE tc.question_id = q.id
+          ), '[]'
+        ) AS test_cases
       FROM questions q
-      INNER JOIN test_cases tc1 ON q.title = tc1.title AND tc1.index = 1
-      INNER JOIN test_cases tc2 ON q.title = tc2.title AND tc2.index = 2    
     `;
 
-  const conditions = [];
-  const values = [];
+    const conditions = [];
+    const values = [];
 
-  if (topic) {
-    values.push(topic);
-    conditions.push(`q.topic = $${values.length}`);
+    if (difficulties && difficulties.length > 0) {
+      conditions.push(`q.difficulty = ANY($${values.length + 1})`);
+      values.push(difficulties);
+    }
+
+    if (topics && topics.length > 0) {
+      conditions.push(`
+        EXISTS (
+          SELECT 1 
+          FROM question_topics qt
+          JOIN topics t ON qt.topic_id = t.id
+          WHERE qt.question_id = q.id AND LOWER(t.name) = ANY($${values.length + 1})
+        )
+      `);
+      values.push(topics);
+    }
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    if (random) {
+      query += ' ORDER BY RANDOM()';
+    } else {
+      query += ' ORDER BY q.id ASC';
+    }
+
+    if (limit) {
+      query += ` LIMIT $${values.length + 1}`;
+      values.push(limit);
+    }
+
+    const { rows } = await pool.query(query, values);
+    return rows;
+  } catch (err) {
+    console.error('[ERROR] getAllQuestionsFromDb:', err.message);
+    throw err;
   }
-
-  if (difficulty) {
-    values.push(difficulty);
-    conditions.push(`q.difficulty = $${values.length}`);
-  }
-
-  if (conditions.length > 0) {
-    query += ' WHERE ' + conditions.join(' AND ');
-  }
-
-  // Randomize order if random is true
-  if (random) {
-    query += ' ORDER BY RANDOM()';
-  } else {
-    query += ' ORDER BY q.title';
-  }
-
-  // Apply limit if specified
-  const finalLimit = limit || 20;
-  values.push(finalLimit);
-  query += ` LIMIT $${values.length};`;
-
-  const result = await pool.query(query, values);
-  return result.rows;
 }
 

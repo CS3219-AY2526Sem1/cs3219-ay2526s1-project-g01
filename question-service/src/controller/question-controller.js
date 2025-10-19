@@ -1,3 +1,10 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: Github Copilot (GPT-5 mini), date: 2025-10-16
+ * Purpose: To generate a boilderplate controller for question service to get all questions with filters.
+ * Author Review: I modified to add validation and error handling, checked correctness and performance of the code.
+ */
+
 import { getAllQuestionsFromDb } from '../models/question.js';
 
 /*
@@ -26,7 +33,6 @@ export async function getAllQuestions(req, res) {
     if (topic) {
       topic = topic.map(t => t.replace(/_/g, ' ').toLowerCase());
     }
-
 
     // Validate difficulties
     const validDifficulties = ['easy', 'medium', 'hard'];

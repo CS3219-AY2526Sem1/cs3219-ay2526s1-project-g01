@@ -1,4 +1,3 @@
-
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -33,4 +32,4 @@ app.use((error, req, res, next) => {
   });
 });
 
-export default app; // <-- ES module export
+export default app; 

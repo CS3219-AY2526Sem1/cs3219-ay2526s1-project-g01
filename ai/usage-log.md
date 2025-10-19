@@ -924,7 +924,7 @@ Request information on how to create custom cursors and send cursor information 
 
 ---
 
-## Entry 26
+## Entry 27
 
 # Date/Time:
 
@@ -952,17 +952,18 @@ Github Copilot (GPT-5 mini)
 # Author Notes:
 
 - Modified to add validation logic, and more parameters for the querying.
+- Refactored to improve coding quality
 - Wrote the Dockerfile and updated the api-gateway myself.
 - Tested incrementally.
 - Also documented with Github Copilot, but modified where necessary.
 
 ---
 
-## Entry 27
+## Entry 28
 
 # Date/Time:
 
-2025-10-16 06:30
+2025-10-20 03:30
 
 # Tool:
 
@@ -972,24 +973,43 @@ Claude Sonnet 4.5
 
 "Based on this schema, help me to write 30 insert statements for coding interview questions. The topic is sorting. There are 3 difficulty levels: easy, medium, hard. There should be 10 questions for each difficulty level. The questions should NOT be leetcode questions but are original, and you should follow the schema below and ensure that I can just run these lines immediately. I should have 2 test cases per question, so the first test case is index = 1 and the second is index = 2.
 
+Please categorise the all related insert statements by question.
+
+Start the question id from 31 onwards, as I already have questions before that index.
+
+-- Questions table (one difficulty per question)
 CREATE TABLE questions (
-	title TEXT, 
-	topic TEXT, 
-	difficulty TEXT, 
-	description TEXT, 
-	constraints TEXT,
-	PRIMARY KEY (title)
+    id SERIAL,
+    title TEXT NOT NULL UNIQUE,
+    difficulty TEXT CHECK (difficulty IN ('easy', 'medium', 'hard')) NOT NULL,
+    description TEXT NOT NULL,
+    constraints TEXT,
+	PRIMARY KEY (id)
 );
 
-CREATE TABLE test_cases (
-	title TEXT,
-    index INTEGER, 
-    input TEXT,
-    output TEXT,
-	PRIMARY KEY (title, index),
-	FOREIGN KEY (title) REFERENCES questions(title)
-);"
+-- Topics table (many topics per question)
+CREATE TABLE topics (
+    id SERIAL,
+    name TEXT NOT NULL UNIQUE,
+	PRIMARY KEY (id)
+);
 
+-- Link table: question ↔ topic (many-to-many)
+CREATE TABLE question_topics (
+    question_id INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+    topic_id INT NOT NULL REFERENCES topics(id) ON DELETE CASCADE,
+    PRIMARY KEY (question_id, topic_id)
+);
+
+-- Test cases table
+CREATE TABLE test_cases (
+    question_id INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+    index INTEGER NOT NULL,
+    input TEXT NOT NULL,
+    output TEXT NOT NULL,
+    PRIMARY KEY (question_id, index)
+);
+"
 
 # Output Summary:
 
@@ -1004,10 +1024,12 @@ CREATE TABLE test_cases (
 # Author Notes:
 
 - Repeated this for topics: sorting, arrays, dynamic programming, hash table.
+- Removed any data with errors that violate constraints still
+- Designed the schema to ensure scalability and versatility of question data stored
 
 ---
 
-## Entry 28
+## Entry 29
 
 # Date/Time:
 
