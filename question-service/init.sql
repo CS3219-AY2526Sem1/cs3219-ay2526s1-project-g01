@@ -2,7 +2,7 @@
  * AI Assistance Disclosure:
  * Tool: Claude Sonnet 4.5, date: 2025-10-20
  * Purpose: To generate SQL initialization script for question service database schema and seed data.
- * Author Review: I designed the schema, then checked correctness and performance of the code.
+ * Author Review: Designed the schema, then I checked correctness and performance of the code.
  */
 
 
