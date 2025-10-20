@@ -928,6 +928,36 @@ Request information on how to create custom cursors and send cursor information 
 
 # Date/Time:
 
+2025-10-13 02:00
+
+# Tool:
+
+Github Copilot (GPT-5 mini)
+
+# Prompt/Command:
+
+Help me add code to the api-gateway's default.conf file for my question-service and postgres. I am only using postgres from dockerhub's image.
+
+# Output Summary:
+
+- Proposed code for the api-gateway for question-service and postgres
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Modified to ensure the code does minimal disruption to existing logic
+
+---
+
+## Entry 27
+
+# Date/Time:
+
 2025-10-13 14:30
 
 # Tool:
@@ -968,7 +998,7 @@ Request to implement live reload for all microservices in Docker Compose setup, 
 
 ---
 
-## Entry 27
+## Entry 28
 
 # Date/Time:
 
@@ -1003,7 +1033,37 @@ Github Copilot (GPT-5 mini)
 
 ---
 
-## Entry 28
+## Entry 29
+
+# Date/Time:
+
+2025-10-16 17:00
+
+# Tool:
+
+Github Copilot (GPT-5 mini)
+
+# Prompt/Command:
+
+Help me to refactor my controller to handle multiple difficulties
+
+# Output Summary:
+
+- Proposed code changes
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Modified to ensure the code does minimal disruption to existing logic
+
+---
+
+## Entry 30
 
 # Date/Time:
 
@@ -1072,66 +1132,4 @@ CREATE TABLE test_cases (
 - Designed the schema to ensure scalability and versatility of question data stored
 
 ---
-
-## Entry 29
-
-# Date/Time:
-
-2025-10-16 17:00
-
-# Tool:
-
-Github Copilot (GPT-5 mini)
-
-# Prompt/Command:
-
-Help me to refactor my controller to handle multiple difficulties
-
-# Output Summary:
-
-- Proposed code changes
-
-# Action Taken:
-
-- [ ] Accepted as-is
-- [x] Modified
-- [ ] Rejected
-
-# Author Notes:
-
-- Modified to ensure the code does minimal disruption to existing logic
-
----
-
-## Entry 30
-
-# Date/Time:
-
-2025-10-13 02:00
-
-# Tool:
-
-Github Copilot (GPT-5 mini)
-
-# Prompt/Command:
-
-Help me add code to the api-gateway's default.conf file for my question-service and postgres. I am only using postgres from dockerhub's image.
-
-# Output Summary:
-
-- Proposed code for the api-gateway for question-service and postgres
-
-# Action Taken:
-
-- [ ] Accepted as-is
-- [x] Modified
-- [ ] Rejected
-
-# Author Notes:
-
-- Modified to ensure the code does minimal disruption to existing logic
-
----
-
-
 
