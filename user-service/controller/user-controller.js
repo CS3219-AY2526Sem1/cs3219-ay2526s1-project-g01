@@ -21,7 +21,8 @@ import {
   createUserVerifyRecord as _createUserVerifyRecord,
   deleteUserVerifyRecordByUserId as _deleteUserVerifyRecordByUserId,
 } from "../model/repository.js";
-import { makeVerificationLink, sendVerificationEmail } from "../utils/emailUtils.js";
+import { makeVerificationLink, sendVerificationEmail } from "../utils/emailSender.js";
+import { verifyEmailExists } from "../utils/emailVerifier.js";
 
 export async function createUser(req, res) {
   try {
@@ -34,6 +35,16 @@ export async function createUser(req, res) {
       existingUser = await _findUserByEmail(email);
       if (existingUser) {
         return res.status(409).json({ message: "Email already exists" });
+      }
+
+      // Verify email existence
+      const emailVerificationResult = await verifyEmailExists(email);
+      if (emailVerificationResult.status === 'invalid') {
+        return res.status(400).json({ message: "Email address does not exist" });
+      }
+
+      if (emailVerificationResult.status === 'unknown') {
+        return res.status(400).json({ message: "Email address may not exist." });
       }
 
       const salt = bcrypt.genSaltSync(10);

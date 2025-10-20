@@ -7,7 +7,7 @@ import {
   findUserVerifyRecordById as _findUserVerifyRecordById,
 } from "../model/repository.js";
 import crypto from "crypto";
-import { makeVerificationLink, sendVerificationEmail } from "../utils/emailUtils.js";
+import { makeVerificationLink, sendVerificationEmail } from "../utils/emailSender.js";
 
 export async function verifyUser(req, res) {
   try {

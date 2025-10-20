@@ -966,3 +966,67 @@ Request to implement live reload for all microservices in Docker Compose setup, 
 - Maintainability: comprehensive documentation and flexible deployment options (hybrid vs full Docker)
 - Windows/WSL2 compatibility: polling-based file watching ensures reliable live reload across development environments
 
+---
+
+## Entry 27
+
+# Date/Time:
+
+2025-10-21
+
+# Tool:
+
+ChatGPT (model: ChatGPT 5 thinking)
+
+"How do I check if an email address is valid? Note that I already check its syntax, so I just need a helper function in JS served on an Express backend to check if the email actually exists. You may use any library you want; make sure it is well commented."
+
+# Output Summary:
+
+- Created comprehensive email verification utility with DNS MX lookup and SMTP RCPT TO probing
+- Implemented proper error handling and timeout management
+- Added support for STARTTLS upgrade and multiple MX host attempts
+- Included detailed JSDoc documentation for all functions
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- I validated correctness, security, and performance of the code. I also redued the retry timer for more responsiveness.
+
+---
+
+## Entry 28
+
+# Date/Time:
+
+2025-10-21
+
+# Tool:
+
+GitHub Copilot (Grok Code Fast)
+
+# Prompt/Command:
+
+To add error handling for DNS resolution failures in verifyEmailExists function to prevent service crashes.
+
+# Output Summary:
+
+- Added try-catch block around resolveMx() DNS lookup call
+- Implemented graceful handling of ENOTFOUND errors for invalid domains
+- Return proper "unknown" status instead of throwing unhandled exceptions
+- Prevent 500 errors during user registration with non-existent domains
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Added try-catch block around resolveMx() call to handle ENOTFOUND errors gracefully and return proper unknown status instead of throwing unhandled exceptions.
+
