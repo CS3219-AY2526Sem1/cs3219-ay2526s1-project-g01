@@ -18,7 +18,7 @@ import { getAllQuestionsFromDb } from '../models/question.js';
 */
 export async function getAllQuestions(req, res) {
   try {
-    let { topic, difficulty } = req.body;
+    let { topic, difficulty } = req.body ?? {};
     let { limit, random } = req.query;
 
     // Convert to arrays if not already in array form

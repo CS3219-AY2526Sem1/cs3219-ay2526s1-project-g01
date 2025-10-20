@@ -958,11 +958,13 @@ Request to implement live reload for all microservices in Docker Compose setup, 
 
 # Author Notes:
 
-- Modified to add validation logic, and more parameters for the querying.
-- Refactored to improve coding quality
-- Wrote the Dockerfile and updated the api-gateway myself.
-- Tested incrementally.
-- Also documented with Github Copilot, but modified where necessary.
+- Validated nodemon polling configuration successfully resolves Windows/WSL2 file watching limitations
+- Confirmed hybrid architecture provides optimal development experience with both Docker consistency and native performance
+- Tested live reload functionality by modifying controller files and verifying automatic service restarts
+- Verified Docker networking allows proper communication between containerized microservices and host frontend
+- Performance optimized with cached volume mounts and selective node_modules exclusions
+- Maintainability: comprehensive documentation and flexible deployment options (hybrid vs full Docker)
+- Windows/WSL2 compatibility: polling-based file watching ensures reliable live reload across development environments
 
 ---
 
@@ -984,6 +986,20 @@ Github Copilot (GPT-5 mini)
 # Output Summary:
 
 - Generated a rough folder structure and some boilerplate code
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Modified to add validation logic, and more parameters for the querying.
+- Refactored to improve coding quality
+- Wrote the Dockerfile and updated the api-gateway myself.
+- Tested incrementally.
+- Also documented with Github Copilot, but modified where necessary.
 
 ---
 
@@ -1086,11 +1102,36 @@ Help me to refactor my controller to handle multiple difficulties
 - Modified to ensure the code does minimal disruption to existing logic
 
 ---
-- Validated nodemon polling configuration successfully resolves Windows/WSL2 file watching limitations
-- Confirmed hybrid architecture provides optimal development experience with both Docker consistency and native performance
-- Tested live reload functionality by modifying controller files and verifying automatic service restarts
-- Verified Docker networking allows proper communication between containerized microservices and host frontend
-- Performance optimized with cached volume mounts and selective node_modules exclusions
-- Maintainability: comprehensive documentation and flexible deployment options (hybrid vs full Docker)
-- Windows/WSL2 compatibility: polling-based file watching ensures reliable live reload across development environments
+
+## Entry 30
+
+# Date/Time:
+
+2025-10-13 02:00
+
+# Tool:
+
+Github Copilot (GPT-5 mini)
+
+# Prompt/Command:
+
+Help me add code to the api-gateway's default.conf file for my question-service and postgres. I am only using postgres from dockerhub's image.
+
+# Output Summary:
+
+- Proposed code for the api-gateway for question-service and postgres
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Modified to ensure the code does minimal disruption to existing logic
+
+---
+
+
 
