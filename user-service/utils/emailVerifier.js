@@ -161,16 +161,31 @@ async function tryMx({ host, email, heloDomain, timeoutMs, useStartTLS, mailFrom
   // RCPT TO: the crucial check
   res = await smtpCmd(socket, transcript, `RCPT TO:<${email}>\r\n`);
 
-  // Politely quit (don’t proceed to DATA)
+  // Politely quit (don't proceed to DATA)
   try { await smtpCmd(socket, transcript, 'RSET\r\n'); } catch {}
   try { await smtpCmd(socket, transcript, 'QUIT\r\n'); } catch {}
   socket.destroy();
 
   const c = res.code;
+  const text = res.text.toLowerCase();
+  
   if (c === 250 || c === 251) {
     // Accepted (could still be catch-all)
     return { status: 'valid', reason: `${c} ${res.text}` };
   }
+  
+  // Check for spam/IP blocking errors - these should be 'unknown' not 'invalid'
+  // The email might exist, but we can't verify due to anti-spam measures
+  if (c === 550 && (
+    text.includes('spamhaus') || 
+    text.includes('blocked') || 
+    text.includes('blacklist') ||
+    text.includes('spam') ||
+    text.includes('reputation')
+  )) {
+    return { status: 'unknown', reason: `Cannot verify due to spam filter: ${c} ${res.text}` };
+  }
+  
   if (c === 550 || c === 551 || c === 553 || c === 552 || c === 554) {
     return { status: 'invalid', reason: `${c} ${res.text}` };
   }
@@ -218,8 +233,8 @@ export async function verifyEmailExists(email, options = {}) {
   } catch (err) {
     if (err.code === 'ENOTFOUND') {
       return {
-        status: 'unknown',
-        reason: `Domain "${domain}" not found or has no DNS records.`,
+        status: 'invalid',
+        reason: `Domain "${domain}" does not exist.`,
         mxTried: [],
         transcript: [{ dir: '!', line: `DNS lookup failed: ${err.message}` }],
       };

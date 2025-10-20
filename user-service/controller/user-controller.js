@@ -43,8 +43,11 @@ export async function createUser(req, res) {
         return res.status(400).json({ message: "Email address does not exist" });
       }
 
+      // note we cannot reject when it is unknow because some email servers do not respond properly
+      // for example, u.nus.edu block external SMTP probes
+      // so we have to let them pass because overzealous blocking is a bug
       if (emailVerificationResult.status === 'unknown') {
-        return res.status(400).json({ message: "Email address may not exist." });
+        console.warn(`Email verification returned unknown status for ${email}: ${emailVerificationResult.reason}`);
       }
 
       const salt = bcrypt.genSaltSync(10);
