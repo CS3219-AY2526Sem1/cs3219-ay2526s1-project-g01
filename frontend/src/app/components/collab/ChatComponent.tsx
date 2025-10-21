@@ -1,3 +1,20 @@
+/**
+ * Video Call Feature
+ *
+ * This implementation was inspired by the following resources:
+ * - Matthias Vimbert, "Building Real-Time Video Calls with Next.js, TypeScript, and PeerJS (A Step-by-Step Guide)"
+ *   https://medium.com/@matthias.vimbert/building-real-time-video-calls-with-next-js-typescript-and-peerjs-a-step-by-step-guide-fc969d43293c
+ *
+ * - Web Dev Simplified, "Build a Zoom Clone with WebRTC" (YouTube)
+ *   https://youtu.be/DvlyzDZDEq4
+ *
+ * Modified and integrated by Derrick Wong Liang Jun.
+ * 
+ * Note:
+ * The server-side logic was adapted to support real-time peer ID exchange between users,
+ * ensuring both participants can establish PeerJS connections for one-to-one video calls.
+ */
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -141,6 +158,11 @@ export default function ChatComponent() {
           </p>
         </div>
       </div>
+
+      <Button> Mute own audio </Button>
+      <Button> Disable own video </Button>
+      <Button> Mute other audio</Button>
+      <Button> Disable other video</Button>
 
       <div className="flex w-full mt-auto gap-2">
         <Input className="bg-white flex-1" placeholder="Type a message..." />
