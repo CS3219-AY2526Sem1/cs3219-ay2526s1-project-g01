@@ -3,6 +3,10 @@
  * Tool: GitHub Copilot (model: Claude Sonnet 4), date: 2025-09-24
  * Purpose: To update user creation with email verification functionality and proper error handling for email sending failures.
  * Author Review: I validated correctness, security, and performance of the code.
+ * 
+ * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-21
+ * Purpose: To add separate controller functions for updating user password and username with proper validation.
+ * Author Review: I validated correctness, security, and performance of the code.
  */
 
 import bcrypt from "bcrypt";
@@ -18,6 +22,8 @@ import {
   findUserByUsernameOrEmail as _findUserByUsernameOrEmail,
   updateUserById as _updateUserById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
+  updateUserPasswordById as _updateUserPasswordById,
+  updateUsernameById as _updateUsernameById,
   createUserVerifyRecord as _createUserVerifyRecord,
   deleteUserVerifyRecordByUserId as _deleteUserVerifyRecordByUserId,
 } from "../model/repository.js";
@@ -238,6 +244,99 @@ export async function deleteUser(req, res) {
     return res
       .status(500)
       .json({ message: "Unknown error when deleting user!" });
+  }
+}
+
+export async function updateUserPassword(req, res) {
+  console.log("updateUserPassword called");
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ 
+        message: "Current password and new password are required" 
+      });
+    }
+
+    const userId = req.params.id;
+    if (!isValidObjectId(userId)) {
+      return res.status(404).json({ message: `User ${userId} not found` });
+    }
+
+    const user = await _findUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: `User ${userId} not found` });
+    }
+
+    // Verify current password
+    const isPasswordCorrect = await bcrypt.compare(currentPassword, user.password);
+    if (!isPasswordCorrect) {
+      return res.status(401).json({ message: "Current password is incorrect" });
+    }
+
+    // Validate new password strength
+    if (newPassword.length < 8) {
+      return res.status(400).json({ 
+        message: "New password must be at least 8 characters long" 
+      });
+    }
+
+    // Hash new password
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(newPassword, salt);
+
+    // Update password
+    const updatedUser = await _updateUserPasswordById(userId, hashedPassword);
+
+    return res.status(200).json({
+      message: "Password updated successfully",
+      data: formatUserResponse(updatedUser),
+    });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: "Unknown error when updating password!" });
+  }
+}
+
+export async function updateUsername(req, res) {
+  console.log("updateUsername called");
+  try {
+    const { username } = req.body;
+    
+    if (!username) {
+      return res.status(400).json({ message: "Username is required" });
+    }
+
+    const userId = req.params.id;
+    if (!isValidObjectId(userId)) {
+      return res.status(404).json({ message: `User ${userId} not found` });
+    }
+
+    const user = await _findUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: `User ${userId} not found` });
+    }
+
+    // Check if username already exists
+    const existingUser = await _findUserByUsername(username);
+    if (existingUser && existingUser.id !== userId) {
+      return res.status(409).json({ message: "Username already exists" });
+    }
+
+    // Update username
+    const updatedUser = await _updateUsernameById(userId, username);
+
+    return res.status(200).json({
+      message: "Username updated successfully",
+      data: formatUserResponse(updatedUser),
+    });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: "Unknown error when updating username!" });
   }
 }
 

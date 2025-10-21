@@ -1,3 +1,10 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-21
+ * Purpose: To add repository functions for updating user password and username separately.
+ * Author Review: I validated correctness, security, and performance of the code.
+ */
+
 import UserModel from "./user-model.js";
 import UserVerifyModel from "./user-verify-model.js";
 import PasswordResetModel from "./password-reset-model.js";
@@ -105,6 +112,18 @@ export async function updateUserPasswordById(userId, password) {
     {
       $set: {
         password,
+      },
+    },
+    { new: true },  // return the updated user
+  );
+}
+
+export async function updateUsernameById(userId, username) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        username,
       },
     },
     { new: true },  // return the updated user

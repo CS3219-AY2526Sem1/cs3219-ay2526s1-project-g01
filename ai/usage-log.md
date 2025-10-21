@@ -1228,3 +1228,51 @@ Create a user account management page at /account with profile settings and pass
 - Ensured password validation and UX matches signup page for consistency
 - Confirmed toast notifications and simulated API calls work as expected
 - Code is clean, modular, and easy to maintain
+
+---
+
+## Entry 35
+
+# Date/Time:
+
+2025-10-21 17:00
+
+# Tool:
+
+GitHub Copilot (Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Create backend routes and controller functions for updating user password and username separately. PATCH /:id/password route accepts currentPassword and newPassword in body. PATCH /:id/username route accepts username in body. Include proper authentication, validation, and error handling.
+
+# Output Summary:
+
+- Added AI disclosure headers to user-routes.js, user-controller.js, and repository.js
+- Created PATCH /:id/password route with verifyAccessToken and verifyIsOwnerOrAdmin middleware
+- Created PATCH /:id/username route with verifyAccessToken and verifyIsOwnerOrAdmin middleware
+- Implemented updateUserPassword controller function with:
+  - Current password verification using bcrypt.compare
+  - New password strength validation (minimum 8 characters)
+  - Password hashing with bcrypt
+  - Proper error handling for incorrect current password, missing fields, and user not found
+- Implemented updateUsername controller function with:
+  - Username uniqueness validation
+  - Conflict checking to prevent duplicate usernames
+  - Proper error handling for missing username and user not found
+- Added updateUsernameById repository function to update username in database
+- Both functions return formatted user response on success
+- Added console.log debugging statements for both controller functions
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated proper authentication and authorization using existing middleware
+- Ensured password validation matches security requirements from signup
+- Confirmed username uniqueness check prevents conflicts
+- Verified bcrypt password comparison for current password verification
+- Routes follow RESTful conventions and existing codebase patterns
