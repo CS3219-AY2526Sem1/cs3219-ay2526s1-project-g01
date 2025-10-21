@@ -1,5 +1,6 @@
 import UserModel from "./user-model.js";
 import UserVerifyModel from "./user-verify-model.js";
+import PasswordResetModel from "./password-reset-model.js";
 import "dotenv/config";
 import { connect } from "mongoose";
 
@@ -98,6 +99,18 @@ export function updateUserVerificationStatusById(userId, verified) {
   );
 }
 
+export async function updateUserPasswordById(userId, password) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        password,
+      },
+    },
+    { new: true },  // return the updated user
+  );
+}
+
 export async function deleteUserById(userId) {
   return UserModel.findByIdAndDelete(userId);
 }
@@ -126,4 +139,27 @@ export async function deleteUserVerifyRecordByUserId(userId) {
   return UserVerifyModel.deleteMany({ userId });
 }
 
+//#endregion
+
+//#region password reset model related fns
+export async function createPasswordResetRecord(userId, token) {
+  return new PasswordResetModel({ userId, token }).save();
+}
+
+export async function findPasswordResetRecordByTokenAndId(token, userId) {
+  return PasswordResetModel.findOne({ 
+    $and: [
+      { token },
+      { userId },
+    ],
+  });
+}
+
+export async function findPasswordResetRecordById (userId) {
+  return PasswordResetModel.find({ userId });
+}
+
+export async function deletePasswordResetRecordByUserId(userId) {
+  return PasswordResetModel.deleteMany({ userId });
+}
 //#endregion
