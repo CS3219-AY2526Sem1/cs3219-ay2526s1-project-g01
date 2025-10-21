@@ -204,9 +204,9 @@ const sendPasswordResetEmail = async (email: string) => {
 };
 
 const validatePasswordResetToken = async (
-  username: string, 
+  username: string,
   email: string,
-  token: string
+  token: string,
 ) => {
   try {
     const apiClient = createApiClient();
@@ -221,10 +221,10 @@ const validatePasswordResetToken = async (
 };
 
 const confirmPasswordReset = async (
-  username: string, 
-  email: string, 
-  token: string, 
-  newPassword: string
+  username: string,
+  email: string,
+  token: string,
+  newPassword: string,
 ) => {
   try {
     const apiClient = createApiClient();
@@ -243,7 +243,7 @@ const updateUserPassword = async (
   userId: string,
   currentPassword: string,
   newPassword: string,
-  token: string
+  token: string,
 ) => {
   try {
     const apiClient = createApiClient();
@@ -254,7 +254,7 @@ const updateUserPassword = async (
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
     return response;
   } catch (error) {
@@ -266,7 +266,7 @@ const updateUserPassword = async (
 const updateUsername = async (
   userId: string,
   username: string,
-  token: string
+  token: string,
 ) => {
   try {
     const apiClient = createApiClient();
@@ -277,7 +277,7 @@ const updateUsername = async (
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
     return response;
   } catch (error) {
@@ -287,15 +287,15 @@ const updateUsername = async (
 };
 
 // Export configuration
-export { 
-  verifyToken, 
-  login, 
-  signup, 
-  verifyUserEmail, 
-  resendEmailVerification, 
+export {
+  verifyToken,
+  login,
+  signup,
+  verifyUserEmail,
+  resendEmailVerification,
   sendPasswordResetEmail,
   validatePasswordResetToken,
   confirmPasswordReset,
   updateUserPassword,
-  updateUsername
+  updateUsername,
 };

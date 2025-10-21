@@ -27,7 +27,7 @@ import { handleApiError } from "@/services/errorHandler";
 export default function ResetPasswordPage() {
   //#region Init
   const searchParams = useSearchParams();
-  const router = useRouter()
+  const router = useRouter();
 
   // Extract query parameters from URL
   const email = searchParams.get("email") || "";
@@ -185,12 +185,9 @@ export default function ResetPasswordPage() {
         password,
       );
 
-      toast.success(
-        response.data.message || "Password reset successfully!",
-        {
-          description: "You can now log in with your new password.",
-        },
-      );
+      toast.success(response.data.message || "Password reset successfully!", {
+        description: "You can now log in with your new password.",
+      });
 
       // Redirect to login after short delay
       setTimeout(() => {
@@ -270,12 +267,13 @@ export default function ResetPasswordPage() {
             <div className="flex flex-col gap-6">
               {/* Error message */}
               <p className="text-lg text-gray-600">
-                {tokenError || "The password reset link is invalid or has expired."}
+                {tokenError ||
+                  "The password reset link is invalid or has expired."}
               </p>
 
               <p className="text-sm text-gray-500">
-                Please request a new password reset link or contact support if the
-                problem persists.
+                Please request a new password reset link or contact support if
+                the problem persists.
               </p>
 
               {/* Action buttons */}
@@ -460,9 +458,7 @@ export default function ResetPasswordPage() {
                     variant="ghost"
                     size="icon"
                     className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-transparent"
-                    onClick={() =>
-                      setShowConfirmPassword(!showConfirmPassword)
-                    }
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     disabled={isResetting}
                   >
                     {confirmPassword &&

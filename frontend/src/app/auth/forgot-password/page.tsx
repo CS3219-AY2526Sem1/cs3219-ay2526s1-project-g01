@@ -74,7 +74,7 @@ export default function ForgotPasswordPage() {
       setCooldownSeconds(30);
     } catch (error: unknown) {
       console.error("Send reset email error:", error);
-      
+
       // Handle rate limiting (429 error) - keep custom logic for cooldown
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if ((error as any)?.response?.status === 429) {
@@ -82,7 +82,7 @@ export default function ForgotPasswordPage() {
           description: "Please wait before trying again.",
         });
         setCooldownSeconds(30); // Enforce cooldown on rate limit
-      } 
+      }
       // Use error handler for all other errors
       else {
         handleApiError(error);
@@ -112,8 +112,8 @@ export default function ForgotPasswordPage() {
         <CardContent className="px-15 pt-2">
           <div className="flex flex-col gap-6">
             <p className="text-center text-gray-600">
-              Enter your email address and we&apos;ll send you a link to reset your
-              password.
+              Enter your email address and we&apos;ll send you a link to reset
+              your password.
             </p>
 
             <div>

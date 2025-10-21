@@ -16,7 +16,10 @@ import { Eye, EyeOff, AlertCircle, Check, X } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { useUser } from "@/contexts/UserContext";
-import { updateUsername as updateUsernameApi, updateUserPassword } from "@/services/userServiceApi";
+import {
+  updateUsername as updateUsernameApi,
+  updateUserPassword,
+} from "@/services/userServiceApi";
 import { handleApiError } from "@/services/errorHandler";
 import { getToken } from "@/services/userServiceCookies";
 
@@ -64,13 +67,15 @@ export default function AccountPage() {
   //#region Derived states
   const isPasswordValid = Object.values(passwordValidation).every(Boolean);
   const isPasswordsMatch = newPassword === confirmNewPassword;
-  
+
   // Profile save button should only be enabled if username changed
   const hasUsernameChanged = username.trim() !== (user?.username || "");
-  const canSaveProfile = hasUsernameChanged && !isSavingProfile && username.trim() !== "";
-  
+  const canSaveProfile =
+    hasUsernameChanged && !isSavingProfile && username.trim() !== "";
+
   // Password save button should only be enabled if all 3 fields are filled
-  const allPasswordFieldsFilled = currentPassword && newPassword && confirmNewPassword;
+  const allPasswordFieldsFilled =
+    currentPassword && newPassword && confirmNewPassword;
   const canSavePassword = allPasswordFieldsFilled && !isSavingPassword;
   //#endregion
 
@@ -141,7 +146,7 @@ export default function AccountPage() {
 
     try {
       const response = await updateUsernameApi(user.id, trimmedUsername, token);
-      
+
       toast.success("Profile updated successfully!", {
         description: "Your username has been changed.",
       });
@@ -221,11 +226,11 @@ export default function AccountPage() {
 
     try {
       await updateUserPassword(user.id, currentPassword, newPassword, token);
-      
+
       toast.success("Password changed successfully!", {
         description: "Your password has been updated.",
       });
-      
+
       // Clear password fields after successful change
       setCurrentPassword("");
       setNewPassword("");
@@ -296,9 +301,7 @@ export default function AccountPage() {
                   onClick={handleSaveProfile}
                   disabled={!canSaveProfile}
                   className={`w-full ${
-                    !canSaveProfile
-                      ? "opacity-50 cursor-not-allowed"
-                      : ""
+                    !canSaveProfile ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >
                   {isSavingProfile ? "Saving..." : "Save Changes"}
@@ -332,7 +335,9 @@ export default function AccountPage() {
                       variant="ghost"
                       size="icon"
                       className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-transparent"
-                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      onClick={() =>
+                        setShowCurrentPassword(!showCurrentPassword)
+                      }
                       disabled={isSavingPassword}
                     >
                       {currentPassword &&
@@ -489,9 +494,7 @@ export default function AccountPage() {
                   onClick={handleChangePassword}
                   disabled={!canSavePassword}
                   className={`w-full ${
-                    !canSavePassword
-                      ? "opacity-50 cursor-not-allowed"
-                      : ""
+                    !canSavePassword ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >
                   {isSavingPassword ? "Saving..." : "Save Changes"}
