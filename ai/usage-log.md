@@ -919,3 +919,40 @@ Request information on how to create custom cursors and send cursor information 
 - Validated that CSS styling for cursor is appropriate, modified CSS styling to fit use case.
 - Researched on deltaDecorations suggested by model and decided that it was not appropriate as its a legacy api, searched online for more suitable modules and implemented cursor binding using IEditorDecorationsCollection instead.
 - Implemented communication logic using websockets myself, only using model for debugging.
+
+
+## Entry 26
+
+# Date/Time:
+
+2025-10-21 17:15
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Asked to review the design on how users can exchange peerID on the server as well as how 
+PeerJS is being used to initiate the video/call connection.
+
+# Output Summary:
+
+- Provided the code outline on how to create the server using sockets and the implementation
+  of session rooms to keep track of users as well as how to inform all users of the recently joined user
+
+- Improve on the current frontend code to better handle logic on which user to initiate the 
+  call 
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that the video and voice call is working as intended
+- Wrote the boilerplate code for both the server and peerJS, referencing from the peerJS
+  documentation and online articles (credits are provided in ChatComponent.tsx)
+- Implemented communication logic using socket.io myself, only using model for debugging.
