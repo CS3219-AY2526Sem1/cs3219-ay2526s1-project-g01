@@ -4,6 +4,7 @@ import {
   handleLogin,
   handleVerifyToken,
   handleRequestPasswordReset,
+  handleValidatePasswordResetToken,
   handleConfirmPasswordReset,
 } from "../controller/auth-controller.js";
 import { verifyAccessToken } from "../middleware/basic-access-control.js";
@@ -30,6 +31,13 @@ router.get("/verify-token", verifyAccessToken, handleVerifyToken);
  * Initiates password reset process by sending reset email to user
  */
 router.post("/password/request-reset", handleRequestPasswordReset);
+
+/**
+ * GET /auth/password/validate-token
+ * Query: { username: string, email: string, token: string }
+ * Validates password reset token without changing password
+ */
+router.get("/password/validate-token", handleValidatePasswordResetToken);
 
 /**
  * POST /auth/password/confirm-reset

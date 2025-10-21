@@ -127,6 +127,50 @@ export async function handleRequestPasswordReset(req, res) {
   }
 }
 
+export async function handleValidatePasswordResetToken(req, res) {
+  console.log("handleValidatePasswordResetToken called");
+  try {
+    // extract username, email and token from query params
+    const { username, email, token } = req.query;
+
+    // decode URI components in case of special characters
+    const decodedUsername = decodeURIComponent(username || "");
+    const decodedEmail = decodeURIComponent(email || "");
+    const decodedToken = decodeURIComponent(token || "");
+
+    // check if any fields is missing
+    if (!decodedUsername || !decodedEmail || !decodedToken) {
+      return res.status(400).json({ message: "Missing username and/or email and/or token" });
+    }
+
+    // find user by email
+    const user = await _findUserByEmail(decodedEmail);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // check if username matches
+    if (user.username !== decodedUsername) {
+      return res.status(400).json({ message: "Invalid username for this email" });
+    }
+
+    // hash the provided token
+    const hashedToken = crypto.createHash("sha256").update(decodedToken).digest("hex");
+
+    // check if hashed token matches the one in the database
+    const passwordResetRecord = await _findPasswordResetRecordByTokenAndId(hashedToken, user._id);
+    if (!passwordResetRecord) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    return res.status(200).json({ message: "Token is valid" });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when validating token!" });
+  }
+}
+
 export async function handleConfirmPasswordReset(req, res) {
   console.log("handleConfirmPasswordReset called");
   try {

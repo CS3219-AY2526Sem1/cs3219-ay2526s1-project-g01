@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { sendPasswordResetEmail } from "@/services/userServiceApi";
+import { handleApiError } from "@/services/errorHandler";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -74,7 +75,7 @@ export default function ForgotPasswordPage() {
     } catch (error: unknown) {
       console.error("Send reset email error:", error);
       
-      // Handle rate limiting (429 error)
+      // Handle rate limiting (429 error) - keep custom logic for cooldown
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if ((error as any)?.response?.status === 429) {
         toast.error("An email was recently sent", {
@@ -82,27 +83,9 @@ export default function ForgotPasswordPage() {
         });
         setCooldownSeconds(30); // Enforce cooldown on rate limit
       } 
-      // Handle user not found (404 error)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      else if ((error as any)?.response?.status === 404) {
-        toast.error("User not found", {
-          description: "No account exists with this email address.",
-        });
-        setCanSend(true);
-      }
-      // Handle unverified email (403 error)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      else if ((error as any)?.response?.status === 403) {
-        toast.error("Email not verified", {
-          description: "Please verify your email before resetting password.",
-        });
-        setCanSend(true);
-      }
-      // Handle other errors
+      // Use error handler for all other errors
       else {
-        toast.error("Failed to send reset email", {
-          description: "Please try again later.",
-        });
+        handleApiError(error);
         setCanSend(true);
       }
     } finally {
