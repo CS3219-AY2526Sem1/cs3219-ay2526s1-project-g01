@@ -1,0 +1,173 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-21
+ * Purpose: To create a forgot password page with email input, reset link sending functionality, and proper error handling including 429 rate limiting with 30-second cooldown.
+ * Author Review: I validated the implementation follows the same patterns as the unverified page with proper state management, cooldown timer, and error handling.
+ */
+
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardTitle, CardHeader, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Image from "next/image";
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { sendPasswordResetEmail } from "@/services/userServiceApi";
+
+export default function ForgotPasswordPage() {
+  const [email, setEmail] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const [canSend, setCanSend] = useState(true);
+
+  // Cooldown timer effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (cooldownSeconds > 0) {
+      interval = setInterval(() => {
+        setCooldownSeconds((prev) => {
+          if (prev <= 1) {
+            setCanSend(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [cooldownSeconds]);
+
+  const handleSendResetEmail = async () => {
+    if (!canSend) return;
+
+    // Basic email validation
+    if (!email) {
+      toast.error("Email is required", {
+        description: "Please enter your email address.",
+      });
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Invalid email format", {
+        description: "Please enter a valid email address.",
+      });
+      return;
+    }
+
+    setIsSending(true);
+    setCanSend(false);
+
+    try {
+      await sendPasswordResetEmail(email);
+
+      toast.success("Password reset email sent!", {
+        description: "Please check your email inbox and spam folder.",
+      });
+
+      // Start 30-second cooldown
+      setCooldownSeconds(30);
+    } catch (error: unknown) {
+      console.error("Send reset email error:", error);
+      
+      // Handle rate limiting (429 error)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((error as any)?.response?.status === 429) {
+        toast.error("An email was recently sent", {
+          description: "Please wait before trying again.",
+        });
+        setCooldownSeconds(30); // Enforce cooldown on rate limit
+      } 
+      // Handle user not found (404 error)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      else if ((error as any)?.response?.status === 404) {
+        toast.error("User not found", {
+          description: "No account exists with this email address.",
+        });
+        setCanSend(true);
+      }
+      // Handle unverified email (403 error)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      else if ((error as any)?.response?.status === 403) {
+        toast.error("Email not verified", {
+          description: "Please verify your email before resetting password.",
+        });
+        setCanSend(true);
+      }
+      // Handle other errors
+      else {
+        toast.error("Failed to send reset email", {
+          description: "Please try again later.",
+        });
+        setCanSend(true);
+      }
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  return (
+    <div className="h-screen flex flex-col items-center justify-center">
+      <Image
+        src="/PeerPrepLogo.png"
+        alt="PeerprepLogo"
+        width={200}
+        height={200}
+      />
+
+      <Card className="min-h-[40%] min-w-[40%] mt-3">
+        <CardHeader className="mt-5">
+          <CardTitle className="text-center text-3xl font-bold">
+            Forgot Password
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent className="px-15 pt-2">
+          <div className="flex flex-col gap-6">
+            <p className="text-center text-gray-600">
+              Enter your email address and we&apos;ll send you a link to reset your
+              password.
+            </p>
+
+            <div>
+              <Label className="m-2">Email</Label>
+              <Input
+                name="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your.email@example.com"
+                required
+              />
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <Button
+                onClick={handleSendResetEmail}
+                disabled={isSending || !canSend}
+                className="w-full"
+              >
+                {isSending
+                  ? "Sending..."
+                  : !canSend
+                    ? `Resend in ${cooldownSeconds}s`
+                    : "Send Reset Link"}
+              </Button>
+
+              <Link
+                href="/auth/login"
+                className="text-center text-blue-500 hover:underline text-sm"
+              >
+                Back to Login
+              </Link>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

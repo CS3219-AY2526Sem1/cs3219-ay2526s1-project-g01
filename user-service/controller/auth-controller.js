@@ -23,6 +23,7 @@ import {
 } from "../utils/emailSender.js";
 
 export async function handleLogin(req, res) {
+  console.log("handleLogin called");
   const { email, password } = req.body;
   if (email && password) {
     try {
@@ -52,6 +53,7 @@ export async function handleLogin(req, res) {
       });
       return res.status(200).json({ message: "User logged in", data: { accessToken, ...formatUserResponse(user) } });
     } catch (err) {
+      console.error(err);
       return res.status(500).json({ message: err.message });
     }
   } else {
@@ -64,6 +66,7 @@ export async function handleVerifyToken(req, res) {
     const verifiedUser = req.user;
     return res.status(200).json({ message: "Token verified", data: verifiedUser });
   } catch (err) {
+    console.error(err);
     return res.status(500).json({ message: err.message });
   }
 }
@@ -96,7 +99,7 @@ export async function handleRequestPasswordReset(req, res) {
     const resetRecord = await _findPasswordResetRecordById(user._id);
     if (resetRecord) {
       const now = Date.now();
-      const elapsed = now - resetRecord.createdAt.getTime();
+      const elapsed = now - (new Date(resetRecord.createdAt)).getTime();
       if (elapsed < 30000) { // 30 seconds
         return res.status(429).json({ message: "Password reset already requested recently. Please wait before requesting again." });
       }
@@ -119,11 +122,13 @@ export async function handleRequestPasswordReset(req, res) {
     await sendResetPasswordEmail(user.email, resetUrl);
     return res.status(200).json({ message: "Password reset email sent successfully" });
   } catch (err) {
+    console.error(err);
     return res.status(500).json({ message: err.message });
   }
 }
 
 export async function handleConfirmPasswordReset(req, res) {
+  console.log("handleConfirmPasswordReset called");
   try {
     // extract username, email and token from query params
     const { username, email, token } = req.query;

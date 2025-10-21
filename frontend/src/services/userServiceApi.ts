@@ -189,5 +189,46 @@ const resendEmailVerification = async (username: string, email: string) => {
   }
 };
 
+const sendPasswordResetEmail = async (email: string) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.post(
+      `${API_ENDPOINTS.AUTH_SERVICE}/password/request-reset`,
+      { email },
+    );
+    return response;
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    throw error;
+  }
+};
+
+const confirmPasswordReset = async (
+  username: string, 
+  email: string, 
+  token: string, 
+  newPassword: string
+) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.post(
+      `${API_ENDPOINTS.AUTH_SERVICE}/password/confirm-reset?username=${encodeURIComponent(username)}&email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`,
+      { newPassword },
+    );
+    return response;
+  } catch (error) {
+    console.error("Error confirming password reset:", error);
+    throw error;
+  }
+};
+
 // Export configuration
-export { verifyToken, login, signup, verifyUserEmail, resendEmailVerification };
+export { 
+  verifyToken, 
+  login, 
+  signup, 
+  verifyUserEmail, 
+  resendEmailVerification, 
+  sendPasswordResetEmail, 
+  confirmPasswordReset 
+};

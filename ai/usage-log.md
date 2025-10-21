@@ -1102,3 +1102,42 @@ To create a password reset model similar to user verification model with proper 
 - Ensured token expiration prevents stale reset links
 - Maintained consistency with existing verification model patterns
 
+
+---
+
+## Entry 31
+
+# Date/Time:
+
+2025-10-21 16:00
+
+# Tool:
+
+GitHub Copilot (Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+To create a forgot password page with email input, reset link sending functionality, and proper error handling including 429 rate limiting with 30-second cooldown, and add forgot password link to login page.
+
+# Output Summary:
+
+- Created forgot password page at /auth/forgot-password with email input form
+- Implemented 30-second cooldown timer similar to unverified page
+- Added comprehensive error handling for 429 (rate limiting), 404 (user not found), and 403 (unverified email) status codes
+- Added forgot password link to login component footer for easy access
+- Integrated sendPasswordResetEmail API function from userServiceApi
+- Used consistent styling and layout matching other auth pages
+- Added AI disclosure header to new page
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated error handling covers all expected failure scenarios including rate limiting
+- Ensured cooldown timer prevents spam requests
+- Confirmed visual consistency with existing auth pages (login, signup, unverified)
+- Tested email validation before making API calls
