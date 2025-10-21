@@ -16,9 +16,12 @@ import { Eye, EyeOff, AlertCircle, Check, X } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { useUser } from "@/contexts/UserContext";
+import { updateUsername as updateUsernameApi, updateUserPassword } from "@/services/userServiceApi";
+import { handleApiError } from "@/services/errorHandler";
+import { getToken } from "@/services/userServiceCookies";
 
 export default function AccountPage() {
-  const { user } = useUser();
+  const { user, setUser } = useUser();
 
   //#region Profile states
   const [username, setUsername] = useState(user?.username || "");
@@ -119,15 +122,42 @@ export default function AccountPage() {
       return;
     }
 
+    if (!user?.id) {
+      toast.error("User not found!", {
+        description: "Please log in again.",
+      });
+      return;
+    }
+
+    const token = getToken();
+    if (!token) {
+      toast.error("Not authenticated!", {
+        description: "Please log in again.",
+      });
+      return;
+    }
+
     setIsSavingProfile(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await updateUsernameApi(user.id, trimmedUsername, token);
+      
       toast.success("Profile updated successfully!", {
-        description: "Your profile changes have been saved.",
+        description: "Your username has been changed.",
       });
+
+      // Update user context with new username
+      if (response.data?.data?.username) {
+        setUser({
+          ...user,
+          username: response.data.data.username,
+        });
+      }
+    } catch (error: unknown) {
+      handleApiError(error, "Failed to update profile");
+    } finally {
       setIsSavingProfile(false);
-    }, 1000);
+    }
   };
 
   // Handle password change
@@ -172,13 +202,30 @@ export default function AccountPage() {
       return;
     }
 
+    if (!user?.id) {
+      toast.error("User not found!", {
+        description: "Please log in again.",
+      });
+      return;
+    }
+
+    const token = getToken();
+    if (!token) {
+      toast.error("Not authenticated!", {
+        description: "Please log in again.",
+      });
+      return;
+    }
+
     setIsSavingPassword(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await updateUserPassword(user.id, currentPassword, newPassword, token);
+      
       toast.success("Password changed successfully!", {
         description: "Your password has been updated.",
       });
+      
       // Clear password fields after successful change
       setCurrentPassword("");
       setNewPassword("");
@@ -190,8 +237,11 @@ export default function AccountPage() {
         number: false,
         special: false,
       });
+    } catch (error: unknown) {
+      handleApiError(error, "Failed to change password");
+    } finally {
       setIsSavingPassword(false);
-    }, 1000);
+    }
   };
   //#endregion
 

@@ -239,6 +239,53 @@ const confirmPasswordReset = async (
   }
 };
 
+const updateUserPassword = async (
+  userId: string,
+  currentPassword: string,
+  newPassword: string,
+  token: string
+) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.patch(
+      `${API_ENDPOINTS.USER_SERVICE}/${userId}/password`,
+      { currentPassword, newPassword },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    console.error("Error updating user password:", error);
+    throw error;
+  }
+};
+
+const updateUsername = async (
+  userId: string,
+  username: string,
+  token: string
+) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.patch(
+      `${API_ENDPOINTS.USER_SERVICE}/${userId}/username`,
+      { username },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    console.error("Error updating username:", error);
+    throw error;
+  }
+};
+
 // Export configuration
 export { 
   verifyToken, 
@@ -248,5 +295,7 @@ export {
   resendEmailVerification, 
   sendPasswordResetEmail,
   validatePasswordResetToken,
-  confirmPasswordReset 
+  confirmPasswordReset,
+  updateUserPassword,
+  updateUsername
 };
