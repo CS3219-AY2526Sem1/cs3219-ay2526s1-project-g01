@@ -43,10 +43,11 @@ COPY --from=builder --chown=expressjs:nodejs /app/controller ./controller
 COPY --from=builder --chown=expressjs:nodejs /app/middleware ./middleware
 COPY --from=builder --chown=expressjs:nodejs /app/model ./model
 COPY --from=builder --chown=expressjs:nodejs /app/routes ./routes
+COPY --from=builder --chown=expressjs:nodejs /app/utils ./utils
 
 USER expressjs
 
-EXPOSE 4000
+EXPOSE ${PORT}
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \

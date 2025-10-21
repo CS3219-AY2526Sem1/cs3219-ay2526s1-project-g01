@@ -1,37 +1,54 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: GitHub Copilot (model: Claude Sonnet 4), date: 2025-09-24
+ * Purpose: To update the main application index to include verification routes for email verification functionality.
+ * Author Review: I validated correctness, security, and performance of the code.
+ */
+
 import express from "express";
 import cors from "cors";
 
 import userRoutes from "./routes/user-routes.js";
 import authRoutes from "./routes/auth-routes.js";
+import verificationRoutes from "./routes/verification-routes.js";
 
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors()); // config cors so that front-end can use
-app.options("*", cors());
+// CORS configuration using config.json - whitelist frontend and API gateway only
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Build allowed origins from config
+    const allowedOrigins = [
+      process.env.FRONTEND_BASE_URL || "http://localhost:3000",
+      process.env.API_GATEWAY_BASE_URL || "http://localhost"
+    ];
+    
+    // Allow requests with no origin (like mobile apps or curl requests) or from whitelisted origins
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log(`Origin blocked by CORS: ${origin}`);
+      callback(null, false);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'Origin', 'X-Requested-With', 'Accept']
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // To handle CORS Errors
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*"); // "*" -> Allow all links to access
-
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-  );
-
-  // Browsers usually send this before PUT or POST Requests
-  if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH");
-    return res.status(200).json({});
-  }
-
-  // Continue Route Processing
   next();
 });
 
 app.use("/users", userRoutes);
 app.use("/auth", authRoutes);
+app.use("/verification", verificationRoutes);
 
 app.get("/", (req, res, next) => {
   console.log("Sending Greetings!");

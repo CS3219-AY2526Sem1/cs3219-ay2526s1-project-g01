@@ -2,11 +2,62 @@
 # Tool: ChatGPT (GPT 5.0), date: 2025-09-19
 # Purpose: To understand how to add password to redis container
 # Author Review: I validated security and performance of the setup.
+#
+# Tool: GitHub Copilot (model: Claude Sonnet 4), date: 2025-10-13
+# Purpose: To implement live reload development setup with hybrid architecture
+# Author Review: I validated Docker networking, nodemon configuration, and Windows/WSL2 compatibility.
+
+# =============================================================================
+# PEERPREP DOCKER COMPOSE - HYBRID DEVELOPMENT SETUP
+# =============================================================================
+#
+# 🔥 LIVE RELOAD ENABLED FOR MICROSERVICES ONLY
+# 
+# ARCHITECTURE:
+# ├── 🌐 Frontend (Next.js) - Runs via NPM DEV (host machine)
+# ├── 🚀 Microservices - Run via DOCKER with live reload
+# ├── 🔧 API Gateway (Nginx) - Docker (no live reload needed)
+# └── 💾 Databases - Docker
+#
+# WHY HYBRID APPROACH:
+# ✅ Frontend: Best HMR performance outside Docker
+# ✅ Microservices: Consistent environment with live reload
+# ✅ Databases: Isolated and persistent in Docker
+#
+# 🔄 LIVE RELOAD FEATURES:
+# 📦 MICROSERVICES:
+#   ✅ Nodemon automatic restart on file changes
+#   ✅ Source code mounted as volumes for instant updates
+#   ✅ Development mode with detailed error messages
+#   ✅ Direct port access for debugging (4000, 3002, 4001)
+#
+# 📱 FRONTEND (via npm dev):
+#   ✅ Next.js Hot Module Replacement
+#   ✅ Fast Refresh for React components
+#   ✅ Optimized file watching on host machine
+#
+# 🚫 NO LIVE RELOAD:
+#   - API Gateway (Nginx) - Static config, rarely changes
+#   - Databases - No source code to reload
+#
+# DEVELOPMENT WORKFLOW:
+# 1. Run: npm run dev
+#    └── Starts Docker microservices + Frontend npm dev concurrently
+# 2. Edit microservice code → Auto-restart in Docker
+# 3. Edit frontend code → Hot reload via Next.js
+# 4. All services communicate via API Gateway on localhost
+#
+# COMMANDS:
+# - npm run dev              → Full development stack
+# - npm run dev:microservices → Only Docker services
+# - npm run dev:frontend     → Only Next.js frontend
+# - npm run dev:with-db      → Include local database
+#
+# =============================================================================
 
 # PeerPrep Docker Compose Configuration
-# TODO: when deploying to production, switch to using images from Docker Hub -> using 'image' and 'pull_policy' and remove 'build' sections
 services:
-  # API Gateway - Routes all external traffic
+  # API Gateway - Routes all external traffic (NO LIVE RELOAD - Production nginx)
   api-gateway:
     image: honeydews/api-gateway:latest
     pull_policy: never
@@ -14,19 +65,20 @@ services:
       context: ./api-gateway
       dockerfile: Dockerfile
     ports:
-      - "80:80" # HTTP traffic
-      - "443:443" # HTTPS traffic (if configured)
+      - "80:80" # Map host port 80 to container port (matches PORT=80 env var)
     depends_on:
-      - frontend
       - user-service
+      - matching-service
+      - collab-service
     environment:
-      - FRONTEND_URL=http://frontend:3000
       - USER_SERVICE_URL=http://user-service:4000
+      - MATCHING_SERVICE_URL=http://matching-service:3002
+      - COLLAB_SERVICE_URL=http://collab-service:8000
+      - FRONTEND_BASE_URL=http://localhost:3000
+      - PORT=80 # Override Dockerfile default for local development
 
-  # Frontend Next.js Application
+    # Frontend Next.js Application
   # Scalable service with port range mapping
-  # container_name is omitted for scaling
-  # which is important for peerprep where we do matching
   frontend:
     image: honeydews/frontend
     pull_policy: never
@@ -34,41 +86,78 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       target: runner # Production build target
-    # Remove external port exposure - accessed via API Gateway
-    expose:
-      - "3000" # Internal port only
+    ports:
+      - "3000:3000" # Expose frontend on localhost:3000
     environment:
       - NODE_ENV=production # Set Node.js to production mode
+      - PORT=3000 # Ensure Next.js listens on port 3000
 
+  # User Service - DEVELOPMENT MODE WITH LIVE RELOAD
   user-service:
     image: foochao/user-service
     pull_policy: never
     build:
       context: ./user-service
       dockerfile: Dockerfile
-      # Use the runner stage from the multi-stage Dockerfile (not production)
-      target: runner
-    # Remove external port exposure - accessed via API Gateway
-    expose:
-      - "4000" # Internal port only
+      target: base # Use base target and install deps manually
+    ports:
+      - "4000:4000" # Expose for direct access during development
+    volumes:
+      # Mount source code for live reload - container will restart on file changes
+      - ./user-service:/app:cached
+      # Exclude node_modules to prevent conflicts
+      - /app/node_modules
+    working_dir: /app
     env_file:
       - ./user-service/.env # Environment variables for user-service
     environment:
-      - NODE_ENV=production # Set Node.js to production mode
       - DB_LOCAL_URI=mongodb://root:example@mongodb-user-services:27017 # Override for container
+      - NODE_ENV=development # Development mode for better error messages
+    command: ["/bin/sh", "-c", "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js"] # Install deps and run with polling for Windows/WSL2
 
+  # Matching Service - DEVELOPMENT MODE WITH LIVE RELOAD
+  matching-service:
+    image: yc17003/matching-service
+    pull_policy: never
+    build:
+      context: ./matching-service
+      dockerfile: Dockerfile
+      target: base # Use base target and install deps manually
+    ports:
+      - "3002:3002" # Expose for direct access during development
+    volumes:
+      # Mount source code for live reload
+      - ./matching-service:/app:cached
+      # Exclude node_modules to prevent conflicts
+      - /app/node_modules
+    working_dir: /app
+    env_file:
+      - ./matching-service/.env
+    environment:
+      - NODE_ENV=development # Development mode
+    command: ["/bin/sh", "-c", "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js"] # Install deps and run with polling for Windows/WSL2
+
+  # Collaboration Service - DEVELOPMENT MODE WITH LIVE RELOAD
   collab-service:
     image: cjz/collab-service
     pull_policy: never
     build:
       context: ./collab-service
       dockerfile: Dockerfile
+      # No target specified - uses default single-stage build
+    ports:
+      - "8000:8000" # Expose for direct access during development  
+    volumes:
+      # Mount source code for live reload (adjust paths based on actual structure)
+      - ./collab-service:/app:cached
+      # Exclude node_modules to prevent conflicts
+      - /app/node_modules
+    working_dir: /app
     env_file:
       - ./collab-service/.env
     environment:
-      - REDIS_HOST=redis-collab-service
-
-  ### NOTE: LOCAL DATABASE SERVICES YET TO BE TESTED BY ME DO NOT USE YET ###
+      - NODE_ENV=development # Development mode
+    command: ["/bin/sh", "-c", "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js"] # Install deps and run with polling for Windows/WSL2
 
   # MongoDB Database for User Services
   mongodb-user-services:
@@ -112,7 +201,18 @@ services:
     volumes:
       - redis-data-collab-service:/data
 
+  # does not require password
+  redis-matching-service:
+    image: redis:latest
+    container_name: matching-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    env_file:
+      - ./matching-service/.env
+    volumes:
+      - redis-data-matching-service:/data
+
 # Named volumes for data persistence
 volumes:
   mongodb-data-user-services:
   redis-data-collab-service:
+  redis-data-matching-service:

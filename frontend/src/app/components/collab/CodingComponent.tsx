@@ -14,15 +14,21 @@ import {
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, CircleUser } from "lucide-react";
-import socketCommunication from "./SocketConnection";
-
+import {
+  initialiseCollabWebsocket,
+  registerCursorUpdateHandler,
+  registerEditorUpdateHandler,
+} from "./CollabWebSocket";
+import { useUser } from "@/contexts/UserContext";
+import { useRouter } from "next/navigation";
 export default function CodingComponent() {
   const [selectedLanguage, setSeletedLanguage] = useState<string>("JavaScript");
-
+  const router = useRouter();
   const [editorInstance, setEditorInstance] =
     useState<monaco.editor.IStandaloneCodeEditor>();
+  const { user } = useUser();
+  const user_id: string = user?.username || "1";
 
-  const user_id = String(Math.floor(Math.random() * 10000));
   const session_id = "123"; //HARDCODED FOR TESTING
 
   function handleEditorMount(editor: monaco.editor.IStandaloneCodeEditor) {
@@ -41,7 +47,28 @@ export default function CodingComponent() {
       new Set([editorInstance]),
     );
 
-    const clientWS: WebSocket = socketCommunication(user_id, session_id, ydoc);
+    const cursorCollections: Record<
+      string,
+      monaco.editor.IEditorDecorationsCollection
+    > = {};
+    const clientWS: WebSocket = initialiseCollabWebsocket(
+      user_id,
+      session_id,
+      ydoc,
+      editorInstance,
+      cursorCollections,
+      () => {
+        router.replace("/match");
+      },
+    );
+    registerCursorUpdateHandler(
+      user_id,
+      editorInstance,
+      cursorCollections,
+      clientWS,
+    );
+    registerEditorUpdateHandler(ydoc, clientWS);
+
     return () => {
       console.log("remove client websocket, binding and ydoc");
       clientWS.close();

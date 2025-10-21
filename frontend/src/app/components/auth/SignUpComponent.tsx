@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DebouncedInput } from "@/components/ui/debouncedInput";
 import { Eye, EyeOff, UserPlus, AlertCircle, Check, X } from "lucide-react";
+import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { signup } from "@/services/userServiceApi";
@@ -35,6 +36,7 @@ export default function SignupForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // UI password states
   const [showPassword, setShowPassword] = useState(false);
@@ -106,6 +108,8 @@ export default function SignupForm() {
   const onRegister = async (e: React.MouseEvent) => {
     e.preventDefault();
 
+    if (isLoading) return; // Prevent multiple submissions
+
     const trimmedUsername = username.trim();
     const trimmedEmail = email.trim();
     // Specific validation checks with toast messages
@@ -160,6 +164,7 @@ export default function SignupForm() {
       return;
     }
 
+    setIsLoading(true);
     try {
       // sign up using apis - Axios automatically parses JSON
       const response = await signup(trimmedUsername, trimmedEmail, password);
@@ -173,11 +178,15 @@ export default function SignupForm() {
 
       //Redirect to login after short delay
       setTimeout(() => {
-        router.push("/auth/login");
+        router.push(
+          `/auth/check-email?email=${encodeURIComponent(trimmedEmail)}&username=${encodeURIComponent(trimmedUsername)}`,
+        );
       }, 1500);
     } catch (error: unknown) {
       // Use reusable error handler
       handleApiError(error, "Failed to create account");
+    } finally {
+      setIsLoading(false);
     }
   };
   //#endregion
@@ -203,6 +212,7 @@ export default function SignupForm() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                disabled={isLoading}
                 required
               />
             </div>
@@ -215,6 +225,7 @@ export default function SignupForm() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
                 required
               />
             </div>
@@ -230,6 +241,7 @@ export default function SignupForm() {
                   onChange={handlePasswordChange}
                   onFocus={() => setIsPasswordFocused(true)}
                   onBlur={() => setIsPasswordFocused(false)}
+                  disabled={isLoading}
                   required
                 />
                 <Button
@@ -238,6 +250,7 @@ export default function SignupForm() {
                   size="icon"
                   className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-transparent"
                   onClick={() => setShowPassword(!showPassword)}
+                  disabled={isLoading}
                 >
                   {password &&
                     (showPassword ? (
@@ -321,6 +334,7 @@ export default function SignupForm() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   onDebouncedChange={handleConfirmPasswordChange}
                   debounceMs={300}
+                  disabled={isLoading}
                   required
                 />
                 <Button
@@ -329,6 +343,7 @@ export default function SignupForm() {
                   size="icon"
                   className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-transparent"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  disabled={isLoading}
                 >
                   {confirmPassword &&
                     (showConfirmPassword ? (
@@ -350,9 +365,17 @@ export default function SignupForm() {
 
             {/* Register Button and already have an account*/}
             <div className="flex justify-center mt-4">
-              <Button className="w-full" onClick={onRegister}>
-                <UserPlus className="mr-2 h-4 w-4" />
-                Register
+              <Button
+                className="w-full"
+                onClick={onRegister}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Spinner className="mr-2 h-4 w-4" variant="default" />
+                ) : (
+                  <UserPlus className="mr-2 h-4 w-4" />
+                )}
+                {isLoading ? "Registering..." : "Register"}
               </Button>
             </div>
 
@@ -363,7 +386,12 @@ export default function SignupForm() {
               </div>
               <Link
                 href="/auth/login"
-                className="ml-3 text-blue-500 hover:underline"
+                className={`ml-3 ${
+                  isLoading
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-blue-500 hover:underline"
+                }`}
+                onClick={(e) => isLoading && e.preventDefault()}
               >
                 Sign in here
               </Link>

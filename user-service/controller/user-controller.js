@@ -1,5 +1,13 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: GitHub Copilot (model: Claude Sonnet 4), date: 2025-09-24
+ * Purpose: To update user creation with email verification functionality and proper error handling for email sending failures.
+ * Author Review: I validated correctness, security, and performance of the code.
+ */
+
 import bcrypt from "bcrypt";
 import { isValidObjectId } from "mongoose";
+import crypto from "crypto";
 import {
   createUser as _createUser,
   deleteUserById as _deleteUserById,
@@ -10,13 +18,16 @@ import {
   findUserByUsernameOrEmail as _findUserByUsernameOrEmail,
   updateUserById as _updateUserById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
+  createUserVerifyRecord as _createUserVerifyRecord,
+  deleteUserVerifyRecordByUserId as _deleteUserVerifyRecordByUserId,
 } from "../model/repository.js";
+import { makeVerificationLink, sendVerificationEmail } from "../utils/emailUtils.js";
 
 export async function createUser(req, res) {
   try {
     const { username, email, password } = req.body;
     if (username && email && password) {
-      let existingUser = await _findUserByUsername(username)
+      let existingUser = await _findUserByUsername(username);
       if (existingUser) {
         return res.status(409).json({ message: "Username already exists" });
       }
@@ -28,16 +39,42 @@ export async function createUser(req, res) {
       const salt = bcrypt.genSaltSync(10);
       const hashedPassword = bcrypt.hashSync(password, salt);
       const createdUser = await _createUser(username, email, hashedPassword);
-      return res.status(201).json({
-        message: `Created new user ${username} successfully`,
-        data: formatUserResponse(createdUser),
-      });
+      
+      try {
+        // Create verification token
+        const rawToken = crypto.randomBytes(32).toString("hex");
+        const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
+        
+        // Save verification token to database
+        await _createUserVerifyRecord(createdUser._id, hashedToken);
+        
+        // Create verification link
+        const verifyUrl = makeVerificationLink(createdUser.email, createdUser.username, rawToken);
+        
+        // Send verification email
+        await sendVerificationEmail(createdUser.email, verifyUrl);
+        
+        return res.status(201).json({
+          message: `Created new user ${username} successfully. Please check your email for verification.`,
+          data: formatUserResponse(createdUser),
+        });
+      } catch (emailError) {
+        // If email sending fails, clean up the created user
+        console.error("Email sending failed:", emailError);
+        await _deleteUserById(createdUser._id);
+        await _deleteUserVerifyRecordByUserId(createdUser._id);
+        return res.status(500).json({ message: "Failed to send verification email. Please try again." });
+      }
     } else {
-      return res.status(400).json({ message: "username and/or email and/or password are missing" });
+      return res
+        .status(400)
+        .json({ message: "username and/or email and/or password are missing" });
     }
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: "Unknown error when creating new user!" });
+    return res
+      .status(500)
+      .json({ message: "Unknown error when creating new user!" });
   }
 }
 
@@ -52,11 +89,15 @@ export async function getUser(req, res) {
     if (!user) {
       return res.status(404).json({ message: `User ${userId} not found` });
     } else {
-      return res.status(200).json({ message: `Found user`, data: formatUserResponse(user) });
+      return res
+        .status(200)
+        .json({ message: `Found user`, data: formatUserResponse(user) });
     }
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: "Unknown error when getting user!" });
+    return res
+      .status(500)
+      .json({ message: "Unknown error when getting user!" });
   }
 }
 
@@ -64,10 +105,14 @@ export async function getAllUsers(req, res) {
   try {
     const users = await _findAllUsers();
 
-    return res.status(200).json({ message: `Found users`, data: users.map(formatUserResponse) });
+    return res
+      .status(200)
+      .json({ message: `Found users`, data: users.map(formatUserResponse) });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: "Unknown error when getting all users!" });
+    return res
+      .status(500)
+      .json({ message: "Unknown error when getting all users!" });
   }
 }
 
@@ -99,17 +144,29 @@ export async function updateUser(req, res) {
         const salt = bcrypt.genSaltSync(10);
         hashedPassword = bcrypt.hashSync(password, salt);
       }
-      const updatedUser = await _updateUserById(userId, username, email, hashedPassword);
+      const updatedUser = await _updateUserById(
+        userId,
+        username,
+        email,
+        hashedPassword,
+      );
       return res.status(200).json({
         message: `Updated data for user ${userId}`,
         data: formatUserResponse(updatedUser),
       });
     } else {
-      return res.status(400).json({ message: "No field to update: username and email and password are all missing!" });
+      return res
+        .status(400)
+        .json({
+          message:
+            "No field to update: username and email and password are all missing!",
+        });
     }
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: "Unknown error when updating user!" });
+    return res
+      .status(500)
+      .json({ message: "Unknown error when updating user!" });
   }
 }
 
@@ -117,7 +174,8 @@ export async function updateUserPrivilege(req, res) {
   try {
     const { isAdmin } = req.body;
 
-    if (isAdmin !== undefined) {  // isAdmin can have boolean value true or false
+    if (isAdmin !== undefined) {
+      // isAdmin can have boolean value true or false
       const userId = req.params.id;
       if (!isValidObjectId(userId)) {
         return res.status(404).json({ message: `User ${userId} not found` });
@@ -127,7 +185,10 @@ export async function updateUserPrivilege(req, res) {
         return res.status(404).json({ message: `User ${userId} not found` });
       }
 
-      const updatedUser = await _updateUserPrivilegeById(userId, isAdmin === true);
+      const updatedUser = await _updateUserPrivilegeById(
+        userId,
+        isAdmin === true,
+      );
       return res.status(200).json({
         message: `Updated privilege for user ${userId}`,
         data: formatUserResponse(updatedUser),
@@ -137,7 +198,9 @@ export async function updateUserPrivilege(req, res) {
     }
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: "Unknown error when updating user privilege!" });
+    return res
+      .status(500)
+      .json({ message: "Unknown error when updating user privilege!" });
   }
 }
 
@@ -153,10 +216,14 @@ export async function deleteUser(req, res) {
     }
 
     await _deleteUserById(userId);
-    return res.status(200).json({ message: `Deleted user ${userId} successfully` });
+    return res
+      .status(200)
+      .json({ message: `Deleted user ${userId} successfully` });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: "Unknown error when deleting user!" });
+    return res
+      .status(500)
+      .json({ message: "Unknown error when deleting user!" });
   }
 }
 
@@ -166,6 +233,7 @@ export function formatUserResponse(user) {
     username: user.username,
     email: user.email,
     isAdmin: user.isAdmin,
+    verified: user.verified,
     createdAt: user.createdAt,
   };
 }
