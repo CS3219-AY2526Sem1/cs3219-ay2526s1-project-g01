@@ -23,7 +23,6 @@ import {
 } from "../utils/emailSender.js";
 
 export async function handleLogin(req, res) {
-  console.log("handleLogin called");
   const { email, password } = req.body;
   if (email && password) {
     try {
@@ -97,9 +96,9 @@ export async function handleRequestPasswordReset(req, res) {
     // check if a password reset token already exists for this user 
     // and check if it is less than 30 seconds ago
     const resetRecord = await _findPasswordResetRecordById(user._id);
-    if (resetRecord) {
+    if (resetRecord.length > 0) {
       const now = Date.now();
-      const elapsed = now - (new Date(resetRecord.createdAt)).getTime();
+      const elapsed = now - (new Date(resetRecord[0].createdAt)).getTime();
       if (elapsed < 30000) { // 30 seconds
         return res.status(429).json({ message: "Password reset already requested recently. Please wait before requesting again." });
       }
@@ -128,7 +127,6 @@ export async function handleRequestPasswordReset(req, res) {
 }
 
 export async function handleValidatePasswordResetToken(req, res) {
-  console.log("handleValidatePasswordResetToken called");
   try {
     // extract username, email and token from query params
     const { username, email, token } = req.query;
@@ -172,7 +170,6 @@ export async function handleValidatePasswordResetToken(req, res) {
 }
 
 export async function handleConfirmPasswordReset(req, res) {
-  console.log("handleConfirmPasswordReset called");
   try {
     // extract username, email and token from query params
     const { username, email, token } = req.query;
