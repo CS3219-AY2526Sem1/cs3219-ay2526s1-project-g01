@@ -105,7 +105,7 @@ export default function ForgotPasswordPage() {
       <Card className="min-h-[40%] min-w-[40%] mt-3">
         <CardHeader className="mt-5">
           <CardTitle className="text-center text-3xl font-bold">
-            Forgot Password
+            Forgot Password?
           </CardTitle>
         </CardHeader>
 

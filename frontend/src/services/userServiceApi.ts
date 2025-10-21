@@ -203,6 +203,23 @@ const sendPasswordResetEmail = async (email: string) => {
   }
 };
 
+const validatePasswordResetToken = async (
+  username: string, 
+  email: string,
+  token: string
+) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.get(
+      `${API_ENDPOINTS.AUTH_SERVICE}/password/validate-token?username=${encodeURIComponent(username)}&email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`,
+    );
+    return response;
+  } catch (error) {
+    console.error("Error validating password reset token:", error);
+    throw error;
+  }
+};
+
 const confirmPasswordReset = async (
   username: string, 
   email: string, 
@@ -229,6 +246,7 @@ export {
   signup, 
   verifyUserEmail, 
   resendEmailVerification, 
-  sendPasswordResetEmail, 
+  sendPasswordResetEmail,
+  validatePasswordResetToken,
   confirmPasswordReset 
 };

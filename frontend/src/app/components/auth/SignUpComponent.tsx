@@ -181,7 +181,7 @@ export default function SignupForm() {
         router.push(
           `/auth/check-email?email=${encodeURIComponent(trimmedEmail)}&username=${encodeURIComponent(trimmedUsername)}`,
         );
-      }, 1500);
+      }, 1000);
     } catch (error: unknown) {
       // Use reusable error handler
       handleApiError(error, "Failed to create account");
