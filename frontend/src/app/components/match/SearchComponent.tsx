@@ -1,6 +1,8 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
+import { X } from "lucide-react";
+
 import {
   Dialog,
   DialogContent,
@@ -52,44 +54,47 @@ export default function SearchComponent({
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="w-[30%] flex flex-col items-center"
+        className="
+          w-[40%] 
+          flex 
+          flex-col 
+          items-center 
+          bg-stone-800 
+          rounded-2xl 
+          border-black"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
         showCloseButton={false}
       >
-        <DialogHeader className="flex items-center">
+        <div className="absolute top-3 right-3">
+          <Button className="bg-transparent" size="sm" onClick={onCancel}>
+            <X />
+          </Button>
+        </div>
+        <DialogHeader className="flex items-center text-white w-full">
           <DialogTitle>Searching for a match...</DialogTitle>
           <DialogDescription>Hold on tight!</DialogDescription>
         </DialogHeader>
 
-        <Spinner variant="circle-filled" />
+        <Spinner variant="circle-filled" className="text-white" />
 
         {/* Countdown Timer */}
         <div className="w-full mt-4 text-center">
-          <p className="text-2xl font-bold text-gray-800">
+          <p className="text-2xl font-bold text-white">
             {formatTimeRemaining(timeRemaining)}
           </p>
-          <p className="text-sm text-gray-500 mt-1">Time remaining</p>
+          <p className="text-sm text-white mt-1">Time remaining</p>
 
           {/* Progress Bar */}
           <div className="w-full mt-4 bg-gray-200 rounded-full h-3">
             <div
-              className="bg-blue-600 h-3 rounded-full transition-all duration-1000"
+              className="bg-stone-600 h-3 rounded-full transition-all duration-1000"
               style={{
                 width: `${timeRemaining ? (timeRemaining / 300) * 100 : 100}%`,
               }}
             ></div>
           </div>
         </div>
-
-        {/* Cancel Button */}
-        <Button
-          onClick={onCancel}
-          variant="destructive"
-          className="mt-6 w-full"
-        >
-          Cancel Search
-        </Button>
       </DialogContent>
     </Dialog>
   );
