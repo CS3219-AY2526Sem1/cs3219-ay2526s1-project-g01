@@ -28,7 +28,7 @@ interface editorSyncPayload extends BasePayload {
 function initEditor(
   userId: string,
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
-  editorInstance: monaco.editor.IStandaloneCodeEditor
+  editorInstance: monaco.editor.IStandaloneCodeEditor,
 ) {
   console.log("Connected to server Websocket Succesfully");
   cursorCollections[userId] = editorInstance.createDecorationsCollection([]);
@@ -48,7 +48,7 @@ function initEditor(
 function sendEditorState(
   userId: string,
   ydoc: Y.Doc,
-  ws: ReconnectingWebSocket
+  ws: ReconnectingWebSocket,
 ) {
   const initialState: Uint8Array = Y.encodeStateVector(ydoc);
   const stateAsString: string = Buffer.from(initialState).toString("base64");
@@ -66,7 +66,7 @@ function sendEditorState(
 function onEditorChangeHandler(
   update: Uint8Array,
   origin: string,
-  clientWS: ReconnectingWebSocket
+  clientWS: ReconnectingWebSocket,
 ) {
   if (origin != "remote" && clientWS.readyState === WebSocket.OPEN) {
     clientWS.send(update);
@@ -79,7 +79,7 @@ function onCursorChangeHandler(
   event: monaco.editor.ICursorSelectionChangedEvent,
   clientWS: ReconnectingWebSocket,
   userId: string,
-  userName: string
+  userName: string,
 ) {
   const { startLineNumber, startColumn, endLineNumber, endColumn } =
     event.selection;
@@ -102,7 +102,7 @@ function onCursorChangeHandler(
         startLineNumber,
         startColumn,
         endLineNumber,
-        endColumn
+        endColumn,
       ),
       options: {
         className: "local-cursor",
@@ -116,7 +116,7 @@ function onCursorChangeHandler(
 function onPartnerCursorChangeHandler(
   messageEvent: MessageEvent,
   editorInstance: monaco.editor.IStandaloneCodeEditor,
-  cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>
+  cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
 ) {
   const data: CursorUpdatePayload = JSON.parse(messageEvent.data);
 
@@ -133,7 +133,7 @@ function onPartnerCursorChangeHandler(
           startLineNumber,
           startColumn,
           endLineNumber,
-          endColumn
+          endColumn,
         ),
         options: {
           className: "remote-cursor",

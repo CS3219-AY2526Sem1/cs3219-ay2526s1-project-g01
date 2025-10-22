@@ -23,21 +23,21 @@ import { createInlineStyle } from "@/lib/utils";
 //Partner's cursor CSS
 createInlineStyle(
   "remote-cursor",
-  "border-left: 2px solid rgba(255, 64, 11, 1);"
+  "border-left: 2px solid rgba(255, 64, 11, 1);",
 );
 //Current user's cursor CSS
 createInlineStyle(
   "local-cursor",
-  "border-left: 2px solid rgba(46, 216, 246, 1)"
+  "border-left: 2px solid rgba(46, 216, 246, 1)",
 );
 
 //Handle updates made to monaco editor by current user
 function registerEditorUpdateHandler(
   ydoc: Y.Doc,
-  clientWS: ReconnectingWebSocket
+  clientWS: ReconnectingWebSocket,
 ) {
   ydoc.on("update", (update: Uint8Array, origin: string) =>
-    onEditorChangeHandler(update, origin, clientWS)
+    onEditorChangeHandler(update, origin, clientWS),
   );
 }
 
@@ -47,10 +47,10 @@ function registerCursorUpdateHandler(
   editorInstance: monaco.editor.IStandaloneCodeEditor,
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
   clientWS: ReconnectingWebSocket,
-  userName: string
+  userName: string,
 ) {
   editorInstance.onDidChangeCursorSelection((event) =>
-    onCursorChangeHandler(cursorCollections, event, clientWS, userId, userName)
+    onCursorChangeHandler(cursorCollections, event, clientWS, userId, userName),
   );
 }
 
@@ -62,13 +62,13 @@ function initialiseCollabWebsocket(
   editorInstance: monaco.editor.IStandaloneCodeEditor,
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
   onLeaveSession: () => void,
-  onPartnerLeaveSession: () => void
+  onPartnerLeaveSession: () => void,
 ) {
   const wsBaseUrl =
     process.env.NEXT_PUBLIC_COLLAB_WS_URL || "ws://localhost/collab-socket";
 
   const clientWS: ReconnectingWebSocket = new ReconnectingWebSocket(
-    `${wsBaseUrl}/${userId}/${sessionId}`
+    `${wsBaseUrl}/${userId}/${sessionId}`,
   );
 
   clientWS.binaryType = "arraybuffer";
@@ -87,13 +87,13 @@ function initialiseCollabWebsocket(
         onPartnerCursorChangeHandler(
           messageEvent,
           editorInstance,
-          cursorCollections
+          cursorCollections,
         );
         return;
       } else if (payloadObject.type === "sync") {
         const yUpdate: Uint8Array = Buffer.from(
           payloadObject.ydocUpdate,
-          "base64"
+          "base64",
         );
         Y.applyUpdate(ydoc, yUpdate, "remote");
         return;
