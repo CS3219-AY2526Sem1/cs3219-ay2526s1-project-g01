@@ -46,10 +46,11 @@ function registerCursorUpdateHandler(
   userId: string,
   editorInstance: monaco.editor.IStandaloneCodeEditor,
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
-  clientWS: ReconnectingWebSocket
+  clientWS: ReconnectingWebSocket,
+  userName: string
 ) {
   editorInstance.onDidChangeCursorSelection((event) =>
-    onCursorChangeHandler(cursorCollections, event, clientWS, userId)
+    onCursorChangeHandler(cursorCollections, event, clientWS, userId, userName)
   );
 }
 

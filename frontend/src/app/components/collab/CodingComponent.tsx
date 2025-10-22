@@ -23,16 +23,16 @@ import { useUser } from "@/contexts/UserContext";
 import { useRouter } from "next/navigation";
 import ReconnectingWebSocket from "reconnecting-websocket";
 
-export default function CodingComponent() {
+export default function CodingComponent({ sessionId }: { sessionId: string }) {
   const [codeContent, setCodeContent] = useState<string>("");
   const [selectedLanguage, setSeletedLanguage] = useState<string>("JavaScript");
   const router = useRouter();
   const [editorInstance, setEditorInstance] =
     useState<monaco.editor.IStandaloneCodeEditor>();
   const { user } = useUser();
-  const user_id: string = user?.username || "1";
+  const user_id: string = user?.id || "0";
+  const user_name: string = user?.username || "Unknown";
 
-  const session_id = "123"; //HARDCODED FOR TESTING
   function setInitialContent(value: string | undefined) {
     if (value != undefined) {
       setCodeContent(value);
@@ -61,7 +61,7 @@ export default function CodingComponent() {
     > = {};
     const clientWS: ReconnectingWebSocket = initialiseCollabWebsocket(
       user_id,
-      session_id,
+      sessionId,
       ydoc,
       editorInstance,
       cursorCollections,
@@ -73,7 +73,8 @@ export default function CodingComponent() {
       user_id,
       editorInstance,
       cursorCollections,
-      clientWS
+      clientWS,
+      user_name
     );
     registerEditorUpdateHandler(ydoc, clientWS);
 

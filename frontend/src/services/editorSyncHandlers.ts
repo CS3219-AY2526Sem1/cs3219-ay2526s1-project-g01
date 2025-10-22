@@ -78,7 +78,8 @@ function onCursorChangeHandler(
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
   event: monaco.editor.ICursorSelectionChangedEvent,
   clientWS: ReconnectingWebSocket,
-  userId: string
+  userId: string,
+  userName: string
 ) {
   const { startLineNumber, startColumn, endLineNumber, endColumn } =
     event.selection;
@@ -105,7 +106,7 @@ function onCursorChangeHandler(
       ),
       options: {
         className: "local-cursor",
-        hoverMessage: { value: `User ${userId}` },
+        hoverMessage: { value: `User ${userName}` },
       },
     },
   ]);

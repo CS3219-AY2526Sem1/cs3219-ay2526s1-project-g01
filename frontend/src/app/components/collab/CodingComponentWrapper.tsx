@@ -10,8 +10,14 @@
 
 import dynamic from "next/dynamic";
 
-const CodingComponentWrapper = dynamic(() => import("./CodingComponent"), {
+const CodingComponent = dynamic(() => import("./CodingComponent"), {
   ssr: false,
 });
 
-export default CodingComponentWrapper;
+export default function CodingComponentWrapper({
+  sessionId,
+}: {
+  sessionId: string;
+}) {
+  return <CodingComponent sessionId={sessionId} />;
+}
