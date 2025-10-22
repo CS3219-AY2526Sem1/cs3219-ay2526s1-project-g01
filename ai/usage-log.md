@@ -966,3 +966,37 @@ Request to implement live reload for all microservices in Docker Compose setup, 
 - Maintainability: comprehensive documentation and flexible deployment options (hybrid vs full Docker)
 - Windows/WSL2 compatibility: polling-based file watching ensures reliable live reload across development environments
 
+---
+
+## Entry 27
+
+# Date/Time:
+
+2025-10-22 17:40
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Request to implement Alert Dialog from radix-ui
+
+# Output Summary:
+
+- Created an alert-dialog component that has two buttons with appropriate TailWindCSS styling
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that logic implemented for buttons works
+- Modified css styling to suit overall aesthetic of application
+- Modified component to make it reusable
+- Tested that alert dialog box works as intended
+
+---

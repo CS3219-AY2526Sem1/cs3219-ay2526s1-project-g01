@@ -3,7 +3,7 @@
  * Tool: ChatGPT(model: GPT 5.0), date: 2025-10-22
  * Purpose: To create a dialog box using radix-ui
  * Author Review: I validated correctness and performance of the code suggested and modified areas such as
- * TailWindCSS style classes for a more aesthetic look.
+ * TailWindCSS style classes for a more aesthetic look. I modified the component to make it reusable
  */
 
 "use client";
@@ -13,17 +13,27 @@ import { useRouter } from "next/navigation";
 
 interface DisconnectAlertDialogProps {
   open: boolean;
-  onClose: () => void;
+  onAccept: () => void;
+  onReject: () => void;
+  buttonOneTitle: string;
+  buttonTwoTitle: string;
+  title: string;
+  description: string;
 }
 
 export default function DisconnectAlertDialog({
   open,
-  onClose,
+  onAccept,
+  onReject,
+  buttonOneTitle,
+  buttonTwoTitle,
+  title,
+  description,
 }: DisconnectAlertDialogProps) {
   const router = useRouter();
 
   return (
-    <AlertDialog.Root open={open} onOpenChange={onClose}>
+    <AlertDialog.Root open={open} onOpenChange={onAccept}>
       <AlertDialog.Portal>
         <AlertDialog.Overlay className="fixed inset-0 bg-black/50" />
         <AlertDialog.Content
@@ -31,27 +41,27 @@ export default function DisconnectAlertDialog({
           rounded-2xl bg-white p-6 shadow-lg"
         >
           <AlertDialog.Title className="text-lg font-semibold text-gray-900">
-            Your partner has disconnected
+            {title}
           </AlertDialog.Title>
           <AlertDialog.Description className="mt-2 text-gray-600">
-            Do you want to continue working alone or leave the session?
+            {description}
           </AlertDialog.Description>
 
           <div className="mt-6 flex justify-end gap-3">
             <AlertDialog.Cancel asChild>
               <button
-                onClick={onClose}
+                onClick={onAccept}
                 className="w-24 px-4 py-2 rounded bg-gray-200 text-gray-800 hover:bg-gray-300"
               >
-                Continue
+                {buttonOneTitle}
               </button>
             </AlertDialog.Cancel>
             <AlertDialog.Action asChild>
               <button
-                onClick={() => router.replace("/match")}
+                onClick={onReject}
                 className="w-24 px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600"
               >
-                Leave
+                {buttonTwoTitle}
               </button>
             </AlertDialog.Action>
           </div>

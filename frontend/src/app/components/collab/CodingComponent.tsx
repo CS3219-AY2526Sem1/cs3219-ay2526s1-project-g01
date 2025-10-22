@@ -138,7 +138,12 @@ export default function CodingComponent({ sessionId }: { sessionId: string }) {
       ></Editor>
       <DisconnectAlertDialog
         open={showDisconnectAlert}
-        onClose={() => setshowDisconnectAlert(false)}
+        onAccept={() => setshowDisconnectAlert(false)}
+        onReject={() => router.replace("/match")}
+        buttonOneTitle="Continue"
+        buttonTwoTitle="Leave"
+        title="Your partner has disconnected"
+        description="Do you want to continue working alone or exit the session?"
       />
     </div>
   );
