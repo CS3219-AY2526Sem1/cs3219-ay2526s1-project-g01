@@ -82,7 +82,6 @@ function broadcastToRoom(webSocketServer, websocket, roomId, update) {
       client.room === roomId
     ) {
       client.send(update);
-      hasUserInRoom = true;
     }
   });
 }

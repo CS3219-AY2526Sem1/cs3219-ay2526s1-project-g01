@@ -18,7 +18,7 @@ import {
   broadcastToRoom,
   handleSocketDisconnection,
 } from "./socketEventHandlers.js";
-
+import logger from "../utils/logger.js";
 //Initialises backend socket events
 function initialiseWebSocket(wss, ws, request, roomToDocMap) {
   const path_params = request.url.split("/");

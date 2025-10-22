@@ -1,5 +1,6 @@
 import * as Y from "yjs";
 import * as monaco from "monaco-editor";
+import ReconnectingWebSocket from "reconnecting-websocket";
 
 interface BasePayload {
   type: string;
@@ -27,7 +28,7 @@ interface editorSyncPayload extends BasePayload {
 function initEditor(
   userId: string,
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
-  editorInstance: monaco.editor.IStandaloneCodeEditor,
+  editorInstance: monaco.editor.IStandaloneCodeEditor
 ) {
   console.log("Connected to server Websocket Succesfully");
   cursorCollections[userId] = editorInstance.createDecorationsCollection([]);
@@ -44,7 +45,11 @@ function initEditor(
 }
 
 //Send initial editor state to backend socket
-function sendEditorState(userId: string, ydoc: Y.Doc, ws: WebSocket) {
+function sendEditorState(
+  userId: string,
+  ydoc: Y.Doc,
+  ws: ReconnectingWebSocket
+) {
   const initialState: Uint8Array = Y.encodeStateVector(ydoc);
   const stateAsString: string = Buffer.from(initialState).toString("base64");
 
@@ -61,7 +66,7 @@ function sendEditorState(userId: string, ydoc: Y.Doc, ws: WebSocket) {
 function onEditorChangeHandler(
   update: Uint8Array,
   origin: string,
-  clientWS: WebSocket,
+  clientWS: ReconnectingWebSocket
 ) {
   if (origin != "remote" && clientWS.readyState === WebSocket.OPEN) {
     clientWS.send(update);
@@ -72,8 +77,8 @@ function onEditorChangeHandler(
 function onCursorChangeHandler(
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
   event: monaco.editor.ICursorSelectionChangedEvent,
-  clientWS: WebSocket,
-  userId: string,
+  clientWS: ReconnectingWebSocket,
+  userId: string
 ) {
   const { startLineNumber, startColumn, endLineNumber, endColumn } =
     event.selection;
@@ -96,7 +101,7 @@ function onCursorChangeHandler(
         startLineNumber,
         startColumn,
         endLineNumber,
-        endColumn,
+        endColumn
       ),
       options: {
         className: "local-cursor",
@@ -110,7 +115,7 @@ function onCursorChangeHandler(
 function onPartnerCursorChangeHandler(
   messageEvent: MessageEvent,
   editorInstance: monaco.editor.IStandaloneCodeEditor,
-  cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
+  cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>
 ) {
   const data: CursorUpdatePayload = JSON.parse(messageEvent.data);
 
@@ -127,7 +132,7 @@ function onPartnerCursorChangeHandler(
           startLineNumber,
           startColumn,
           endLineNumber,
-          endColumn,
+          endColumn
         ),
         options: {
           className: "remote-cursor",
