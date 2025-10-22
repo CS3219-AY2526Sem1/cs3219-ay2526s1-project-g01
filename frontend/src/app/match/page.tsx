@@ -38,7 +38,7 @@ export default function MatchPage() {
   }, [clearPolling]);
 
   return (
-    <div 
+    <div
       className="
         min-h-screen
         flex flex-col 

@@ -17,7 +17,7 @@ export default function WelcomePage() {
     <Card
       className="m-10 h-[20%] bg-cover bg-center"
       style={{
-        backgroundImage: "url('/home/welcome-bg.jpg')"
+        backgroundImage: "url('/home/welcome-bg.jpg')",
       }}
     >
       <CardHeader>
