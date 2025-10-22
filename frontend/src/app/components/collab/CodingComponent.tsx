@@ -22,9 +22,13 @@ import {
 import { useUser } from "@/contexts/UserContext";
 import { useRouter } from "next/navigation";
 import ReconnectingWebSocket from "reconnecting-websocket";
+import DisconnectAlertDialog from "@/components/ui/alert-dialog";
 
 export default function CodingComponent({ sessionId }: { sessionId: string }) {
   const [codeContent, setCodeContent] = useState<string>("");
+  const [showDisconnectAlert, setshowDisconnectAlert] =
+    useState<boolean>(false);
+
   const [selectedLanguage, setSeletedLanguage] = useState<string>("JavaScript");
   const router = useRouter();
   const [editorInstance, setEditorInstance] =
@@ -67,7 +71,8 @@ export default function CodingComponent({ sessionId }: { sessionId: string }) {
       cursorCollections,
       () => {
         router.replace("/match");
-      }
+      },
+      () => setshowDisconnectAlert(true)
     );
     registerCursorUpdateHandler(
       user_id,
@@ -131,6 +136,10 @@ export default function CodingComponent({ sessionId }: { sessionId: string }) {
         options={{ scrollBeyondLastLine: false }}
         onMount={handleEditorMount}
       ></Editor>
+      <DisconnectAlertDialog
+        open={showDisconnectAlert}
+        onClose={() => setshowDisconnectAlert(false)}
+      />
     </div>
   );
 }

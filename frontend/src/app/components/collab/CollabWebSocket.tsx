@@ -61,7 +61,8 @@ function initialiseCollabWebsocket(
   ydoc: Y.Doc,
   editorInstance: monaco.editor.IStandaloneCodeEditor,
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
-  onLeaveSession: () => void
+  onLeaveSession: () => void,
+  onPartnerLeaveSession: () => void
 ) {
   const wsBaseUrl =
     process.env.NEXT_PUBLIC_COLLAB_WS_URL || "ws://localhost/collab-socket";
@@ -104,6 +105,7 @@ function initialiseCollabWebsocket(
           cursorDecorator.clear();
         }
         delete cursorCollections[disconnectedUser];
+        onPartnerLeaveSession();
       } else if (payloadObject.type === "end") {
         onLeaveSession();
       }
