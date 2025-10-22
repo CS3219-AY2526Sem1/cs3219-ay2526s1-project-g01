@@ -2,29 +2,15 @@ import WebSocket from "ws";
 import * as Y from "yjs";
 import logger from "../utils/logger.js";
 
-function getYDoc(roomToDocMap, userId, roomId) {
-  let doc;
-  if (!roomToDocMap.has(roomId)) {
-    doc = new Y.Doc();
-    roomToDocMap.set(roomId, [doc, [userId]]);
-  } else {
-    const [stored_doc, users] = roomToDocMap.get(roomId);
-    users.push(userId);
-    doc = stored_doc;
+//Create ydoc on WebSocketServer for each room and initilise room data
+function handleSocketConnection(roomToDocMap, userId, roomId) {
+  let room = roomToDocMap.get(roomId);
+  if (!room) {
+    room = { doc: new Y.Doc(), users: new Set(), lastEmptyAt: null };
+    roomToDocMap.set(roomId, room);
   }
-  return doc;
-}
-
-//Checks if message is a cursor update
-function parseCursorUpdate(message) {
-  const text = message.toString();
-  if (text.startsWith("{")) {
-    const data = JSON.parse(text);
-    if (data.type === "cursor") {
-      return text;
-    }
-  }
-  return null;
+  room.users.add(userId);
+  room.lastEmptyAt = null;
 }
 
 //Handles syncing of code editor with most updated changes by sending the difference to client
@@ -58,16 +44,18 @@ function handleSocketDisconnection(ws, wss, roomToDocMap) {
     type: "end",
     disconnectedUserId: ws.userId,
   };
-  const hasUser = broadcastToRoom(
-    wss,
-    ws,
-    ws.room,
-    JSON.stringify(payloadToPartner)
-  ); //To remove dangling cursor on partner's editor
-  broadcastToCurrentUser(wss, ws, JSON.stringify(payloadToSelf)); //for disconnected user to return back to matching page on all opened tabs
 
-  if (!hasUser) {
-    roomToDocMap.delete(ws.room);
+  //To inform partner that current user disconnected
+  broadcastToRoom(wss, ws, ws.room, JSON.stringify(payloadToPartner));
+
+  //for disconnected user to return back to matching page on all opened tabs
+  broadcastToCurrentUser(wss, ws, JSON.stringify(payloadToSelf));
+
+  //Handle state deletion
+  const room = roomToDocMap.get(ws.room);
+  room.users.delete(ws.userId);
+  if (room.users.size === 0) {
+    room.lastEmptyAt = Date.now();
   }
 }
 
@@ -87,7 +75,6 @@ function broadcastToCurrentUser(webSocketServer, websocket, update) {
 //Communicate update to other websockets with same roomId
 //O(N) time complexity -> think about using hashmap to store sessionId:[socket1, socket2]
 function broadcastToRoom(webSocketServer, websocket, roomId, update) {
-  let hasUserInRoom = false;
   webSocketServer.clients.forEach((client) => {
     if (
       client !== websocket &&
@@ -98,13 +85,23 @@ function broadcastToRoom(webSocketServer, websocket, roomId, update) {
       hasUserInRoom = true;
     }
   });
-  return hasUserInRoom;
 }
 
+//Checks if message is a cursor update
+function parseCursorUpdate(message) {
+  const text = message.toString();
+  if (text.startsWith("{")) {
+    const data = JSON.parse(text);
+    if (data.type === "cursor") {
+      return text;
+    }
+  }
+  return null;
+}
 export {
-  getYDoc,
   parseCursorUpdate,
   handleInitialDocSync,
   broadcastToRoom,
   handleSocketDisconnection,
+  handleSocketConnection,
 };

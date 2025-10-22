@@ -12,7 +12,7 @@
 
 import * as Y from "yjs";
 import {
-  getYDoc,
+  handleSocketConnection,
   parseCursorUpdate,
   handleInitialDocSync,
   broadcastToRoom,
@@ -28,7 +28,8 @@ function initialiseWebSocket(wss, ws, request, roomToDocMap) {
   ws.isAlive = true;
   ws.room = roomId;
   ws.userId = userId;
-  const doc = getYDoc(roomToDocMap, userId, roomId);
+  handleSocketConnection(roomToDocMap, userId, roomId);
+  const doc = roomToDocMap.get(roomId).doc;
 
   ws.on("pong", () => {
     ws.isAlive = true;
@@ -54,6 +55,7 @@ function initialiseWebSocket(wss, ws, request, roomToDocMap) {
   });
 
   ws.on("close", () => {
+    logger.info("websocket on server closed");
     handleSocketDisconnection(ws, wss, roomToDocMap);
   });
 }
