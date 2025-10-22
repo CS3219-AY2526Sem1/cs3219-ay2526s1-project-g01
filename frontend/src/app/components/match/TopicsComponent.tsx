@@ -44,7 +44,13 @@ export default function TopicsComponent({ setTopics }: TopicsProps) {
           <Button
             key={topic}
             onClick={() => handleTopicSelect(topic)}
-            className={`flex-1 min-w-[150px] min-h-[50px] py-2 relative bg-blue-200 text-black hover:bg-blue-200/90 flex items-center justify-center pr-10`}
+            className={`flex-1 min-w-[150px] min-h-[50px] py-2 relative 
+              ${
+                selectedTopics.includes(topic)
+                  ? "bg-gradient-to-r from-indigo-600 to-purple-700 text-white"
+                  : "bg-zinc-800 text-white hover:bg-zinc-700"
+              }
+              flex items-center justify-center pr-10 rounded-xl transition-all duration-200`}
           >
             <span className="px-4 whitespace-normal break-words text-center leading-snug">
               {topic}

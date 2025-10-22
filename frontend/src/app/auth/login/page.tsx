@@ -4,7 +4,11 @@ import Image from "next/image";
 export default function LoginPage() {
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
+      className="
+        min-h-screen 
+        flex flex-col 
+        items-center justify-center 
+        bg-cover bg-center"
       style={{ backgroundImage: "url('/login/login-1.jpg')" }}
     >
       <Image

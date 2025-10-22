@@ -193,7 +193,7 @@ export default function SignupForm() {
 
   //#region rendering
   return (
-    <Card className="w-[80%] max-w-[500px] bg-white/30 backdrop-blur-sm border-black">
+    <Card className="w-[80%] max-w-[500px] bg-white/50 backdrop-blur-sm border-black">
       {/*Header */}
       <CardHeader className="mt-5">
         <CardTitle className="text-center text-4xl font-bold">

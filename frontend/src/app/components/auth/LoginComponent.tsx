@@ -111,7 +111,7 @@ export default function LoginForm() {
       className="
       min-h-[50%] 
       min-w-[40%] 
-      bg-white/30 
+      bg-white/50 
       backdrop-blur-sm 
       border-black
       mb-20"

@@ -40,10 +40,12 @@ export default function SearchComponent({
         <Button
           className="
             mb-15 
-            w-[80%] 
+            w-[40%] 
             bg-black 
-            text-white 
-            border-stone-600
+            text-white
+            rounded-xl 
+            border-2
+            border-stone-400
             hover:bg-stone-900
             hover:text-white"
           variant="outline"

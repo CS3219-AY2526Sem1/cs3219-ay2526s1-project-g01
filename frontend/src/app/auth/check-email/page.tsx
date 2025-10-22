@@ -101,7 +101,7 @@ export default function CheckEmailPage() {
         height={200}
       />
 
-      <Card className="min-h-[40%] min-w-[40%] mt-3 mb-20 bg-white/30 backdrop-blur-sm border-black">
+      <Card className="min-h-[40%] min-w-[40%] mt-3 mb-20 bg-white/50 backdrop-blur-sm border-black">
         <CardHeader className="mt-5">
           <CardTitle className="text-center text-3xl font-bold">
             Check Your Email

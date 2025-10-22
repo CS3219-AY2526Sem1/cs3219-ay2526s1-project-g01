@@ -45,7 +45,7 @@ export default function MatchPage() {
         flex flex-col 
         items-center justify-center 
         px-4 py-20
-        bg-radial-[at_75%_75%] from-zinc-400 to-black to-85%"
+        bg-radial-[at_85%_85%] from-zinc-400 to-black to-85%"
     >
       <div className="text-center mb-8 w-full max-w-4xl px-4">
         <h1 className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 break-words">
