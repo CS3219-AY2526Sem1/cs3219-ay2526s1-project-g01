@@ -222,7 +222,7 @@ export default function SignupForm() {
             <div>
               <Label className="m-2">Email</Label>
               <Input
-              className="border-black"
+                className="border-black"
                 name="email"
                 type="email"
                 value={email}
@@ -237,7 +237,7 @@ export default function SignupForm() {
               <Label className="m-2">Password</Label>
               <div className="relative">
                 <Input
-                className="border-black"
+                  className="border-black"
                   name="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
@@ -331,7 +331,7 @@ export default function SignupForm() {
               <Label className="m-2">Confirm Password</Label>
               <div className="relative">
                 <DebouncedInput
-                className="border-black"
+                  className="border-black"
                   name="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
@@ -385,9 +385,7 @@ export default function SignupForm() {
 
             {/* Navigate to login page */}
             <div className="flex justify-center mt-4">
-              <div className="text-sm text-black">
-                Already have an account?
-              </div>
+              <div className="text-sm text-black">Already have an account?</div>
               <Link
                 href="/auth/login"
                 className={`ml-3 ${
