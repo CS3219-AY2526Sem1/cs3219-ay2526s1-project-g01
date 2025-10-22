@@ -1,7 +1,7 @@
 /**
  * AI Assistance Disclosure:
  * Tool: Github Copilot (GPT-5 mini), date: 2025-10-16
- * Purpose: To generate a boilderplate controller for question service to get all questions with filters.
+ * Purpose: To generate a boilerplate controller for question service to get all questions with filters.
  * Author Review: I modified to add validation and error handling, checked correctness and performance of the code.
  */
 

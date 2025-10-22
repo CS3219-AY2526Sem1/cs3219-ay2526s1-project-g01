@@ -1,7 +1,7 @@
 /**
  * AI Assistance Disclosure:
  * Tool: ChatGPT, date: 2025-10-20
- * Purpose: To query for al questions by topic and difficulty with optional limit and randomization.
+ * Purpose: To query for all questions by topic and difficulty with optional limit and randomization.
  * Author Review: I checked correctness and performance of the code.
  */
 
@@ -15,7 +15,7 @@ export async function getAllQuestionsFromDb({ topics, difficulties, limit, rando
         q.title,
         q.difficulty,
         q.description,
-        q.constraints,
+        q.question_constraints,
         -- Aggregate all topics
         COALESCE(
           (
