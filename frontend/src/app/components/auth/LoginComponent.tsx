@@ -174,7 +174,7 @@ export default function LoginForm() {
               <div>Do not have an account?</div>
               <Link
                 href="/auth/signup"
-                className="ml-3 text-blue-500 hover:underline"
+                className="ml-3 text-blue-700 hover:underline"
               >
                 Signup
               </Link>

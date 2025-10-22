@@ -391,7 +391,7 @@ export default function SignupForm() {
                 className={`ml-3 ${
                   isLoading
                     ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-500 hover:underline"
+                    : "text-blue-700 hover:underline"
                 }`}
                 onClick={(e) => isLoading && e.preventDefault()}
               >
