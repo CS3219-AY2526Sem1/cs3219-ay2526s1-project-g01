@@ -966,3 +966,42 @@ Request to implement live reload for all microservices in Docker Compose setup, 
 - Maintainability: comprehensive documentation and flexible deployment options (hybrid vs full Docker)
 - Windows/WSL2 compatibility: polling-based file watching ensures reliable live reload across development environments
 
+---
+
+## Entry 27
+
+# Date/Time:
+
+2025-10-22 15:00
+
+# Tool:
+
+ChatGPT
+
+# Prompt/Command:
+
+- Ask for tips on how to implement a background image as well as making components slightly transparent.
+- Review current code and give suggestions on how to improve readability and interactivity.
+- Ask for websites that provide free stock images without the need for attribution.
+
+# Output Summary:
+
+- Use bg-cover, bg-center, and bg-no-repeat in Tailwind for full coverage and positioning.
+- Add a semi-transparent overlay with bg-black/30 or bg-opacity-30 to make text readable.
+- Use drop shadows (drop-shadow-md) on headings for contrast.
+- Recommended websites like Unsplash for stock images that do need require attribution
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Structured the advice for implementing background images and transparency.
+- Reviewed the current UI code and provided actionable improvements.
+- Compiled a list of free stock image sources that do not require attribution.
+- Recommended best practices for interactive and visually readable UI.
+
+

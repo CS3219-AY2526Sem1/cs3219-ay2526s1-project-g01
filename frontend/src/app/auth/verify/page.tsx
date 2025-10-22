@@ -66,7 +66,10 @@ export default function VerifyPage() {
   }, [router]);
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
+      style={{ backgroundImage: "url('/login/login-1.jpg')" }}
+    >
       <Image
         src="/PeerPrepLogo.png"
         alt="PeerprepLogo"
@@ -74,7 +77,7 @@ export default function VerifyPage() {
         height={200}
       />
 
-      <Card className="min-h-[40%] min-w-[40%] mt-8">
+      <Card className="min-h-[40%] min-w-[40%] mt-8 mb-45 bg-white/50 backdrop-blur-sm">
         <CardHeader className="mt-5">
           <CardTitle className="text-center text-3xl font-bold">
             Verifying Email

@@ -44,7 +44,13 @@ export default function DifficultyComponent({
       <CardContent className="flex flex-wrap justify-evenly h-full items-center gap-3">
         <Button
           onClick={() => handleDifficultySelect(Difficulty.EASY)}
-          className={`flex-1 h-[50px] min-w-[150px] relative bg-green-200 text-black hover:bg-green-200/90 flex items-center justify-center`}
+          className={`
+            flex-1 h-[50px]
+            min-w-[150px] relative 
+            bg-green-200 text-black 
+            hover:bg-green-200/90 
+            flex items-center 
+            justify-center border-2 border-black`}
         >
           <span className="absolute left-1/2 -translate-x-1/2 max-w-[calc(100%-64px)] truncate">
             {Difficulty.EASY}
@@ -59,7 +65,13 @@ export default function DifficultyComponent({
         </Button>
         <Button
           onClick={() => handleDifficultySelect(Difficulty.MEDIUM)}
-          className={`flex-1 h-[50px] min-w-[150px] relative bg-yellow-200 text-black hover:bg-yellow-200/90 flex items-center justify-center`}
+          className={`
+            flex-1 h-[50px] 
+            min-w-[150px] relative
+            bg-yellow-200 text-black 
+            hover:bg-yellow-200/90 
+            flex items-center 
+            justify-center border-2 border-black`}
         >
           <span className="absolute left-1/2 -translate-x-1/2 max-w-[calc(100%-64px)] truncate">
             {Difficulty.MEDIUM}
@@ -74,7 +86,13 @@ export default function DifficultyComponent({
         </Button>
         <Button
           onClick={() => handleDifficultySelect(Difficulty.HARD)}
-          className={`flex-1 h-[50px] min-w-[150px] relative bg-red-200 text-black hover:bg-red-200/90 flex items-center justify-center`}
+          className={`
+            flex-1 h-[50px] 
+            min-w-[150px] relative 
+            bg-red-200 text-black 
+            hover:bg-red-200/90 
+            flex items-center 
+            justify-center border-2 border-black`}
         >
           <span className="absolute left-1/2 -translate-x-1/2 max-w-[calc(100%-64px)] truncate">
             {Difficulty.HARD}

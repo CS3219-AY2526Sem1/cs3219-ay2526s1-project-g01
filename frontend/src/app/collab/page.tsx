@@ -8,7 +8,7 @@ export default function CollabPage() {
     <main className="bg-stone-900 h-screen flex flex-col items-center">
       <SessionHeader />
 
-      <div className="flex flex-1 w-full bg-stone-800 ">
+      <div className="flex flex-1 w-full bg-black ">
         <div className="flex-1 p-5">
           <QuestionComponent />
         </div>

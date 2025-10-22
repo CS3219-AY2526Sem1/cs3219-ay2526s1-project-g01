@@ -65,7 +65,7 @@ export default function Navbar() {
               height={40}
               className="object-contain"
             />
-            <span className="text-blue-600 font-bold text-xl">PeerPrep</span>
+            <span className="text-black font-bold text-xl">PeerPrep</span>
           </Link>
         </div>
 
