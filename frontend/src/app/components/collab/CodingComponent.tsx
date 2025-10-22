@@ -21,16 +21,22 @@ import {
 } from "./CollabWebSocket";
 import { useUser } from "@/contexts/UserContext";
 import { useRouter } from "next/navigation";
-export default function CodingComponent() {
+import ReconnectingWebSocket from "reconnecting-websocket";
+import DisconnectAlertDialog from "@/components/ui/alert-dialog";
+
+export default function CodingComponent({ sessionId }: { sessionId: string }) {
   const [codeContent, setCodeContent] = useState<string>("");
+  const [showDisconnectAlert, setshowDisconnectAlert] =
+    useState<boolean>(false);
+
   const [selectedLanguage, setSeletedLanguage] = useState<string>("JavaScript");
   const router = useRouter();
   const [editorInstance, setEditorInstance] =
     useState<monaco.editor.IStandaloneCodeEditor>();
   const { user } = useUser();
-  const user_id: string = user?.username || "1";
+  const user_id: string = user?.id || "0";
+  const user_name: string = user?.username || "Unknown";
 
-  const session_id = "123"; //HARDCODED FOR TESTING
   function setInitialContent(value: string | undefined) {
     if (value != undefined) {
       setCodeContent(value);
@@ -57,21 +63,23 @@ export default function CodingComponent() {
       string,
       monaco.editor.IEditorDecorationsCollection
     > = {};
-    const clientWS: WebSocket = initialiseCollabWebsocket(
+    const clientWS: ReconnectingWebSocket = initialiseCollabWebsocket(
       user_id,
-      session_id,
+      sessionId,
       ydoc,
       editorInstance,
       cursorCollections,
       () => {
         router.replace("/match");
       },
+      () => setshowDisconnectAlert(true),
     );
     registerCursorUpdateHandler(
       user_id,
       editorInstance,
       cursorCollections,
       clientWS,
+      user_name,
     );
     registerEditorUpdateHandler(ydoc, clientWS);
 
@@ -128,6 +136,15 @@ export default function CodingComponent() {
         options={{ scrollBeyondLastLine: false }}
         onMount={handleEditorMount}
       ></Editor>
+      <DisconnectAlertDialog
+        open={showDisconnectAlert}
+        onAccept={() => setshowDisconnectAlert(false)}
+        onReject={() => router.replace("/match")}
+        buttonOneTitle="Continue"
+        buttonTwoTitle="Leave"
+        title="Your partner has disconnected"
+        description="Do you want to continue working alone or exit the session?"
+      />
     </div>
   );
 }

@@ -10,6 +10,7 @@
 
 import * as Y from "yjs";
 import * as monaco from "monaco-editor";
+import ReconnectingWebSocket from "reconnecting-websocket";
 import {
   initEditor,
   sendEditorState,
@@ -31,7 +32,10 @@ createInlineStyle(
 );
 
 //Handle updates made to monaco editor by current user
-function registerEditorUpdateHandler(ydoc: Y.Doc, clientWS: WebSocket) {
+function registerEditorUpdateHandler(
+  ydoc: Y.Doc,
+  clientWS: ReconnectingWebSocket,
+) {
   ydoc.on("update", (update: Uint8Array, origin: string) =>
     onEditorChangeHandler(update, origin, clientWS),
   );
@@ -42,10 +46,11 @@ function registerCursorUpdateHandler(
   userId: string,
   editorInstance: monaco.editor.IStandaloneCodeEditor,
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
-  clientWS: WebSocket,
+  clientWS: ReconnectingWebSocket,
+  userName: string,
 ) {
   editorInstance.onDidChangeCursorSelection((event) =>
-    onCursorChangeHandler(cursorCollections, event, clientWS, userId),
+    onCursorChangeHandler(cursorCollections, event, clientWS, userId, userName),
   );
 }
 
@@ -57,11 +62,12 @@ function initialiseCollabWebsocket(
   editorInstance: monaco.editor.IStandaloneCodeEditor,
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
   onLeaveSession: () => void,
+  onPartnerLeaveSession: () => void,
 ) {
   const wsBaseUrl =
     process.env.NEXT_PUBLIC_COLLAB_WS_URL || "ws://localhost/collab-socket";
 
-  const clientWS: WebSocket = new WebSocket(
+  const clientWS: ReconnectingWebSocket = new ReconnectingWebSocket(
     `${wsBaseUrl}/${userId}/${sessionId}`,
   );
 
@@ -99,6 +105,7 @@ function initialiseCollabWebsocket(
           cursorDecorator.clear();
         }
         delete cursorCollections[disconnectedUser];
+        onPartnerLeaveSession();
       } else if (payloadObject.type === "end") {
         onLeaveSession();
       }
@@ -114,6 +121,11 @@ function initialiseCollabWebsocket(
   };
 
   clientWS.onclose = () => {
+    const cursorDecorator: monaco.editor.IEditorDecorationsCollection =
+      cursorCollections[userId];
+    if (cursorDecorator) {
+      cursorDecorator.clear();
+    }
     delete cursorCollections[userId];
   };
   return clientWS;
