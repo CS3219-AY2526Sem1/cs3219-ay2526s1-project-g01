@@ -36,7 +36,14 @@ export default function SearchComponent({
     <Dialog open={isSearching}>
       <DialogTrigger asChild>
         <Button
-          className="mb-15 w-[80%] bg-black text-white"
+          className="
+            mb-15 
+            w-[80%] 
+            bg-black 
+            text-white 
+            border-stone-600
+            hover:bg-stone-900
+            hover:text-white"
           variant="outline"
           onClick={onSearch}
           disabled={isMatched || isSearching}
