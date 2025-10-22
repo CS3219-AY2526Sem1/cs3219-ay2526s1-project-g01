@@ -38,7 +38,16 @@ export default function MatchPage() {
   }, [clearPolling]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-20">
+    <div 
+      className="
+        min-h-screen
+        flex flex-col 
+        items-center justify-center
+        px-4 py-20
+        bg-cover
+        bg-center"
+      style={{ backgroundImage: "url('/match/match-bg.jpg')" }}  
+    >
       <div className="text-center mb-8 w-full max-w-4xl px-4">
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 break-words">
           Find your coding partner
