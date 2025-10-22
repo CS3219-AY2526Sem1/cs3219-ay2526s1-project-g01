@@ -107,7 +107,15 @@ export default function LoginForm() {
   };
 
   return (
-    <Card className="min-h-[50%] min-w-[40%]">
+    <Card
+      className="
+      min-h-[50%] 
+      min-w-[40%] 
+      bg-white/30 
+      backdrop-blur-sm 
+      border-black
+      mb-20"
+    >
       <CardHeader className="mt-5">
         <CardTitle className="text-center text-4xl font-bold">
           Welcome to PeerPrep
@@ -120,6 +128,7 @@ export default function LoginForm() {
             <div>
               <Label className="m-2">Email</Label>
               <Input
+                className="border-black"
                 name="email"
                 type="email"
                 value={email}
@@ -131,6 +140,7 @@ export default function LoginForm() {
               <Label className="m-2">Password</Label>
               <div className="relative">
                 <Input
+                  className="border-black"
                   name="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
