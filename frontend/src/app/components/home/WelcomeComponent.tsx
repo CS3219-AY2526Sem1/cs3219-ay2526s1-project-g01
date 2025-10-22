@@ -14,18 +14,34 @@ export default function WelcomePage() {
   }
 
   return (
-    <Card className="m-10 h-[20%]">
+    <Card
+      className="m-10 h-[20%] bg-cover bg-center"
+      style={{
+        backgroundImage: "url('/home/welcome-bg.jpg')"
+      }}
+    >
       <CardHeader>
-        <CardTitle className="text-4xl flex">
+        <CardTitle className="text-4xl flex text-white drop-shadow-md">
           Hello
-          <p className="ml-2 font-bold">{user?.username || "Guest"}</p>
+          <p className="ml-2 font-bold text-white drop-shadow-md">
+            {user?.username || "Guest"}
+          </p>
         </CardTitle>
-        <CardTitle className="text-4xl flex">Ready to start coding?</CardTitle>
+        <CardTitle className="text-4xl flex text-white drop-shadow-md">
+          Ready to start coding?
+        </CardTitle>
       </CardHeader>
 
       <CardContent>
         <Button
-          className="w-30 bg-white border-black text-black border-2 border-black"
+          className="
+            w-30 
+            bg-white 
+            border-black 
+            text-black 
+            border-2 
+            hover:bg-stone-200
+          "
           onClick={() => directToMatch()}
         >
           Start

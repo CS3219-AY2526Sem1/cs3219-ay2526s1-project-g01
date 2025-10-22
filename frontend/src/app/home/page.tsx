@@ -5,7 +5,7 @@ import WelcomePage from "../components/home/WelcomeComponent";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-black">
       <WelcomePage />
       <StatisticPage />
       <div className="flex flex-1 m-10">
