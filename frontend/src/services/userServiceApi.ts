@@ -163,12 +163,15 @@ const verifyUserEmail = async (
   token: string,
   username: string,
   email: string,
+  purpose?: string,
 ) => {
   try {
     const apiClient = createApiClient();
-    const response = await apiClient.get(
-      `${API_ENDPOINTS.VERIFICATION_SERVICE}/verify?token=${encodeURIComponent(token)}&username=${encodeURIComponent(username)}&email=${encodeURIComponent(email)}`,
-    );
+    let url = `${API_ENDPOINTS.VERIFICATION_SERVICE}/verify?token=${encodeURIComponent(token)}&username=${encodeURIComponent(username)}&email=${encodeURIComponent(email)}`;
+    if (purpose) {
+      url += `&purpose=${encodeURIComponent(purpose)}`;
+    }
+    const response = await apiClient.get(url);
     return response;
   } catch (error) {
     console.error("Error verifying email:", error);
