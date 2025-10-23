@@ -460,7 +460,6 @@ export default function AccountPage() {
               {!isCodeVerified ? (
                 <Button
                   onClick={handleOpenEmailDialog}
-                  variant="outline"
                   className="w-full"
                 >
                   Modify Email
