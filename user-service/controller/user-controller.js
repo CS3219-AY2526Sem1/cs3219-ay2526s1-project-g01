@@ -336,6 +336,10 @@ export async function updateUsername(req, res) {
       return res.status(409).json({ message: "Username already exists" });
     }
 
+    // Delete any pending email-change verification records when username changes
+    // This ensures that old email change requests are cleared when user updates their username
+    await _deleteUserVerifyRecordByUserId(userId);
+
     // Update username
     const updatedUser = await _updateUsernameById(userId, username);
 
