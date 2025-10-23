@@ -303,8 +303,10 @@ export default function AccountPage() {
       special: passwordRegex.special.test(password),
     });
 
-    // Clear error if passwords now match
-    if (confirmNewPassword && password === confirmNewPassword) {
+    // Update password match error based on current confirm password value
+    if (confirmNewPassword && password && password !== confirmNewPassword) {
+      setPasswordMatchError("Passwords do not match");
+    } else {
       setPasswordMatchError("");
     }
   };
