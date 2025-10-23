@@ -314,7 +314,7 @@ If you did not make this request, please take the following security actions:
 This is an automated security notification. If you initiated this email change request, no action is required.
 
 PeerPrep Technical Support
-support@peerprep.com`;
+cs3219g01@gmail.com`;
 
   // Lightweight, inbox-friendly HTML (avoid heavy CSS to reduce spam score)
   const html = `
@@ -347,7 +347,7 @@ support@peerprep.com`;
         <hr style="border:none;border-top:1px solid #eee;margin:24px 0" />
         <div style="text-align:center">
           <p style="margin:0 0 8px;color:#6b7280;font-size:14px"><strong>PeerPrep Technical Support</strong></p>
-          <p style="margin:0;color:#6b7280;font-size:14px">support@peerprep.com</p>
+          <p style="margin:0;color:#6b7280;font-size:14px">cs3219g01@gmail.com</p>
         </div>
       </div>
     </div>
