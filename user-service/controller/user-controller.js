@@ -7,6 +7,10 @@
  * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-21
  * Purpose: To add separate controller functions for updating user password and username with proper validation.
  * Author Review: I validated correctness, security, and performance of the code.
+ *
+ * Tool: GitHub Copilot (Grok Code Fast 1), date: 2025-10-23
+ * Purpose: To update user creation to pass 'signup' purpose when creating verification records.
+ * Author Review: I validated correctness, security, and performance of the code.
  */
 
 import bcrypt from "bcrypt";
@@ -26,6 +30,7 @@ import {
   updateUsernameById as _updateUsernameById,
   createUserVerifyRecord as _createUserVerifyRecord,
   deleteUserVerifyRecordByUserId as _deleteUserVerifyRecordByUserId,
+  findUserVerifyRecordByNewEmail as _findUserVerifyRecordByNewEmail,
 } from "../model/repository.js";
 import { makeVerificationLink, sendVerificationEmail } from "../utils/emailSender.js";
 import { verifyEmailExists } from "../utils/emailVerifier.js";
@@ -56,6 +61,12 @@ export async function createUser(req, res) {
         console.warn(`Email verification returned unknown status for ${email}: ${emailVerificationResult.reason}`);
       }
 
+      // check if there is any change email request pending for this email
+      const pendingChangeEmailRecord = await _findUserVerifyRecordByNewEmail(email);
+      if (pendingChangeEmailRecord) {
+        return res.status(409).json({ message: "A pending email change request exists for this email address. Please wait until the request expires before registering with this email." });
+      }
+
       const salt = bcrypt.genSaltSync(10);
       const hashedPassword = bcrypt.hashSync(password, salt);
       const createdUser = await _createUser(username, email, hashedPassword);
@@ -65,8 +76,8 @@ export async function createUser(req, res) {
         const rawToken = crypto.randomBytes(32).toString("hex");
         const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
         
-        // Save verification token to database
-        await _createUserVerifyRecord(createdUser._id, hashedToken);
+        // Save verification token to database with 'signup' purpose
+        await _createUserVerifyRecord(createdUser._id, hashedToken, 'signup');
         
         // Create verification link
         const verifyUrl = makeVerificationLink(createdUser.email, createdUser.username, rawToken);

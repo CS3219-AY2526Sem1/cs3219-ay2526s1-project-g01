@@ -1,18 +1,36 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: GitHub Copilot (Grok Code Fast 1), date: 2025-10-23
+ * Purpose: To add purpose parameter handling for verification endpoints to support both signup and email change verification.
+ * Author Review: I validated correctness, security, and performance of the code.
+ *
+ * Additional AI Assistance Disclosure:
+ * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-23
+ * Purpose: To implement email change request and verification code generation endpoints.
+ * Author Review: I validated correctness, security, and performance of the code.
+ */
+
 import { 
-  findUserByUsernameAndEmail as _findUserByUsernameAndEmail, 
+  findUserByUsernameAndEmail as _findUserByUsernameAndEmail,
+  findUserById as _findUserById,
+  findUserByEmail as _findUserByEmail,
   findUserVerifyRecordByTokenAndId as _findUserVerifyRecordByTokenAndId, 
   updateUserVerificationStatusById as _updateUserVerificationStatusById,
+  updateUserEmailById as _updateUserEmailById,
   deleteUserVerifyRecordByUserId as _deleteUserVerifyRecordByUserId,
   createUserVerifyRecord as _createUserVerifyRecord,
   findUserVerifyRecordById as _findUserVerifyRecordById,
+  createChangeEmailCodeRecord as _createChangeEmailCodeRecord,
+  findChangeEmailCodeByCodeAndUserId as _findChangeEmailCodeByCodeAndUserId,
+  deleteChangeEmailCodeByUserId as _deleteChangeEmailCodeByUserId,
 } from "../model/repository.js";
 import crypto from "crypto";
-import { makeVerificationLink, sendVerificationEmail } from "../utils/emailSender.js";
+import { makeVerificationLink, sendVerificationEmail, sendChangeEmailCode, sendEmailChangeWarning } from "../utils/emailSender.js";
 
 export async function verifyUser(req, res) {
   try {
-    // extract username, email and token from query params
-    const { username, email, token } = req.query;
+    // extract username, email, token and optional purpose from query params
+    const { username, email, token, purpose = 'signup' } = req.query;
     // decode URI components in case of special characters
     const decodedUsername = decodeURIComponent(username);
     const decodedEmail = decodeURIComponent(email);
@@ -43,6 +61,36 @@ export async function verifyUser(req, res) {
       return res.status(400).json({ message: "Invalid or expired token" });
     }
 
+    // Handle email change verification
+    if (purpose === 'email-change') {
+      // check if the record purpose matches
+      if (userVerifyRecord.purpose !== 'email-change') {
+        return res.status(400).json({ message: "Invalid purpose for this verification token" });
+      }
+
+      // check if newEmail exists in the record
+      if (!userVerifyRecord.newEmail) {
+        return res.status(400).json({ message: "Invalid email change verification record" });
+      }
+
+      // check if the one in query params matches the one in the record
+      if (userVerifyRecord.newEmail.toLowerCase() !== decodedEmail.toLowerCase()) {
+        return res.status(400).json({ message: "Email in verification link does not match the new email address" });
+      }
+      
+      // Update user's email to the new email
+      await _updateUserEmailById(user._id, userVerifyRecord.newEmail);
+      
+      // delete the used token
+      await _deleteUserVerifyRecordByUserId(user._id);
+      return res.status(200).json({ message: "Email changed successfully" });
+    }
+
+    if (purpose !== 'signup') {
+      return res.status(400).json({ message: "Invalid purpose for this verification token" });
+    }
+
+    // Handle signup verification
     // mark user as verified
     await _updateUserVerificationStatusById(user._id, true);
 
@@ -58,8 +106,16 @@ export async function verifyUser(req, res) {
 
 export async function resendVerification(req, res) {  
   try {
-    // extract username and email from query params
-    const { username, email } = req.query;
+    // extract username, email and optional purpose from query params
+    const { username, email, purpose = 'signup' } = req.query;
+    
+    // Only allow resending for signup purpose
+    if (purpose !== 'signup') {
+      return res.status(403).json({ 
+        message: "Resend verification is only available for new account signups. Please log in and request to change your email again." 
+      });
+    }
+    
     // decode URI components in case of special characters
     const decodedUsername = decodeURIComponent(username);
     const decodedEmail = decodeURIComponent(email);
@@ -94,11 +150,11 @@ export async function resendVerification(req, res) {
     // delete any existing tokens for this user
     await _deleteUserVerifyRecordByUserId(user._id);
 
-    // create and save new token
-    await _createUserVerifyRecord(user._id, hashedToken);
+    // create and save new token with purpose
+    await _createUserVerifyRecord(user._id, hashedToken, purpose);
 
-    // create verification link
-    const verifyUrl = makeVerificationLink(user.email, user.username, rawToken);
+    // create verification link with purpose
+    const verifyUrl = makeVerificationLink(user.email, user.username, rawToken, purpose);
 
     // send verification email
     await sendVerificationEmail(user.email, verifyUrl);
@@ -106,5 +162,113 @@ export async function resendVerification(req, res) {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Unknown error when resending verification email!" });
+  }
+}
+
+// POST /verification/request-email-change-code
+// Request a 6-digit verification code to change email
+export async function requestEmailChangeCode(req, res) {
+  try {
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ message: "Missing userId" });
+    }
+
+    // Find user by ID
+    const user = await _findUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if user is verified
+    if (!user.verified) {
+      return res.status(403).json({ message: "Please verify your account first before changing email" });
+    }
+
+    // Generate 6-digit code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Delete any existing codes for this user
+    await _deleteChangeEmailCodeByUserId(userId);
+
+    // Save code to database
+    await _createChangeEmailCodeRecord(userId, code);
+
+    // Send code to user's current email
+    await sendChangeEmailCode(user.email, userId, user.username, code);
+
+    return res.status(200).json({ message: "Verification code sent to your email" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when requesting email change code!" });
+  }
+}
+
+// POST /verification/change-email
+// Request email change with 6-digit verification code
+export async function changeEmail(req, res) {
+  try {
+    const { userId, username, oldEmail, newEmail, code } = req.body;
+
+    // Validate required fields
+    if (!userId || !username || !oldEmail || !newEmail || !code) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Find user by username and old email
+    const user = await _findUserByUsernameAndEmail(username, oldEmail);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Verify userId matches
+    if (user._id.toString() !== userId) {
+      return res.status(403).json({ message: "User ID mismatch" });
+    }
+
+    // Check if user is verified
+    if (!user.verified) {
+      return res.status(403).json({ message: "Please verify your account first before changing email" });
+    }
+
+    // Verify the 6-digit code
+    const codeRecord = await _findChangeEmailCodeByCodeAndUserId(code, userId);
+    if (!codeRecord) {
+      return res.status(400).json({ message: "Invalid or expired verification code" });
+    }
+
+    // Check if new email already exists
+    const existingUser = await _findUserByEmail(newEmail);
+    if (existingUser && existingUser._id.toString() !== userId) {
+      return res.status(409).json({ message: "Email already in use" });
+    }
+
+    // Delete the used code
+    await _deleteChangeEmailCodeByUserId(userId);
+
+    // Create verification token for email change
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
+
+    // Delete any existing verification tokens for this user
+    await _deleteUserVerifyRecordByUserId(userId);
+
+    // Create and save new token with email-change purpose and newEmail
+    await _createUserVerifyRecord(userId, hashedToken, 'email-change', newEmail);
+
+    // Create verification link with email-change purpose
+    const verifyUrl = makeVerificationLink(newEmail, username, rawToken, 'email-change');
+
+    // Send verification email to NEW email address
+    await sendVerificationEmail(newEmail, verifyUrl);
+
+    // Send security warning to OLD email address
+    await sendEmailChangeWarning(oldEmail, userId, username);
+
+    return res.status(200).json({ message: "Verification email sent to new email address. Please check your email to complete the change." });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when changing email!" });
   }
 }
