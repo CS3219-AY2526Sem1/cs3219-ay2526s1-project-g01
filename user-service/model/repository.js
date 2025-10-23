@@ -179,6 +179,10 @@ export async function findUserVerifyRecordByTokenAndId(token, userId) {
   });
 }
 
+export async function findUserVerifyRecordByToken(token) {
+  return UserVerifyModel.findOne({ token });
+}
+
 export async function findUserVerifyRecordById (userId) {
   return UserVerifyModel.find({ userId });
 }

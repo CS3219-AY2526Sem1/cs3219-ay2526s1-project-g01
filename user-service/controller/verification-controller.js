@@ -13,13 +13,19 @@
  * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-23
  * Purpose: To add verifyEmailChangeCode function for validating 6-digit codes without sending verification links.
  * Author Review: I validated correctness, security, and performance of the code.
+ *
+ * Additional AI Assistance Disclosure:
+ * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-23
+ * Purpose: To separate email change and signup verification logic to fix bug where user lookup failed with new email during email change.
+ * Author Review: I validated the fix properly handles both verification flows with appropriate user lookup strategies.
  */
 
 import { 
   findUserByUsernameAndEmail as _findUserByUsernameAndEmail,
   findUserById as _findUserById,
   findUserByEmail as _findUserByEmail,
-  findUserVerifyRecordByTokenAndId as _findUserVerifyRecordByTokenAndId, 
+  findUserVerifyRecordByTokenAndId as _findUserVerifyRecordByTokenAndId,
+  findUserVerifyRecordByToken as _findUserVerifyRecordByToken,
   updateUserVerificationStatusById as _updateUserVerificationStatusById,
   updateUserEmailById as _updateUserEmailById,
   deleteUserVerifyRecordByUserId as _deleteUserVerifyRecordByUserId,
@@ -46,62 +52,92 @@ export async function verifyUser(req, res) {
       return res.status(400).json({ message: "Missing username and/or email and/or token" });
     }
 
-    // find user by username and email
-    const user = await _findUserByUsernameAndEmail(decodedUsername, decodedEmail);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // check if user is already verified
-    if (user.verified) {
-      return res.status(200).json({ message: "User already verified" });
-    }
-
     // hash the provided token
     const hashedToken = crypto.createHash("sha256").update(decodedToken).digest("hex");
 
-    // check if hashed token matches the one in the database
-    const userVerifyRecord = await _findUserVerifyRecordByTokenAndId(hashedToken, user._id);
-    if (!userVerifyRecord) {
-      return res.status(400).json({ message: "Invalid or expired token" });
-    }
-
-    // Handle email change verification
+    // ===== HANDLE EMAIL CHANGE VERIFICATION =====
+    // For email change, we need to find user by username and OLD email (not new email)
+    // because the user hasn't changed their email yet in the database
     if (purpose === 'email-change') {
-      // check if the record purpose matches
+      // First, find the verification record by token to get the userId
+      // We can't use findUserByUsernameAndEmail with new email because user still has old email
+      const userVerifyRecord = await _findUserVerifyRecordByToken(hashedToken);
+      if (!userVerifyRecord) {
+        return res.status(400).json({ message: "Invalid or expired token" });
+      }
+
+      // Check if the record purpose matches email-change
       if (userVerifyRecord.purpose !== 'email-change') {
         return res.status(400).json({ message: "Invalid purpose for this verification token" });
       }
 
-      // check if newEmail exists in the record
+      // Check if newEmail exists in the record
       if (!userVerifyRecord.newEmail) {
         return res.status(400).json({ message: "Invalid email change verification record" });
       }
 
-      // check if the one in query params matches the one in the record
+      // Verify that the email in query params matches the newEmail in the record
       if (userVerifyRecord.newEmail.toLowerCase() !== decodedEmail.toLowerCase()) {
         return res.status(400).json({ message: "Email in verification link does not match the new email address" });
+      }
+
+      // Find user by ID from the verification record
+      const user = await _findUserById(userVerifyRecord.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Verify username matches
+      if (user.username !== decodedUsername) {
+        return res.status(400).json({ message: "Username does not match" });
+      }
+
+      // Check if user is verified (only verified users can change email)
+      if (!user.verified) {
+        return res.status(403).json({ message: "Please verify your account first before changing email" });
       }
       
       // Update user's email to the new email
       await _updateUserEmailById(user._id, userVerifyRecord.newEmail);
       
-      // delete the used token
+      // Delete the used token
       await _deleteUserVerifyRecordByUserId(user._id);
+      
       return res.status(200).json({ message: "Email changed successfully" });
     }
 
-    if (purpose !== 'signup') {
-      return res.status(400).json({ message: "Invalid purpose for this verification token" });
+    // ===== HANDLE SIGNUP VERIFICATION =====
+    // For signup, user is registering with this email for the first time
+    // So we can find user by username and email (current email in database)
+    if (purpose === 'signup') {
+      // Find user by username and email
+      const user = await _findUserByUsernameAndEmail(decodedUsername, decodedEmail);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Check if user is already verified
+      if (user.verified) {
+        return res.status(200).json({ message: "User already verified" });
+      }
+
+      // Check if hashed token matches the one in the database
+      const userVerifyRecord = await _findUserVerifyRecordByTokenAndId(hashedToken, user._id);
+      if (!userVerifyRecord) {
+        return res.status(400).json({ message: "Invalid or expired token" });
+      }
+
+      // Mark user as verified
+      await _updateUserVerificationStatusById(user._id, true);
+
+      // Delete the used token
+      await _deleteUserVerifyRecordByUserId(user._id);
+      
+      return res.status(200).json({ message: "User verified successfully" });
     }
 
-    // Handle signup verification
-    // mark user as verified
-    await _updateUserVerificationStatusById(user._id, true);
-
-    // delete the used token
-    await _deleteUserVerifyRecordByUserId(user._id);
-    return res.status(200).json({ message: "User verified successfully" });
+    // Invalid purpose
+    return res.status(400).json({ message: "Invalid verification purpose" });
 
   } catch (err) {
     console.error(err);

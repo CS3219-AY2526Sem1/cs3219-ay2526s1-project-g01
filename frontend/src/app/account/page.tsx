@@ -3,6 +3,11 @@
  * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-21
  * Purpose: To create a user account management page with profile settings and password change functionality, matching the design patterns from signup page.
  * Author Review: I validated the implementation follows consistent styling and UX patterns with proper password validation requirements.
+ *
+ * Additional AI Assistance Disclosure:
+ * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-23
+ * Purpose: To add email change functionality with 6-digit code verification flow and dialog UI.
+ * Author Review: I validated the implementation follows proper security patterns with code verification before email change.
  */
 
 "use client";
@@ -12,13 +17,23 @@ import { Card, CardTitle, CardHeader, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DebouncedInput } from "@/components/ui/debouncedInput";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Eye, EyeOff, AlertCircle, Check, X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useUser } from "@/contexts/UserContext";
 import {
   updateUsername as updateUsernameApi,
   updateUserPassword,
+  requestEmailChangeCode,
+  verifyEmailChangeCode,
+  changeEmail,
 } from "@/services/userServiceApi";
 import { handleApiError } from "@/services/errorHandler";
 import { getToken } from "@/services/userServiceCookies";
@@ -29,6 +44,17 @@ export default function AccountPage() {
   //#region Profile states
   const [username, setUsername] = useState(user?.username || "");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  //#endregion
+
+  //#region Email change states
+  const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [isCodeVerified, setIsCodeVerified] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [isRequestingCode, setIsRequestingCode] = useState(false);
+  const [isVerifyingCode, setIsVerifyingCode] = useState(false);
+  const [isChangingEmail, setIsChangingEmail] = useState(false);
+  const [codeCooldown, setCodeCooldown] = useState(0);
   //#endregion
 
   //#region Password states
@@ -64,6 +90,23 @@ export default function AccountPage() {
   };
   //#endregion
 
+  //#region Cooldown timer effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (codeCooldown > 0) {
+      interval = setInterval(() => {
+        setCodeCooldown((prev) => {
+          if (prev <= 1) {
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [codeCooldown]);
+  //#endregion
+
   //#region Derived states
   const isPasswordValid = Object.values(passwordValidation).every(Boolean);
   const isPasswordsMatch = newPassword === confirmNewPassword;
@@ -77,6 +120,122 @@ export default function AccountPage() {
   const allPasswordFieldsFilled =
     currentPassword && newPassword && confirmNewPassword;
   const canSavePassword = allPasswordFieldsFilled && !isSavingPassword;
+  //#endregion
+
+  //#region Email change handlers
+  const handleOpenEmailDialog = () => {
+    setIsEmailDialogOpen(true);
+    setVerificationCode("");
+    setIsCodeVerified(false);
+    setNewEmail("");
+  };
+
+  const handleCloseEmailDialog = () => {
+    setIsEmailDialogOpen(false);
+    setVerificationCode("");
+    setIsCodeVerified(false);
+    setNewEmail("");
+  };
+
+  const handleRequestCode = async () => {
+    if (!user?.id || codeCooldown > 0) return;
+
+    const token = getToken();
+    if (!token) {
+      toast.error("Not authenticated!", {
+        description: "Please log in again.",
+      });
+      return;
+    }
+
+    setIsRequestingCode(true);
+
+    try {
+      await requestEmailChangeCode(user.id, token);
+      toast.success("Verification code sent!", {
+        description: "Please check your email for the 6-digit code.",
+      });
+      setCodeCooldown(30);
+    } catch (error: unknown) {
+      handleApiError(error, "Failed to send verification code");
+    } finally {
+      setIsRequestingCode(false);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    if (!user?.id || !verificationCode || verificationCode.length !== 6) {
+      toast.error("Invalid code!", {
+        description: "Please enter a 6-digit verification code.",
+      });
+      return;
+    }
+
+    const token = getToken();
+    if (!token) {
+      toast.error("Not authenticated!", {
+        description: "Please log in again.",
+      });
+      return;
+    }
+
+    setIsVerifyingCode(true);
+
+    try {
+      await verifyEmailChangeCode(user.id, verificationCode, token);
+      toast.success("Code verified!", {
+        description: "You can now change your email address.",
+      });
+      setIsCodeVerified(true);
+      setIsEmailDialogOpen(false);
+    } catch (error: unknown) {
+      handleApiError(error, "Invalid or expired verification code");
+      setIsCodeVerified(false);
+    } finally {
+      setIsVerifyingCode(false);
+    }
+  };
+
+  const handleSaveEmailChange = async () => {
+    if (!isCodeVerified || !newEmail || !user?.id || !user?.username || !user?.email) {
+      toast.error("Invalid request!", {
+        description: "Please verify your code and enter a new email.",
+      });
+      return;
+    }
+
+    const token = getToken();
+    if (!token) {
+      toast.error("Not authenticated!", {
+        description: "Please log in again.",
+      });
+      return;
+    }
+
+    setIsChangingEmail(true);
+
+    try {
+      await changeEmail(
+        user.id,
+        user.username,
+        user.email,
+        newEmail,
+        verificationCode,
+        token
+      );
+      toast.success("Verification email sent!", {
+        description: "Please check your new email to complete the change.",
+      });
+      // Reset all states after successful request
+      setIsCodeVerified(false);
+      setNewEmail("");
+      setVerificationCode("");
+    } catch (error: unknown) {
+      handleApiError(error, "Failed to change email");
+    } finally {
+      setIsChangingEmail(false);
+    }
+  };
   //#endregion
 
   //#region Password handlers
@@ -262,16 +421,54 @@ export default function AccountPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div>
+            <div className="space-y-4">
               <Input
                 type="email"
                 value={user?.email || ""}
                 disabled
                 className="bg-gray-100 cursor-not-allowed"
               />
-              <p className="text-sm text-gray-500 mt-2">
-                Email address cannot be changed at this time.
-              </p>
+              {!isCodeVerified ? (
+                <Button
+                  onClick={handleOpenEmailDialog}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Modify Email
+                </Button>
+              ) : (
+                <div className="space-y-2">
+                  <Label>New Email Address</Label>
+                  <Input
+                    type="email"
+                    placeholder="Enter new email address"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    disabled={isChangingEmail}
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => {
+                        setIsCodeVerified(false);
+                        setNewEmail("");
+                        setVerificationCode("");
+                      }}
+                      variant="outline"
+                      className="flex-1"
+                      disabled={isChangingEmail}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleSaveEmailChange}
+                      disabled={!newEmail || isChangingEmail}
+                      className="flex-1"
+                    >
+                      {isChangingEmail ? "Saving..." : "Save Changes"}
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -503,6 +700,103 @@ export default function AccountPage() {
             </form>
           </CardContent>
         </Card>
+
+        {/* Email Change Dialog */}
+        <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Change Email Address</DialogTitle>
+              <DialogDescription>
+                We&apos;ll send a 6-digit verification code to your current email
+                address.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              {/* Step 1: Request and verify code */}
+              <div className="space-y-4">
+                <div>
+                  <Label>Verification Code</Label>
+                  <div className="flex gap-2 mt-2">
+                    <Input
+                      type="text"
+                      placeholder="Enter 6-digit code"
+                      value={verificationCode}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                        setVerificationCode(value);
+                      }}
+                      maxLength={6}
+                      disabled={isCodeVerified || isVerifyingCode}
+                      className="flex-1"
+                    />
+                    {!isCodeVerified && (
+                      <Button
+                        onClick={handleVerifyCode}
+                        disabled={verificationCode.length !== 6 || isVerifyingCode}
+                        variant="outline"
+                      >
+                        {isVerifyingCode ? "Verifying..." : "Verify"}
+                      </Button>
+                    )}
+                  </div>
+                  {isCodeVerified && (
+                    <p className="text-sm text-green-600 mt-2 flex items-center">
+                      <Check className="h-4 w-4 mr-1" />
+                      Code verified successfully
+                    </p>
+                  )}
+                </div>
+
+                <Button
+                  onClick={handleRequestCode}
+                  disabled={codeCooldown > 0 || isRequestingCode || isCodeVerified}
+                  variant="secondary"
+                  className="w-full"
+                >
+                  {isRequestingCode
+                    ? "Sending..."
+                    : codeCooldown > 0
+                      ? `Request Code (${codeCooldown}s)`
+                      : "Request Code"}
+                </Button>
+              </div>
+
+              {/* Step 2: Enter new email (only after code verified) */}
+              {isCodeVerified && (
+                <div>
+                  <Label>New Email Address</Label>
+                  <Input
+                    type="email"
+                    placeholder="Enter new email address"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    disabled={isChangingEmail}
+                    className="mt-2"
+                  />
+                </div>
+              )}
+
+              {/* Action buttons */}
+              <div className="flex gap-2 pt-4">
+                <Button
+                  onClick={handleCloseEmailDialog}
+                  variant="outline"
+                  className="flex-1"
+                  disabled={isChangingEmail}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSaveEmailChange}
+                  disabled={!isCodeVerified || !newEmail || isChangingEmail}
+                  className="flex-1"
+                >
+                  {isChangingEmail ? "Saving..." : "Save Changes"}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
