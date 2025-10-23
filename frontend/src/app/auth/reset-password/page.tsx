@@ -16,7 +16,7 @@ import { Eye, EyeOff, AlertCircle, Check, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   validatePasswordResetToken,
@@ -26,13 +26,21 @@ import { handleApiError } from "@/services/errorHandler";
 
 export default function ResetPasswordPage() {
   //#region Init
-  const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Extract query parameters from URL
-  const email = searchParams.get("email") || "";
-  const username = searchParams.get("username") || "";
-  const token = searchParams.get("token") || "";
+  // Extract query parameters from URL using window.location
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [token, setToken] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      setEmail(params.get("email") || "");
+      setUsername(params.get("username") || "");
+      setToken(params.get("token") || "");
+    }
+  }, []);
   //#endregion Init
 
   //#region Token Validation State
@@ -81,6 +89,11 @@ export default function ResetPasswordPage() {
   // Validate token on component mount
   useEffect(() => {
     const validateToken = async () => {
+      // Wait for parameters to be extracted from URL
+      if (!email && !username && !token) {
+        return; // Still loading parameters
+      }
+
       // Check if required parameters are present
       if (!email || !username || !token) {
         setTokenError("Invalid reset link. Missing required parameters.");
