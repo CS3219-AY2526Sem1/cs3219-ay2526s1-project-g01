@@ -12,10 +12,15 @@
  * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-23
  * Purpose: To add email change request routes for requesting verification code and changing email.
  * Author Review: I validated correctness, security, and performance of the code.
+ *
+ * Additional AI Assistance Disclosure:
+ * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-23
+ * Purpose: To add verify-email-change-code route for validating 6-digit codes only.
+ * Author Review: I validated correctness, security, and performance of the code.
  */
 
 import express from "express";
-import { verifyUser, resendVerification, requestEmailChangeCode, changeEmail } from "../controller/verification-controller.js";
+import { verifyUser, resendVerification, requestEmailChangeCode, verifyEmailChangeCode, changeEmail } from "../controller/verification-controller.js";
 
 const router = express.Router();
 
@@ -34,6 +39,12 @@ router.post("/resend", resendVerification);
 // Body: { userId }
 // Sends code to user's current email
 router.post("/request-email-change-code", requestEmailChangeCode);
+
+// POST /verification/verify-email-change-code
+// Verify the 6-digit code without sending verification link (step 1.5 of email change)
+// Body: { userId, code }
+// Validates the code and returns success if valid
+router.post("/verify-email-change-code", verifyEmailChangeCode);
 
 // POST /verification/change-email
 // Request email change after validating 6-digit code (step 2 of email change)

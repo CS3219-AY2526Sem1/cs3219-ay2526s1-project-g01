@@ -8,6 +8,11 @@
  * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-23
  * Purpose: To implement email change request and verification code generation endpoints.
  * Author Review: I validated correctness, security, and performance of the code.
+ *
+ * Additional AI Assistance Disclosure:
+ * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-23
+ * Purpose: To add verifyEmailChangeCode function for validating 6-digit codes without sending verification links.
+ * Author Review: I validated correctness, security, and performance of the code.
  */
 
 import { 
@@ -202,6 +207,41 @@ export async function requestEmailChangeCode(req, res) {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Unknown error when requesting email change code!" });
+  }
+}
+
+// POST /verification/verify-email-change-code
+// Verify the 6-digit code for email change without sending verification link
+export async function verifyEmailChangeCode(req, res) {
+  try {
+    const { userId, code } = req.body;
+
+    // Validate required fields
+    if (!userId || !code) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Find user by ID
+    const user = await _findUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if user is verified
+    if (!user.verified) {
+      return res.status(403).json({ message: "Please verify your account first before changing email" });
+    }
+
+    // Verify the 6-digit code
+    const codeRecord = await _findChangeEmailCodeByCodeAndUserId(code, userId);
+    if (!codeRecord) {
+      return res.status(400).json({ message: "Invalid or expired verification code" });
+    }
+
+    return res.status(200).json({ message: "Verification code is valid" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when verifying email change code!" });
   }
 }
 
