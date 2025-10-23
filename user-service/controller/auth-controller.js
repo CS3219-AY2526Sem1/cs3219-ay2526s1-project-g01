@@ -14,6 +14,7 @@ import {
   findPasswordResetRecordByTokenAndId as _findPasswordResetRecordByTokenAndId,
   deletePasswordResetRecordByUserId as _deletePasswordResetRecordByUserId,
   updateUserPasswordById as _updateUserPasswordById,
+  deleteUserVerifyRecordByUserId as _deleteUserVerifyRecordByUserId,
 } from "../model/repository.js";
 import { formatUserResponse } from "./user-controller.js";
 import crypto from "crypto";
@@ -44,6 +45,10 @@ export async function handleLogin(req, res) {
           username: user.username
         });
       }
+
+      // Delete any pending email-change verification records when user logs in
+      // This ensures that old email change requests are cleared on fresh login
+      await _deleteUserVerifyRecordByUserId(user._id);
 
       const accessToken = jwt.sign({
         id: user.id,
