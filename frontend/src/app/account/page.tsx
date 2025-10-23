@@ -478,7 +478,7 @@ export default function AccountPage() {
       toast.success("Account deleted successfully!", {
         description: "Your account has been permanently deleted.",
       });
-      
+
       // Clear user state and cookies, then redirect to login
       setUser(null);
       removeToken();
@@ -921,7 +921,8 @@ export default function AccountPage() {
                 <Button
                   onClick={handleDeleteAccount}
                   disabled={
-                    deleteConfirmUsername !== user?.username || isDeletingAccount
+                    deleteConfirmUsername !== user?.username ||
+                    isDeletingAccount
                   }
                   variant="destructive"
                   className="flex-1"
