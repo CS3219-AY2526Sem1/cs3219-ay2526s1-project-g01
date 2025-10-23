@@ -131,20 +131,16 @@ export default function AccountPage() {
   const handleNewEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const email = e.target.value;
     setNewEmail(email);
-    // Validate email format
-    setIsNewEmailValid(emailPattern.test(email.trim()));
+    // Validate email format and check if it's different from current email
+    const isValidFormat = emailPattern.test(email.trim());
+    const currentEmail = user?.email?.trim().toLowerCase() || "";
+    const newEmailLower = email.trim().toLowerCase();
+    const isDifferentEmail = newEmailLower !== currentEmail && newEmailLower.length > 0;
+    setIsNewEmailValid(isValidFormat && isDifferentEmail);
   };
 
   const handleOpenEmailDialog = () => {
     setIsEmailDialogOpen(true);
-    setVerificationCode("");
-    setIsCodeVerified(false);
-    setNewEmail("");
-    setIsNewEmailValid(false);
-  };
-
-  const handleCloseEmailDialog = () => {
-    setIsEmailDialogOpen(false);
     setVerificationCode("");
     setIsCodeVerified(false);
     setNewEmail("");
@@ -480,10 +476,18 @@ export default function AccountPage() {
                     disabled={isChangingEmail}
                     className={newEmail && !isNewEmailValid ? "border-red-500" : ""}
                   />
-                  {newEmail && !isNewEmailValid && (
+                  {newEmail && !emailPattern.test(newEmail.trim()) && (
                     <p className="text-sm text-red-500 flex items-center">
                       <AlertCircle className="h-4 w-4 mr-1" />
                       Please enter a valid email address
+                    </p>
+                  )}
+                  {newEmail && 
+                   emailPattern.test(newEmail.trim()) && 
+                   newEmail.trim().toLowerCase() === user?.email?.trim().toLowerCase() && (
+                    <p className="text-sm text-red-500 flex items-center">
+                      <AlertCircle className="h-4 w-4 mr-1" />
+                      New email must be different from current email
                     </p>
                   )}
                   {newEmail && isNewEmailValid && (
