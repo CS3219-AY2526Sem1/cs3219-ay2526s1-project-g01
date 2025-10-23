@@ -4,10 +4,15 @@
  * Purpose: To create a user account management page with profile settings and password change functionality, matching the design patterns from signup page.
  * Author Review: I validated the implementation follows consistent styling and UX patterns with proper password validation requirements.
  *
- * Additional AI Assistance Disclosure:
+ * AI Assistance Disclosure:
  * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-23
  * Purpose: To add email change functionality with 6-digit code verification flow and dialog UI.
  * Author Review: I validated the implementation follows proper security patterns with code verification before email change.
+ *
+ * AI Assistance Disclosure:
+ * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-23
+ * Purpose: To add delete account functionality with confirmation dialog requiring username verification, cookie clearing, and automatic logout.
+ * Author Review: I validated the implementation follows security best practices with explicit user confirmation before permanent deletion.
  */
 
 "use client";
@@ -28,22 +33,31 @@ import { Eye, EyeOff, AlertCircle, Check, X } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useUser } from "@/contexts/UserContext";
+import { useRouter } from "next/navigation";
 import {
   updateUsername as updateUsernameApi,
   updateUserPassword,
   requestEmailChangeCode,
   verifyEmailChangeCode,
   changeEmail,
+  deleteAccount,
 } from "@/services/userServiceApi";
 import { handleApiError } from "@/services/errorHandler";
-import { getToken } from "@/services/userServiceCookies";
+import { getToken, removeToken } from "@/services/userServiceCookies";
 
 export default function AccountPage() {
   const { user, setUser } = useUser();
+  const router = useRouter();
 
   //#region Profile states
   const [username, setUsername] = useState(user?.username || "");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  //#endregion
+
+  //#region Delete account states
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteConfirmUsername, setDeleteConfirmUsername] = useState("");
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   //#endregion
 
   //#region Email change states
@@ -445,9 +459,43 @@ export default function AccountPage() {
   };
   //#endregion
 
+  //#region Delete account handler
+  const handleDeleteAccount = async () => {
+    if (!user?.id || deleteConfirmUsername !== user.username) return;
+
+    const token = getToken();
+    if (!token) {
+      toast.error("Not authenticated!", {
+        description: "Please log in again.",
+      });
+      return;
+    }
+
+    setIsDeletingAccount(true);
+
+    try {
+      await deleteAccount(user.id, token);
+      toast.success("Account deleted successfully!", {
+        description: "Your account has been permanently deleted.",
+      });
+      
+      // Clear user state and cookies, then redirect to login
+      setUser(null);
+      removeToken();
+      router.push("/auth/login");
+    } catch (error: unknown) {
+      handleApiError(error, "Failed to delete account");
+    } finally {
+      setIsDeletingAccount(false);
+      setIsDeleteDialogOpen(false);
+      setDeleteConfirmUsername("");
+    }
+  };
+  //#endregion
+
   //#region Render
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Email Address Section */}
         <Card>
@@ -824,11 +872,88 @@ export default function AccountPage() {
                       : "Request Code"}
                 </Button>
               </div>
-
-              {/* Step 2: Enter new email (only after code verified) - Note: This is hidden since we moved email input to card */}
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Delete Account Dialog */}
+        <Dialog
+          open={isDeleteDialogOpen}
+          onOpenChange={(open) => {
+            setIsDeleteDialogOpen(open);
+            if (!open) {
+              setDeleteConfirmUsername("");
+            }
+          }}
+        >
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-red-600">Delete Account</DialogTitle>
+              <DialogDescription>
+                This action cannot be undone. This will permanently delete your
+                account and remove all your data from our servers.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div>
+                <Label>Type your username to confirm</Label>
+                <Input
+                  type="text"
+                  placeholder={user?.username || ""}
+                  value={deleteConfirmUsername}
+                  onChange={(e) => setDeleteConfirmUsername(e.target.value)}
+                  disabled={isDeletingAccount}
+                  className="mt-2"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => {
+                    setIsDeleteDialogOpen(false);
+                    setDeleteConfirmUsername("");
+                  }}
+                  variant="outline"
+                  className="flex-1"
+                  disabled={isDeletingAccount}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleDeleteAccount}
+                  disabled={
+                    deleteConfirmUsername !== user?.username || isDeletingAccount
+                  }
+                  variant="destructive"
+                  className="flex-1"
+                >
+                  {isDeletingAccount ? "Deleting..." : "Delete Account"}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Account Section */}
+        <Card className="border-red-200">
+          <CardHeader>
+            <CardTitle className="text-red-600">Danger Zone</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">
+                Once you delete your account, there is no going back. Please be
+                certain.
+              </p>
+              <Button
+                onClick={() => setIsDeleteDialogOpen(true)}
+                variant="destructive"
+                className="w-full"
+              >
+                Delete Account
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

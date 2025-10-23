@@ -3,6 +3,11 @@
  * Tool: GitHub Copilot (model: Claude Sonnet 4), date: 2025-09-16
  * Purpose: To fix Docker networking bug where middleware (server-side) and browser (client-side) need different API endpoints for same service.
  * Author Review: I validated correctness, security, and performance of the dynamic client creation approach.
+ *
+ * AI Assistance Disclosure:
+ * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-23
+ * Purpose: To add deleteAccount API function for permanent account deletion with proper authentication.
+ * Author Review: I validated the implementation follows security best practices with authentication token validation.
  */
 
 // API Configuration for PeerPrep Frontend
@@ -357,6 +362,24 @@ const changeEmail = async (
   }
 };
 
+const deleteAccount = async (userId: string, token: string) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.delete(
+      `${API_ENDPOINTS.USER_SERVICE}/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return response;
+  } catch (error) {
+    console.error("Error deleting account:", error);
+    throw error;
+  }
+};
+
 // Export configuration
 export {
   verifyToken,
@@ -372,4 +395,5 @@ export {
   requestEmailChangeCode,
   verifyEmailChangeCode,
   changeEmail,
+  deleteAccount,
 };
