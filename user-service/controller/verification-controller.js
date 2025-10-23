@@ -37,6 +37,7 @@ import {
 } from "../model/repository.js";
 import crypto from "crypto";
 import { makeVerificationLink, sendVerificationEmail, sendChangeEmailCode, sendEmailChangeWarning } from "../utils/emailSender.js";
+import { verifyEmailExists } from "../utils/emailVerifier.js";
 
 export async function verifyUser(req, res) {
   try {
@@ -312,6 +313,19 @@ export async function changeEmail(req, res) {
     const codeRecord = await _findChangeEmailCodeByCodeAndUserId(code, userId);
     if (!codeRecord) {
       return res.status(400).json({ message: "Invalid or expired verification code" });
+    }
+
+    // Verify new email existence
+    const emailVerificationResult = await verifyEmailExists(newEmail);
+    if (emailVerificationResult.status === 'invalid') {
+      return res.status(400).json({ message: "Email address does not exist" });
+    }
+
+    // Note: We cannot reject when status is 'unknown' because some email servers do not respond properly
+    // For example, u.nus.edu blocks external SMTP probes
+    // So we have to let them pass to avoid overzealous blocking which would be a bug
+    if (emailVerificationResult.status === 'unknown') {
+      console.warn(`Email verification returned unknown status for ${newEmail}: ${emailVerificationResult.reason}`);
     }
 
     // Check if new email already exists

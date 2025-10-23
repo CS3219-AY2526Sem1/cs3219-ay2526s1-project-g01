@@ -55,6 +55,7 @@ export default function AccountPage() {
   const [isVerifyingCode, setIsVerifyingCode] = useState(false);
   const [isChangingEmail, setIsChangingEmail] = useState(false);
   const [codeCooldown, setCodeCooldown] = useState(0);
+  const [isNewEmailValid, setIsNewEmailValid] = useState(false);
   //#endregion
 
   //#region Password states
@@ -90,6 +91,10 @@ export default function AccountPage() {
   };
   //#endregion
 
+  //#region Email validation regex
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //#endregion
+
   //#region Cooldown timer effect
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -123,11 +128,19 @@ export default function AccountPage() {
   //#endregion
 
   //#region Email change handlers
+  const handleNewEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const email = e.target.value;
+    setNewEmail(email);
+    // Validate email format
+    setIsNewEmailValid(emailPattern.test(email.trim()));
+  };
+
   const handleOpenEmailDialog = () => {
     setIsEmailDialogOpen(true);
     setVerificationCode("");
     setIsCodeVerified(false);
     setNewEmail("");
+    setIsNewEmailValid(false);
   };
 
   const handleCloseEmailDialog = () => {
@@ -135,6 +148,7 @@ export default function AccountPage() {
     setVerificationCode("");
     setIsCodeVerified(false);
     setNewEmail("");
+    setIsNewEmailValid(false);
   };
 
   const handleRequestCode = async () => {
@@ -204,6 +218,24 @@ export default function AccountPage() {
       return;
     }
 
+    const trimmedNewEmail = newEmail.trim();
+
+    // Validate email format
+    if (!emailPattern.test(trimmedNewEmail)) {
+      toast.error("Invalid email format!", {
+        description: "Please enter a valid email address.",
+      });
+      return;
+    }
+
+    // Check if new email is same as current email
+    if (trimmedNewEmail.toLowerCase() === user.email.toLowerCase()) {
+      toast.error("Email unchanged!", {
+        description: "Please enter a different email address.",
+      });
+      return;
+    }
+
     const token = getToken();
     if (!token) {
       toast.error("Not authenticated!", {
@@ -230,6 +262,7 @@ export default function AccountPage() {
       setIsCodeVerified(false);
       setNewEmail("");
       setVerificationCode("");
+      setIsNewEmailValid(false);
     } catch (error: unknown) {
       handleApiError(error, "Failed to change email");
     } finally {
@@ -443,9 +476,22 @@ export default function AccountPage() {
                     type="email"
                     placeholder="Enter new email address"
                     value={newEmail}
-                    onChange={(e) => setNewEmail(e.target.value)}
+                    onChange={handleNewEmailChange}
                     disabled={isChangingEmail}
+                    className={newEmail && !isNewEmailValid ? "border-red-500" : ""}
                   />
+                  {newEmail && !isNewEmailValid && (
+                    <p className="text-sm text-red-500 flex items-center">
+                      <AlertCircle className="h-4 w-4 mr-1" />
+                      Please enter a valid email address
+                    </p>
+                  )}
+                  {newEmail && isNewEmailValid && (
+                    <p className="text-sm text-green-600 flex items-center">
+                      <Check className="h-4 w-4 mr-1" />
+                      Valid email format
+                    </p>
+                  )}
                   <div className="flex gap-2">
                     <Button
                       onClick={() => {
@@ -461,7 +507,7 @@ export default function AccountPage() {
                     </Button>
                     <Button
                       onClick={handleSaveEmailChange}
-                      disabled={!newEmail || isChangingEmail}
+                      disabled={!newEmail || !isNewEmailValid || isChangingEmail}
                       className="flex-1"
                     >
                       {isChangingEmail ? "Saving..." : "Save Changes"}
@@ -761,39 +807,7 @@ export default function AccountPage() {
                 </Button>
               </div>
 
-              {/* Step 2: Enter new email (only after code verified) */}
-              {isCodeVerified && (
-                <div>
-                  <Label>New Email Address</Label>
-                  <Input
-                    type="email"
-                    placeholder="Enter new email address"
-                    value={newEmail}
-                    onChange={(e) => setNewEmail(e.target.value)}
-                    disabled={isChangingEmail}
-                    className="mt-2"
-                  />
-                </div>
-              )}
-
-              {/* Action buttons */}
-              <div className="flex gap-2 pt-4">
-                <Button
-                  onClick={handleCloseEmailDialog}
-                  variant="outline"
-                  className="flex-1"
-                  disabled={isChangingEmail}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleSaveEmailChange}
-                  disabled={!isCodeVerified || !newEmail || isChangingEmail}
-                  className="flex-1"
-                >
-                  {isChangingEmail ? "Saving..." : "Save Changes"}
-                </Button>
-              </div>
+              {/* Step 2: Enter new email (only after code verified) - Note: This is hidden since we moved email input to card */}
             </div>
           </DialogContent>
         </Dialog>
