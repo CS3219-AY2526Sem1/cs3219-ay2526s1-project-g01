@@ -289,6 +289,74 @@ const updateUsername = async (
   }
 };
 
+const requestEmailChangeCode = async (userId: string, token: string) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.post(
+      `${API_ENDPOINTS.VERIFICATION_SERVICE}/request-email-change-code`,
+      { userId },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return response;
+  } catch (error) {
+    console.error("Error requesting email change code:", error);
+    throw error;
+  }
+};
+
+const verifyEmailChangeCode = async (
+  userId: string,
+  code: string,
+  token: string,
+) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.post(
+      `${API_ENDPOINTS.VERIFICATION_SERVICE}/verify-email-change-code`,
+      { userId, code },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return response;
+  } catch (error) {
+    console.error("Error verifying email change code:", error);
+    throw error;
+  }
+};
+
+const changeEmail = async (
+  userId: string,
+  username: string,
+  oldEmail: string,
+  newEmail: string,
+  code: string,
+  token: string,
+) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.post(
+      `${API_ENDPOINTS.VERIFICATION_SERVICE}/change-email`,
+      { userId, username, oldEmail, newEmail, code },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return response;
+  } catch (error) {
+    console.error("Error changing email:", error);
+    throw error;
+  }
+};
+
 // Export configuration
 export {
   verifyToken,
@@ -301,4 +369,7 @@ export {
   confirmPasswordReset,
   updateUserPassword,
   updateUsername,
+  requestEmailChangeCode,
+  verifyEmailChangeCode,
+  changeEmail,
 };
