@@ -135,7 +135,8 @@ export default function AccountPage() {
     const isValidFormat = emailPattern.test(email.trim());
     const currentEmail = user?.email?.trim().toLowerCase() || "";
     const newEmailLower = email.trim().toLowerCase();
-    const isDifferentEmail = newEmailLower !== currentEmail && newEmailLower.length > 0;
+    const isDifferentEmail =
+      newEmailLower !== currentEmail && newEmailLower.length > 0;
     setIsNewEmailValid(isValidFormat && isDifferentEmail);
   };
 
@@ -207,7 +208,13 @@ export default function AccountPage() {
   };
 
   const handleSaveEmailChange = async () => {
-    if (!isCodeVerified || !newEmail || !user?.id || !user?.username || !user?.email) {
+    if (
+      !isCodeVerified ||
+      !newEmail ||
+      !user?.id ||
+      !user?.username ||
+      !user?.email
+    ) {
       toast.error("Invalid request!", {
         description: "Please verify your code and enter a new email.",
       });
@@ -249,7 +256,7 @@ export default function AccountPage() {
         user.email,
         newEmail,
         verificationCode,
-        token
+        token,
       );
       toast.success("Verification email sent!", {
         description: "Please check your new email to complete the change.",
@@ -458,10 +465,7 @@ export default function AccountPage() {
                 className="bg-gray-100 cursor-not-allowed"
               />
               {!isCodeVerified ? (
-                <Button
-                  onClick={handleOpenEmailDialog}
-                  className="w-full"
-                >
+                <Button onClick={handleOpenEmailDialog} className="w-full">
                   Modify Email
                 </Button>
               ) : (
@@ -473,7 +477,9 @@ export default function AccountPage() {
                     value={newEmail}
                     onChange={handleNewEmailChange}
                     disabled={isChangingEmail}
-                    className={newEmail && !isNewEmailValid ? "border-red-500" : ""}
+                    className={
+                      newEmail && !isNewEmailValid ? "border-red-500" : ""
+                    }
                   />
                   {newEmail && !emailPattern.test(newEmail.trim()) && (
                     <p className="text-sm text-red-500 flex items-center">
@@ -481,14 +487,15 @@ export default function AccountPage() {
                       Please enter a valid email address
                     </p>
                   )}
-                  {newEmail && 
-                   emailPattern.test(newEmail.trim()) && 
-                   newEmail.trim().toLowerCase() === user?.email?.trim().toLowerCase() && (
-                    <p className="text-sm text-red-500 flex items-center">
-                      <AlertCircle className="h-4 w-4 mr-1" />
-                      New email must be different from current email
-                    </p>
-                  )}
+                  {newEmail &&
+                    emailPattern.test(newEmail.trim()) &&
+                    newEmail.trim().toLowerCase() ===
+                      user?.email?.trim().toLowerCase() && (
+                      <p className="text-sm text-red-500 flex items-center">
+                        <AlertCircle className="h-4 w-4 mr-1" />
+                        New email must be different from current email
+                      </p>
+                    )}
                   {newEmail && isNewEmailValid && (
                     <p className="text-sm text-green-600 flex items-center">
                       <Check className="h-4 w-4 mr-1" />
@@ -510,7 +517,9 @@ export default function AccountPage() {
                     </Button>
                     <Button
                       onClick={handleSaveEmailChange}
-                      disabled={!newEmail || !isNewEmailValid || isChangingEmail}
+                      disabled={
+                        !newEmail || !isNewEmailValid || isChangingEmail
+                      }
                       className="flex-1"
                     >
                       {isChangingEmail ? "Saving..." : "Save Changes"}
@@ -756,8 +765,8 @@ export default function AccountPage() {
             <DialogHeader>
               <DialogTitle>Change Email Address</DialogTitle>
               <DialogDescription>
-                We&apos;ll send a 6-digit verification code to your current email
-                address.
+                We&apos;ll send a 6-digit verification code to your current
+                email address.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -771,7 +780,9 @@ export default function AccountPage() {
                       placeholder="Enter 6-digit code"
                       value={verificationCode}
                       onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                        const value = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 6);
                         setVerificationCode(value);
                       }}
                       maxLength={6}
@@ -781,7 +792,9 @@ export default function AccountPage() {
                     {!isCodeVerified && (
                       <Button
                         onClick={handleVerifyCode}
-                        disabled={verificationCode.length !== 6 || isVerifyingCode}
+                        disabled={
+                          verificationCode.length !== 6 || isVerifyingCode
+                        }
                         variant="outline"
                       >
                         {isVerifyingCode ? "Verifying..." : "Verify"}
@@ -798,7 +811,9 @@ export default function AccountPage() {
 
                 <Button
                   onClick={handleRequestCode}
-                  disabled={codeCooldown > 0 || isRequestingCode || isCodeVerified}
+                  disabled={
+                    codeCooldown > 0 || isRequestingCode || isCodeVerified
+                  }
                   variant="secondary"
                   className="w-full"
                 >
