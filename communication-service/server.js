@@ -44,6 +44,49 @@ io.on("connection", (socket) => {
             }
         }
     });
+
+
+    // Offer to the other user
+    socket.on("offer", ({ offer, username, sessionID }) => {
+        for (const user in sessions[sessionID]) {
+            if (user !== username) {
+                io.to(sessions[sessionID][user]).emit("offer-made", offer);
+            }
+        }
+    });
+
+
+    // Answer to the other user
+    socket.on("answer", ({ answer, username, sessionID }) => {
+        for (const user in sessions[sessionID]) {
+            if (user !== username) {
+                io.to(sessions[sessionID][user]).emit("offer-accepted", answer );
+
+            }
+        }
+    })
+
+    // Exchange ice candidates 
+    socket.on("ice-candidate", ({ candidate, username, sessionID }) => {
+        for (const user in sessions[sessionID]) {
+            if (user !== username) {
+                io.to(sessions[sessionID][user]).emit("ice-candidate", candidate);
+            }
+
+        }
+    })
+
+    // Disconnect
+    socket.on("disconnect", () => {
+        for (const sessionID in sessions) {
+            for (const users in sessions[sessionID]) {
+                if (sessions[sessionID][users] == socket.id) {
+                    delete sessions[sessionID][users]
+                }
+            }
+        }
+    })
+
 })
 
 
