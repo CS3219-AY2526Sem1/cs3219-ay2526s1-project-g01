@@ -8,7 +8,6 @@ import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 
 export default function ChatComponent() {
-
   const { user } = useUser();
 
   const socketRef = useRef<Socket | null>(null);
@@ -30,13 +29,10 @@ export default function ChatComponent() {
     ],
   };
 
-
-
   const sessionID = "98r4389r43r894389";
 
   // Upon render of page
   useEffect(() => {
-
     // Set up connection
     connectionRef.current = new RTCPeerConnection(servers);
 
@@ -52,16 +48,15 @@ export default function ChatComponent() {
 
         stream.getTracks().forEach((track) => {
           connectionRef.current?.addTrack(track, stream);
-        })
+        });
       });
-
 
     // Listen for remote streams sent by other user
     connectionRef.current.ontrack = (event) => {
       if (remoteVideoRef.current && event.streams[0]) {
         remoteVideoRef.current.srcObject = event.streams[0];
       }
-    }
+    };
 
     // Exchange ice candidates
     connectionRef.current.onicecandidate = (event) => {
@@ -69,10 +64,10 @@ export default function ChatComponent() {
         socketRef.current?.emit("ice-candidate", {
           sessionID,
           username: user?.username,
-          candidate: event.candidate
+          candidate: event.candidate,
         });
       }
-    }
+    };
 
     // Connect to signalling server
     const socket = io("http://localhost:3001");
@@ -80,17 +75,20 @@ export default function ChatComponent() {
 
     // Listen if an offer is made by the other user
     socket.on("offer-made", async (offer) => {
-      if (connectionRef.current?.signalingState === "stable" && !isCallerRef.current) {
+      if (
+        connectionRef.current?.signalingState === "stable" &&
+        !isCallerRef.current
+      ) {
         await answerCall(offer);
       }
-    })
+    });
 
     // Listen if an answer is made by the other user
     socket.on("offer-accepted", async (answer) => {
       if (connectionRef.current?.signalingState === "have-local-offer") {
         await connectionRef.current?.setRemoteDescription(answer);
       }
-    })
+    });
 
     // Exchange ice candidates
     socket.on("ice-candidate", async (candidate) => {
@@ -100,22 +98,18 @@ export default function ChatComponent() {
     // Join the session
     socket.emit("join-session", {
       sessionID: sessionID,
-      username: user?.username || "anonymous"
-    })
+      username: user?.username || "anonymous",
+    });
 
     return () => {
       socket.disconnect();
-    }
+    };
   }, [user]);
 
   // Once user has joined the session, we check if other user has joined the session as well
   useEffect(() => {
-
-
-
     // Check if the other user has joined the session
     socketRef.current!.on("peer-ready", (username) => {
-
       const ownUserName = user?.username || "anonymous";
 
       if (username == ownUserName) return;
@@ -126,12 +120,11 @@ export default function ChatComponent() {
       if (isCaller && currentStreamRef.current) {
         offerCall();
       }
-    })
+    });
   }, [user]);
 
   // Function for creating offer
   async function offerCall() {
-
     if (!connectionRef.current) return;
 
     const offer = await connectionRef.current?.createOffer();
@@ -140,13 +133,12 @@ export default function ChatComponent() {
     socketRef.current?.emit("offer", {
       sessionID,
       username: user?.username,
-      offer
+      offer,
     });
   }
 
   // Function for acception offer
   async function answerCall(offer: RTCSessionDescriptionInit) {
-
     if (!connectionRef.current) return;
 
     await connectionRef.current?.setRemoteDescription(offer);
@@ -157,8 +149,8 @@ export default function ChatComponent() {
     socketRef.current?.emit("answer", {
       sessionID,
       username: user?.username,
-      answer
-    })
+      answer,
+    });
   }
 
   return (
