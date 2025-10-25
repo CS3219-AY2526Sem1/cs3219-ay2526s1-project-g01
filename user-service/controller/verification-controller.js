@@ -26,6 +26,7 @@ import {
   findUserByEmail as _findUserByEmail,
   findUserVerifyRecordByTokenAndId as _findUserVerifyRecordByTokenAndId,
   findUserVerifyRecordByToken as _findUserVerifyRecordByToken,
+  findUserVerifyRecordByNewEmail as _findUserVerifyRecordByNewEmail,
   updateUserVerificationStatusById as _updateUserVerificationStatusById,
   updateUserEmailById as _updateUserEmailById,
   deleteUserVerifyRecordByUserId as _deleteUserVerifyRecordByUserId,
@@ -313,6 +314,22 @@ export async function changeEmail(req, res) {
     const codeRecord = await _findChangeEmailCodeByCodeAndUserId(code, userId);
     if (!codeRecord) {
       return res.status(400).json({ message: "Invalid or expired verification code" });
+    }
+
+    // check if there is ongoing email change request with same email
+    const existingEmailChangeRecord = await _findUserVerifyRecordByNewEmail(newEmail);
+
+    // check if it is for different user
+    if (existingEmailChangeRecord && existingEmailChangeRecord.userId.toString() !== userId) {
+      return res.status(409).json({ message: "There is already an ongoing email change request for this email address by another user" });
+    }
+
+    // if it is for same user same email check if it is send too soon (within 30 seconds)
+    if (existingEmailChangeRecord && existingEmailChangeRecord.userId.toString() === userId) {
+      const timeSinceLastSent = Date.now() - new Date(existingEmailChangeRecord.createdAt).getTime();
+      if (timeSinceLastSent < 30 * 1000) { // 30 seconds
+        return res.status(429).json({ message: "Email change request for this email address sent too soon. Please wait before trying again." });
+      }
     }
 
     // Verify new email existence
