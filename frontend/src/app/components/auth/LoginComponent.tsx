@@ -160,13 +160,21 @@ export default function LoginForm() {
               </Button>
             </div>
 
-            <div className="flex">
-              <div>Do not have an account?</div>
+            <div className="flex justify-between items-center">
+              <div className="flex">
+                <div>Do not have an account?</div>
+                <Link
+                  href="/auth/signup"
+                  className="ml-3 text-blue-500 hover:underline"
+                >
+                  Signup
+                </Link>
+              </div>
               <Link
-                href="/auth/signup"
-                className="ml-3 text-blue-500 hover:underline"
+                href="/auth/forgot-password"
+                className="text-blue-500 hover:underline text-sm"
               >
-                Signup
+                Forgot Password?
               </Link>
             </div>
           </div>
