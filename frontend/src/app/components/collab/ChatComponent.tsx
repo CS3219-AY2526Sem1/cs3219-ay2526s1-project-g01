@@ -36,7 +36,7 @@ export default function ChatComponent() {
       // Get media stream first
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
-        audio: false,
+        audio: true,
       });
 
       if (currentVideoRef.current) {
