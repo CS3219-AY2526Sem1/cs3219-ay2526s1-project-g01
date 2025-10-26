@@ -1,3 +1,14 @@
+/**
+ * References / Credits:
+ * 1. Video SDK WebRTC guide: https://www.videosdk.live/developer-hub/webrtc/webrtc-project
+ * 2. YouTube tutorial: https://youtu.be/QsH8FL0952k
+ * 3. YouTube tutorial: https://youtu.be/WmR9IMUD_CY
+ *
+ * These resources were referenced for both the server and frontend implementation.
+ * Code has been modified to support a session-based setup where users must join
+ * a session room using a session ID before establishing the WebRTC connection.
+ */
+
 "use client";
 
 import { Button } from "@/components/ui/button";
