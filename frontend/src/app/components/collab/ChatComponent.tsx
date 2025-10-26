@@ -20,11 +20,11 @@ export default function ChatComponent() {
 
   const servers = {
     iceServers: [
+      { urls: "stun:stun.l.google.com:19302" },
       {
-        urls: [
-          "stun:stun1.1.google.com:19302",
-          "stun:stun2.1.google.com:19302",
-        ],
+        urls: "turn:numb.viagenie.ca",
+        credential: "muazkh",
+        username: "webrtc@live.com",
       },
     ],
   };
@@ -33,11 +33,10 @@ export default function ChatComponent() {
 
   // Initialize everything in one useEffect to avoid race conditions
   useEffect(() => {
-
     if (!user || !user.username) {
       return;
     }
-    
+
     const initializeConnection = async () => {
       try {
         // Get media stream first
