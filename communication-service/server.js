@@ -12,7 +12,12 @@ const io = new Server(server, { cors: { origin: "*" } });
 
 const sessions = {};
 
-app.get("/health")
+app.get("/health", (req, res) => {
+  res.status(200).json({ 
+    status: "OK", 
+    timestamp: new Date().toISOString()
+  });
+});
 
 io.on("connection", (socket) => {
 
