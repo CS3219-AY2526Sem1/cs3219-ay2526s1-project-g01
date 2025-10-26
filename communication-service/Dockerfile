@@ -1,13 +1,19 @@
-FROM node:18-slim
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json package-lock.json* ./
 
-RUN npm install --production
+RUN npm ci --only=production
 
 COPY . .
 
-EXPOSE 8080
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY --from=builder /app /app
+
+EXPOSE ${PORT}
 
 CMD ["node", "server.js"]
