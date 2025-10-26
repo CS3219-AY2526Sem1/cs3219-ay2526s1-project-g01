@@ -33,6 +33,11 @@ export default function ChatComponent() {
 
   // Initialize everything in one useEffect to avoid race conditions
   useEffect(() => {
+
+    if (!user || !user.username) {
+      return;
+    }
+    
     const initializeConnection = async () => {
       try {
         // Get media stream first
@@ -167,7 +172,7 @@ export default function ChatComponent() {
             "signaling state:",
             pc.signalingState,
           );
-          
+
           try {
             if (pc.remoteDescription && pc.remoteDescription.type) {
               // Remote description is set, add candidate immediately
