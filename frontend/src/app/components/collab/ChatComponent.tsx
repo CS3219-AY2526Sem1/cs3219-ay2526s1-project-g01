@@ -43,7 +43,6 @@ export default function ChatComponent() {
   const sessionID = "98r4389r43r894389";
 
   useEffect(() => {
-
     // Prevent the same user from entering the session twice if its username is undefined
     if (!user || !user.username) {
       return;
@@ -51,7 +50,6 @@ export default function ChatComponent() {
 
     const initializeConnection = async () => {
       try {
-
         // Get media stream first
         const stream = await navigator.mediaDevices.getUserMedia({
           video: true,
@@ -206,7 +204,9 @@ export default function ChatComponent() {
       // Process queued ICE candidates
       for (const candidate of pendingCandidatesRef.current) {
         try {
-          await connectionRef.current.addIceCandidate(new RTCIceCandidate(candidate));
+          await connectionRef.current.addIceCandidate(
+            new RTCIceCandidate(candidate),
+          );
         } catch (err) {
           console.error("Error adding queued candidate:", err);
         }
