@@ -5,12 +5,14 @@ const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
-const port = process.env.PORT || 8080;
+const port = process.env.PORT
 app.use(cors());
 
 const io = new Server(server, { cors: { origin: "*" } });
 
 const sessions = {};
+
+app.get("/health")
 
 io.on("connection", (socket) => {
 
