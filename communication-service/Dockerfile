@@ -1,19 +1,31 @@
-FROM node:20-alpine AS builder
+FROM node:18-alpine
 
-WORKDIR /app
+# Set working directory
+WORKDIR /usr/src/app
 
-COPY package.json package-lock.json* ./
+# Copy package files
+COPY package*.json ./
 
+# Install dependencies
 RUN npm ci --only=production
 
+# Copy app source
 COPY . .
 
-FROM node:20-alpine
+# Create non-root user
+RUN adduser -D -u 1001 appuser
+USER appuser
 
-WORKDIR /app
+# Expose the correct port (8080 for Cloud Run)
+EXPOSE 8080
 
-COPY --from=builder /app /app
+# Use environment variable for port
+ENV PORT=8080
+ENV NODE_ENV=production
 
-EXPOSE ${PORT}
+# Health check using wget (more reliable)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
 
+# Start application
 CMD ["node", "server.js"]
