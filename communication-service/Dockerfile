@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:18-slim
 
 WORKDIR /app
 
@@ -9,7 +9,5 @@ RUN npm install --production
 COPY . .
 
 EXPOSE 8080
-
-ENV PORT=8080
 
 CMD ["node", "server.js"]
