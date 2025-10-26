@@ -14,6 +14,6 @@ WORKDIR /app
 
 COPY --from=builder /app /app
 
-EXPOSE ${PORT}
+EXPOSE 8080
 
 CMD ["node", "server.js"]
