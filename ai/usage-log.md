@@ -1133,3 +1133,70 @@ CREATE TABLE test_cases (
 
 ---
 
+## Entry 31
+
+# Date/Time:
+
+2025-10-24 22:45
+
+# Tool:
+
+ChatGPT (model: GPT-5)
+
+# Prompt/Command:
+
+Request to review WebRTC signaling code and verify the correctness of the flow, including whether the exchange of SDP offers and answers between users works properly, and how ICE candidates are handled before the remote description is set.
+
+# Output Summary:
+- Reviewed the code handling offer-made, offer-accepted, and ice-candidate socket events.
+- Confirmed that the logic correctly ensures both peers can exchange SDP offers and answers through the signaling server.
+- Explained the proper WebRTC flow:
+ 1. User A creates an SDP offer and sends it through the signaling server.
+ 2. User B receives the offer, sets it as a remote description, creates an SDP answer, and returns it.
+ 3. User A then sets the received answer as a remote description.
+ 4. Both sides exchange ICE candidates
+
+# Action Taken:
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+Author Notes:
+- The signaling logic and peer connection setup were tested in a live environment with two users joining the same session room.
+- Connection established successfully with audio/video exchange.
+- Fix bugs where the server emits to the wrong user (eg to the current user instead of the other user)
+- WebRTC connection is working but bugs are encountered, such as the connection not being made if one user refreshes his/her browser or leaves and rejoins the same room
+
+---
+
+## Entry 32
+
+# Date/Time:
+
+2025-10-26 19:30
+
+# Tool:
+
+Claude Sonnet 4.5
+
+# Prompt/Command:
+
+Request to fix bug where remote description was null, resulting in an error where 
+ice candidates cannot be added for the RTC Connection.
+
+# Output Summary:
+- Implemented a queue where ice candidates are stored in a queue and then added once 
+remote description is set
+- Added checks for remoteDescription before ice candidates are added
+- Added a delay to allow both users to set up their socket listeners
+
+# Action Taken:
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+- Validated that the updated code is working by deploying the service and testing it with
+another teammate
+- No bugs were observed during the test
+- Remove unnessecary loggings and refactor some code into a separate function (eg answerCall())
