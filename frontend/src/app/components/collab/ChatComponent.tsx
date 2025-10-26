@@ -72,7 +72,7 @@ export default function ChatComponent() {
         };
 
         // Connect to signaling server
-        const socket = io("http://localhost:3001");
+        const socket = io(process.env.NEXT_PUBLIC_SIGNALLING_SERVER_URL as string);
         socketRef.current = socket;
 
         socket.on("offer-made", async (offer) => {
