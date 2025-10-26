@@ -42,14 +42,16 @@ export default function ChatComponent() {
 
   const sessionID = "98r4389r43r894389";
 
-  // Initialize everything in one useEffect to avoid race conditions
   useEffect(() => {
+
+    // Prevent the same user from entering the session twice if its username is undefined
     if (!user || !user.username) {
       return;
     }
 
     const initializeConnection = async () => {
       try {
+
         // Get media stream first
         const stream = await navigator.mediaDevices.getUserMedia({
           video: true,
@@ -72,7 +74,6 @@ export default function ChatComponent() {
 
         // Set up event handlers
         pc.ontrack = (event) => {
-          console.log("Received remote track");
           if (remoteVideoRef.current && event.streams[0]) {
             remoteVideoRef.current.srcObject = event.streams[0];
           }
@@ -80,21 +81,12 @@ export default function ChatComponent() {
 
         pc.onicecandidate = (event) => {
           if (event.candidate) {
-            console.log("Sending ICE candidate");
             socketRef.current?.emit("ice-candidate", {
               sessionID,
               username: user?.username,
               candidate: event.candidate,
             });
           }
-        };
-
-        pc.oniceconnectionstatechange = () => {
-          console.log("ICE connection state:", pc.iceConnectionState);
-        };
-
-        pc.onsignalingstatechange = () => {
-          console.log("Signaling state:", pc.signalingState);
         };
 
         // Connect to signaling server
@@ -104,38 +96,9 @@ export default function ChatComponent() {
         socketRef.current = socket;
 
         socket.on("offer-made", async (offer) => {
-          console.log(
-            "Received offer, current signaling state:",
-            pc.signalingState,
-          );
           try {
             if (pc.signalingState === "stable") {
-              await pc.setRemoteDescription(new RTCSessionDescription(offer));
-              console.log("Remote description set from offer");
-
-              // Process queued ICE candidates
-              console.log(
-                `Processing ${pendingCandidatesRef.current.length} queued candidates`,
-              );
-              for (const candidate of pendingCandidatesRef.current) {
-                try {
-                  await pc.addIceCandidate(new RTCIceCandidate(candidate));
-                } catch (err) {
-                  console.error("Error adding queued candidate:", err);
-                }
-              }
-              pendingCandidatesRef.current = [];
-
-              // Create and send answer
-              const answer = await pc.createAnswer();
-              await pc.setLocalDescription(answer);
-
-              socket.emit("answer", {
-                sessionID,
-                username: user?.username,
-                answer,
-              });
-              console.log("Answer sent");
+              await answerCall(offer);
             }
           } catch (error) {
             console.error("Error handling offer:", error);
@@ -143,19 +106,10 @@ export default function ChatComponent() {
         });
 
         socket.on("offer-accepted", async (answer) => {
-          console.log(
-            "Received answer, current signaling state:",
-            pc.signalingState,
-          );
           try {
             if (pc.signalingState === "have-local-offer") {
               await pc.setRemoteDescription(new RTCSessionDescription(answer));
-              console.log("Remote description set from answer");
 
-              // Process queued ICE candidates
-              console.log(
-                `Processing ${pendingCandidatesRef.current.length} queued candidates`,
-              );
               for (const candidate of pendingCandidatesRef.current) {
                 try {
                   await pc.addIceCandidate(new RTCIceCandidate(candidate));
@@ -164,11 +118,6 @@ export default function ChatComponent() {
                 }
               }
               pendingCandidatesRef.current = [];
-            } else {
-              console.warn(
-                "Received answer but signaling state is not have-local-offer:",
-                pc.signalingState,
-              );
             }
           } catch (error) {
             console.error("Error handling answer:", error);
@@ -176,21 +125,10 @@ export default function ChatComponent() {
         });
 
         socket.on("ice-candidate", async (candidate) => {
-          console.log(
-            "Received ICE candidate, remote description exists:",
-            !!pc.remoteDescription,
-            "signaling state:",
-            pc.signalingState,
-          );
-
           try {
             if (pc.remoteDescription && pc.remoteDescription.type) {
-              // Remote description is set, add candidate immediately
               await pc.addIceCandidate(new RTCIceCandidate(candidate));
-              console.log("ICE candidate added successfully");
             } else {
-              // Queue the candidate for later
-              console.log("Queueing ICE candidate (no remote description yet)");
               pendingCandidatesRef.current.push(candidate);
             }
           } catch (error) {
@@ -209,27 +147,10 @@ export default function ChatComponent() {
           isCallerRef.current = isCaller;
 
           if (isCaller) {
-            console.log("I am the caller, making offer");
-            // Add small delay to ensure both peers are ready
             setTimeout(() => {
               offerCall();
             }, 500);
           }
-        });
-
-        socket.on("peer-left", (data) => {
-          console.log("Peer left:", data.username);
-
-          // Clear remote video
-          if (remoteVideoRef.current) {
-            remoteVideoRef.current.srcObject = null;
-          }
-
-          // Clear pending candidates
-          pendingCandidatesRef.current = [];
-
-          // Reset caller status
-          isCallerRef.current = false;
         });
 
         // Join session after all listeners are set up
@@ -237,8 +158,6 @@ export default function ChatComponent() {
           sessionID: sessionID,
           username: user?.username || "anonymous",
         });
-
-        console.log("Joined session as:", user?.username);
       } catch (error) {
         console.error("Error initializing connection:", error);
       }
@@ -265,7 +184,6 @@ export default function ChatComponent() {
     if (!connectionRef.current) return;
 
     try {
-      console.log("Creating offer...");
       const offer = await connectionRef.current.createOffer();
       await connectionRef.current.setLocalDescription(offer);
 
@@ -274,7 +192,6 @@ export default function ChatComponent() {
         username: user?.username,
         offer,
       });
-      console.log("Offer sent");
     } catch (error) {
       console.error("Error creating offer:", error);
     }
@@ -285,6 +202,16 @@ export default function ChatComponent() {
 
     try {
       await connectionRef.current.setRemoteDescription(offer);
+
+      // Process queued ICE candidates
+      for (const candidate of pendingCandidatesRef.current) {
+        try {
+          await connectionRef.current.addIceCandidate(new RTCIceCandidate(candidate));
+        } catch (err) {
+          console.error("Error adding queued candidate:", err);
+        }
+      }
+
       const answer = await connectionRef.current.createAnswer();
       await connectionRef.current.setLocalDescription(answer);
 
