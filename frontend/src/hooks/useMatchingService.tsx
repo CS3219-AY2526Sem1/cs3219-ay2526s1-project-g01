@@ -114,7 +114,6 @@ export function useMatchingService(userId: string | undefined) {
     status,
     sessionId,
     timeRemaining,
-    errorMessage,
     startMatching,
     handleCancelSearch,
     clearPolling,

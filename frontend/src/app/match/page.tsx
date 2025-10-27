@@ -17,7 +17,6 @@ export default function MatchPage() {
     status,
     sessionId,
     timeRemaining,
-    errorMessage,
     startMatching,
     handleCancelSearch,
     clearPolling,
