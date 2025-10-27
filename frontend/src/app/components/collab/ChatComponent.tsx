@@ -14,7 +14,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useUser } from "@/contexts/UserContext";
-import { ChevronRightIcon } from "lucide-react";
+import { ChevronRightIcon, Mic, MicOff, Video, VideoOff } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 
@@ -28,6 +28,10 @@ export default function ChatComponent() {
   const connectionRef = useRef<RTCPeerConnection | null>(null);
   const isCallerRef = useRef<boolean>(false);
   const pendingCandidatesRef = useRef<RTCIceCandidateInit[]>([]);
+
+  // Enable audio and mute video by default
+  const [audioStatus, setAudioStatus] = useState<boolean>(true);
+  const [videoStatus, setVideoStatus] = useState<boolean>(true);
 
   const servers = {
     iceServers: [
@@ -225,9 +229,41 @@ export default function ChatComponent() {
     }
   }
 
+  async function muteAudio() {
+    const currentAudio = currentStreamRef.current
+      ?.getTracks()
+      .find((track) => track.kind === "audio");
+
+    if (currentAudio) {
+      if (currentAudio?.enabled) {
+        currentAudio.enabled = false;
+        setAudioStatus(false);
+      } else if (!currentAudio?.enabled) {
+        currentAudio.enabled = true;
+        setAudioStatus(true);
+      }
+    }
+  }
+
+  async function muteVideo() {
+    const currentVideo = currentStreamRef.current
+      ?.getTracks()
+      .find((track) => track.kind === "video");
+
+    if (currentVideo) {
+      if (currentVideo?.enabled) {
+        currentVideo.enabled = false;
+        setVideoStatus(false);
+      } else if (!currentVideo?.enabled) {
+        currentVideo.enabled = true;
+        setVideoStatus(true);
+      }
+    }
+  }
+
   return (
     <div className="flex flex-col h-full bg-stone-900 p-1">
-      <div className="flex w-full gap-2">
+      <div className="flex w-full gap-2 p-2">
         <video
           ref={currentVideoRef}
           autoPlay
@@ -238,7 +274,32 @@ export default function ChatComponent() {
         <video ref={remoteVideoRef} autoPlay playsInline className="w-[50%]" />
       </div>
 
-      <div className="flex bg-stone-500 h-full mb-5 rounded-lg"></div>
+      <div className="flex gap-2 px-2">
+        <Button
+          onClick={() => muteAudio()}
+          className="
+            text-white 
+            bg-stone-900
+            border 
+            border-white
+            hover:bg-stone-500"
+        >
+          {audioStatus ? <Mic /> : <MicOff />}
+        </Button>
+        <Button
+          onClick={() => muteVideo()}
+          className="
+            text-white 
+            bg-stone-900
+            border 
+            border-white
+            hover:bg-stone-500"
+        >
+          {videoStatus ? <Video /> : <VideoOff />}
+        </Button>
+      </div>
+
+      <div className="flex bg-stone-500 h-full m-2 rounded-lg"></div>
 
       <div className="flex w-full mt-auto gap-2">
         <Input className="bg-white" placeholder="Type a message..." />
