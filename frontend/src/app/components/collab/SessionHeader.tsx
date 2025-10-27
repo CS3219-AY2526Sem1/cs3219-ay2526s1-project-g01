@@ -1,25 +1,12 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Mic } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { endSession } from "@/services/matchingServiceApi";
-import { useUser } from "@/contexts/UserContext";
 
-export default function SessionHeader() {
-  const router = useRouter();
-  const { user } = useUser();
-
-  async function directToMatch() {
-    if (user?.id) {
-      try {
-        await endSession(user.id);
-      } catch (error) {
-        console.error("Failed to end session:", error);
-      }
-    }
-    router.replace("/match");
-  }
-
+export default function SessionHeader({
+  showConfirmationAlert,
+}: {
+  showConfirmationAlert: () => void;
+}) {
   return (
     <header
       className="flex
@@ -37,7 +24,7 @@ export default function SessionHeader() {
         <Mic />
       </Button>
       <Button
-        onClick={() => directToMatch()}
+        onClick={showConfirmationAlert}
         className="bg-red-500 text-black mr-3 hover:bg-red-300"
       >
         Leave Session

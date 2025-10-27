@@ -28,7 +28,6 @@ export default function CodingComponent({ sessionId }: { sessionId: string }) {
   const [codeContent, setCodeContent] = useState<string>("");
   const [showDisconnectAlert, setshowDisconnectAlert] =
     useState<boolean>(false);
-
   const [selectedLanguage, setSeletedLanguage] = useState<string>("JavaScript");
   const router = useRouter();
   const [editorInstance, setEditorInstance] =
@@ -56,7 +55,7 @@ export default function CodingComponent({ sessionId }: { sessionId: string }) {
     const binding: MonacoBinding = new MonacoBinding(
       yText,
       editorInstance.getModel()!,
-      new Set([editorInstance]),
+      new Set([editorInstance])
     );
 
     const cursorCollections: Record<
@@ -72,14 +71,14 @@ export default function CodingComponent({ sessionId }: { sessionId: string }) {
       () => {
         router.replace("/match");
       },
-      () => setshowDisconnectAlert(true),
+      () => setshowDisconnectAlert(true)
     );
     registerCursorUpdateHandler(
       user_id,
       editorInstance,
       cursorCollections,
       clientWS,
-      user_name,
+      user_name
     );
     registerEditorUpdateHandler(ydoc, clientWS);
 

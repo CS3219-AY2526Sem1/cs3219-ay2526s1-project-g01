@@ -33,7 +33,7 @@ export default function DisconnectAlertDialog({
   const router = useRouter();
 
   return (
-    <AlertDialog.Root open={open} onOpenChange={onAccept}>
+    <AlertDialog.Root open={open}>
       <AlertDialog.Portal>
         <AlertDialog.Overlay className="fixed inset-0 bg-black/50" />
         <AlertDialog.Content
