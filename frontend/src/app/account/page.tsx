@@ -831,7 +831,11 @@ export default function AccountPage() {
             showCloseButton={false}
           >
             <div className="absolute top-3 right-3">
-              <Button className="bg-transparent text-white hover:bg-stone-700" size="sm" onClick={() => setIsEmailDialogOpen(false)}>
+              <Button
+                className="bg-transparent text-white hover:bg-stone-700"
+                size="sm"
+                onClick={() => setIsEmailDialogOpen(false)}
+              >
                 <X />
               </Button>
             </div>
@@ -926,10 +930,14 @@ export default function AccountPage() {
             showCloseButton={false}
           >
             <div className="absolute top-3 right-3">
-              <Button className="bg-transparent text-white hover:bg-stone-700" size="sm" onClick={() => {
-                setIsDeleteDialogOpen(false);
-                setDeleteConfirmUsername("");
-              }}>
+              <Button
+                className="bg-transparent text-white hover:bg-stone-700"
+                size="sm"
+                onClick={() => {
+                  setIsDeleteDialogOpen(false);
+                  setDeleteConfirmUsername("");
+                }}
+              >
                 <X />
               </Button>
             </div>
@@ -942,7 +950,9 @@ export default function AccountPage() {
             </DialogHeader>
             <div className="space-y-4 py-4 w-full">
               <div>
-                <Label className="text-white">Type your username to confirm</Label>
+                <Label className="text-white">
+                  Type your username to confirm
+                </Label>
                 <Input
                   type="text"
                   placeholder={user?.username || ""}
