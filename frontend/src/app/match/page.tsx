@@ -6,7 +6,6 @@ import SearchComponent from "../components/match/SearchComponent";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
 import { useMatchingService } from "@/hooks/useMatchingService";
-import { Card, CardTitle, CardHeader, CardContent } from "@/components/ui/card";
 
 export default function MatchPage() {
   const [difficulty, setDifficulty] = useState<string[]>([]);
@@ -58,13 +57,6 @@ export default function MatchPage() {
 
       <DifficultyComponent setDifficulty={setDifficulty} />
       <TopicsComponent setTopics={setTopics} />
-
-      {errorMessage && (
-        <div className="mt-4 mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg max-w-md">
-          {errorMessage}
-        </div>
-      )}
-
       <SearchComponent
         onSearch={handleStartMatching}
         isMatched={status === "matched"}

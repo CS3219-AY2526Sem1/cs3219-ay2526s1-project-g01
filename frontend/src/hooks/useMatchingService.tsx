@@ -1,9 +1,10 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import {
   startMatch,
   getMatchStatus,
   terminateMatch,
 } from "@/services/matchingServiceApi";
+import { toast } from "sonner";
 
 export function useMatchingService(userId: string | undefined) {
   const [status, setStatus] = useState<"idle" | "searching" | "matched">(
@@ -13,6 +14,13 @@ export function useMatchingService(userId: string | undefined) {
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const pollingInterval = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (errorMessage) {
+      toast.error(errorMessage);
+    }
+    setErrorMessage(null);
+  }, [errorMessage]);
 
   const clearPolling = useCallback(() => {
     if (pollingInterval.current) {
