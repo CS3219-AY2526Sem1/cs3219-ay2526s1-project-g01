@@ -94,7 +94,10 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
+      style={{ backgroundImage: "url('/login/login-1.jpg')" }}
+    >
       <Image
         src="/PeerPrepLogo.png"
         alt="PeerprepLogo"
@@ -102,7 +105,7 @@ export default function ForgotPasswordPage() {
         height={200}
       />
 
-      <Card className="min-h-[40%] min-w-[40%] mt-3">
+      <Card className="min-h-[40%] min-w-[40%] mt-3 mb-20 bg-white/50 backdrop-blur-sm border-black">
         <CardHeader className="mt-5">
           <CardTitle className="text-center text-3xl font-bold">
             Forgot Password?
@@ -111,7 +114,7 @@ export default function ForgotPasswordPage() {
 
         <CardContent className="px-15 pt-2">
           <div className="flex flex-col gap-6">
-            <p className="text-center text-gray-600">
+            <p className="text-center text-black">
               Enter your email address and we&apos;ll send you a link to reset
               your password.
             </p>
@@ -119,6 +122,7 @@ export default function ForgotPasswordPage() {
             <div>
               <Label className="m-2">Email</Label>
               <Input
+                className="border-black"
                 name="email"
                 type="email"
                 value={email}

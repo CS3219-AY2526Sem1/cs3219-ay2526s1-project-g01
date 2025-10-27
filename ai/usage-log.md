@@ -1143,6 +1143,7 @@ CREATE TABLE test_cases (
 
 # Date/Time:
 
+
 2025-10-21 01:30
 
 # Tool:
@@ -1157,6 +1158,7 @@ ChatGPT (model: ChatGPT 5 thinking)
 - Implemented proper error handling and timeout management
 - Added support for STARTTLS upgrade and multiple MX host attempts
 - Included detailed JSDoc documentation for all functions
+
 
 # Action Taken:
 
@@ -1454,6 +1456,44 @@ Create backend routes and controller functions for updating user password and us
 
 # Date/Time:
 
+2025-10-22 15:00
+
+# Tool:
+
+ChatGPT
+
+# Prompt/Command:
+
+- Ask for tips on how to implement a background image as well as making components slightly transparent.
+- Review current code and give suggestions on how to improve readability and interactivity.
+- Ask for websites that provide free stock images without the need for attribution.
+
+# Output Summary:
+
+- Use bg-cover, bg-center, and bg-no-repeat in Tailwind for full coverage and positioning.
+- Add a semi-transparent overlay with bg-black/30 or bg-opacity-30 to make text readable.
+- Use drop shadows (drop-shadow-md) on headings for contrast.
+- Recommended websites like Unsplash for stock images that do need require attribution
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Structured the advice for implementing background images and transparency.
+- Reviewed the current UI code and provided actionable improvements.
+- Compiled a list of free stock image sources that do not require attribution.
+- Recommended best practices for interactive and visually readable UI.
+
+---
+
+## Entry 40
+
+# Date/Time:
+
 2025-10-23 12:00
 
 # Tool:
@@ -1484,7 +1524,7 @@ GitHub Copilot (model: Grok Code Fast 1)
 
 ---
 
-## Entry 40
+## Entry 41
 
 # Date/Time:
 
@@ -1518,7 +1558,7 @@ implement the change emai code model related fns in the repostory i just need on
 
 ---
 
-## Entry 41
+## Entry 42
 
 # Date/Time:
 
@@ -1555,7 +1595,7 @@ implement the change email code functions which takes in an email user id user n
 
 ---
 
-## Entry 42
+## Entry 43
 
 # Date/Time:
 
@@ -1590,7 +1630,7 @@ now create a function which send a warning to the user that a request to change 
 
 ---
 
-## Entry 43
+## Entry 44
 
 # Date/Time:
 
@@ -1632,7 +1672,7 @@ update the user-verify model to include a new field called purpose which should 
 
 ---
 
-## Entry 44
+## Entry 45
 
 # Date/Time:
 
@@ -1673,7 +1713,7 @@ ok now implement the needed route one to request for the 6 digit verification co
 
 ---
 
-## Entry 45
+## Entry 46
 
 # Date/Time:
 
@@ -1715,7 +1755,7 @@ GitHub Copilot (model: Claude Sonnet 4.5)
 
 ---
 
-## Entry 46
+## Entry 47
 
 # Date/Time:
 
@@ -1754,3 +1794,7 @@ GitHub Copilot (Claude Sonnet 4.5)
 - Verified destructive/red styling provides clear visual warning for dangerous action
 - Tested dialog flow: open → username input → confirm → delete → logout → redirect
 - Security validated: requires authentication token and exact username match
+- Structured the advice for implementing background images and transparency.
+- Reviewed the current UI code and provided actionable improvements.
+- Compiled a list of free stock image sources that do not require attribution.
+- Recommended best practices for interactive and visually readable UI.

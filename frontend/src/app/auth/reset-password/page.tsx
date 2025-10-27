@@ -221,7 +221,10 @@ export default function ResetPasswordPage() {
   // Render loading spinner while validating token
   if (isValidatingToken) {
     return (
-      <div className="h-screen flex flex-col items-center justify-center">
+      <div
+        className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
+        style={{ backgroundImage: "url('/login/login-1.jpg')" }}
+      >
         {/* Logo */}
         <Image
           src="/PeerPrepLogo.png"
@@ -231,7 +234,7 @@ export default function ResetPasswordPage() {
         />
 
         {/* Loading card */}
-        <Card className="min-h-[40%] min-w-[40%] mt-8">
+        <Card className="min-h-[40%] min-w-[40%] mt-8 bg-white/50 backdrop-blur-sm border-black">
           <CardHeader className="mt-5">
             <CardTitle className="text-center text-3xl font-bold">
               Validating Reset Link
@@ -261,7 +264,10 @@ export default function ResetPasswordPage() {
   // Render error message if token is invalid
   if (!isTokenValid) {
     return (
-      <div className="h-screen flex flex-col items-center justify-center">
+      <div
+        className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
+        style={{ backgroundImage: "url('/login/login-1.jpg')" }}
+      >
         {/* Logo */}
         <Image
           src="/PeerPrepLogo.png"
@@ -271,7 +277,7 @@ export default function ResetPasswordPage() {
         />
 
         {/* Error card */}
-        <Card className="min-h-[40%] min-w-[40%] mt-3">
+        <Card className="min-h-[40%] min-w-[40%] mt-3 bg-white/50 backdrop-blur-sm border-black">
           <CardHeader className="mt-5">
             <CardTitle className="text-center text-3xl font-bold text-red-600">
               Reset Link Invalid
@@ -316,7 +322,10 @@ export default function ResetPasswordPage() {
   //#region Render Valid
   // Render password reset form if token is valid
   return (
-    <div className="h-screen flex flex-col items-center justify-center">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
+      style={{ backgroundImage: "url('/login/login-1.jpg')" }}
+    >
       {/* Logo */}
       <Image
         src="/PeerPrepLogo.png"
@@ -326,7 +335,7 @@ export default function ResetPasswordPage() {
       />
 
       {/* Password reset form card */}
-      <Card className="min-h-[40%] min-w-[40%] mt-3">
+      <Card className="min-h-[40%] min-w-[40%] mt-3 bg-white/50 backdrop-blur-sm border-black">
         <CardHeader className="mt-5">
           <CardTitle className="text-center text-3xl font-bold">
             Reset Password

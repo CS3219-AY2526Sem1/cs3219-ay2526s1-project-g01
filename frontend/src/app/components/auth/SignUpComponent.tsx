@@ -195,7 +195,7 @@ export default function SignupForm() {
 
   //#region rendering
   return (
-    <Card className="w-[80%] max-w-[500px]">
+    <Card className="w-[80%] max-w-[500px] bg-white/50 backdrop-blur-sm border-black">
       {/*Header */}
       <CardHeader className="mt-5">
         <CardTitle className="text-center text-4xl font-bold">
@@ -210,6 +210,7 @@ export default function SignupForm() {
             <div>
               <Label className="m-2">Username</Label>
               <Input
+                className="border-black"
                 name="username"
                 type="text"
                 value={username}
@@ -223,6 +224,7 @@ export default function SignupForm() {
             <div>
               <Label className="m-2">Email</Label>
               <Input
+                className="border-black"
                 name="email"
                 type="email"
                 value={email}
@@ -237,6 +239,7 @@ export default function SignupForm() {
               <Label className="m-2">Password</Label>
               <div className="relative">
                 <Input
+                  className="border-black"
                   name="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
@@ -330,6 +333,7 @@ export default function SignupForm() {
               <Label className="m-2">Confirm Password</Label>
               <div className="relative">
                 <DebouncedInput
+                  className="border-black"
                   name="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
@@ -383,15 +387,13 @@ export default function SignupForm() {
 
             {/* Navigate to login page */}
             <div className="flex justify-center mt-4">
-              <div className="text-sm text-muted-foreground">
-                Already have an account?
-              </div>
+              <div className="text-sm text-black">Already have an account?</div>
               <Link
                 href="/auth/login"
                 className={`ml-3 ${
                   isLoading
                     ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-500 hover:underline"
+                    : "text-blue-700 hover:underline"
                 }`}
                 onClick={(e) => isLoading && e.preventDefault()}
               >
