@@ -497,7 +497,13 @@ export default function AccountPage() {
 
   //#region Render
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div
+      className="
+      min-h-[calc(100vh-65px)] 
+      flex flex-col
+      bg-radial-[at_75%_75%] to-zinc-900 from-white to-75%
+      py-8"
+    >
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Email Address Section */}
         <Card>
@@ -811,19 +817,36 @@ export default function AccountPage() {
 
         {/* Email Change Dialog */}
         <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
+          <DialogContent
+            className="
+              w-[40%]
+              flex
+              flex-col
+              items-center
+              bg-stone-800
+              rounded-2xl
+              border-black"
+            onPointerDownOutside={(e) => e.preventDefault()}
+            onEscapeKeyDown={(e) => e.preventDefault()}
+            showCloseButton={false}
+          >
+            <div className="absolute top-3 right-3">
+              <Button className="bg-transparent text-white hover:bg-stone-700" size="sm" onClick={() => setIsEmailDialogOpen(false)}>
+                <X />
+              </Button>
+            </div>
+            <DialogHeader className="flex items-center text-white w-full">
               <DialogTitle>Change Email Address</DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="text-gray-300">
                 We&apos;ll send a 6-digit verification code to your current
                 email address.
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
+            <div className="space-y-4 py-4 w-full">
               {/* Step 1: Request and verify code */}
               <div className="space-y-4">
                 <div>
-                  <Label>Verification Code</Label>
+                  <Label className="text-white">Verification Code</Label>
                   <div className="flex gap-2 mt-2">
                     <Input
                       type="text"
@@ -837,7 +860,7 @@ export default function AccountPage() {
                       }}
                       maxLength={6}
                       disabled={isCodeVerified || isVerifyingCode}
-                      className="flex-1"
+                      className="flex-1 bg-stone-700 border-stone-600 text-white placeholder:text-gray-400"
                     />
                     {!isCodeVerified && (
                       <Button
@@ -846,13 +869,14 @@ export default function AccountPage() {
                           verificationCode.length !== 6 || isVerifyingCode
                         }
                         variant="outline"
+                        className="bg-stone-700 border-stone-600 text-white hover:bg-stone-600"
                       >
                         {isVerifyingCode ? "Verifying..." : "Verify"}
                       </Button>
                     )}
                   </div>
                   {isCodeVerified && (
-                    <p className="text-sm text-green-600 mt-2 flex items-center">
+                    <p className="text-sm text-green-400 mt-2 flex items-center">
                       <Check className="h-4 w-4 mr-1" />
                       Code verified successfully
                     </p>
@@ -865,7 +889,7 @@ export default function AccountPage() {
                     codeCooldown > 0 || isRequestingCode || isCodeVerified
                   }
                   variant="secondary"
-                  className="w-full"
+                  className="w-full bg-stone-700 border-stone-600 text-white hover:bg-stone-600"
                 >
                   {isRequestingCode
                     ? "Sending..."
@@ -888,24 +912,44 @@ export default function AccountPage() {
             }
           }}
         >
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-red-600">Delete Account</DialogTitle>
-              <DialogDescription>
+          <DialogContent
+            className="
+              w-[40%]
+              flex
+              flex-col
+              items-center
+              bg-stone-800
+              rounded-2xl
+              border-black"
+            onPointerDownOutside={(e) => e.preventDefault()}
+            onEscapeKeyDown={(e) => e.preventDefault()}
+            showCloseButton={false}
+          >
+            <div className="absolute top-3 right-3">
+              <Button className="bg-transparent text-white hover:bg-stone-700" size="sm" onClick={() => {
+                setIsDeleteDialogOpen(false);
+                setDeleteConfirmUsername("");
+              }}>
+                <X />
+              </Button>
+            </div>
+            <DialogHeader className="flex items-center text-white w-full">
+              <DialogTitle className="text-red-400">Delete Account</DialogTitle>
+              <DialogDescription className="text-gray-300">
                 This action cannot be undone. This will permanently delete your
                 account and remove all your data from our servers.
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
+            <div className="space-y-4 py-4 w-full">
               <div>
-                <Label>Type your username to confirm</Label>
+                <Label className="text-white">Type your username to confirm</Label>
                 <Input
                   type="text"
                   placeholder={user?.username || ""}
                   value={deleteConfirmUsername}
                   onChange={(e) => setDeleteConfirmUsername(e.target.value)}
                   disabled={isDeletingAccount}
-                  className="mt-2"
+                  className="mt-2 bg-stone-700 border-stone-600 text-white placeholder:text-gray-400"
                 />
               </div>
               <div className="flex gap-2">
@@ -915,7 +959,7 @@ export default function AccountPage() {
                     setDeleteConfirmUsername("");
                   }}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 bg-stone-700 border-stone-600 text-white hover:bg-stone-600"
                   disabled={isDeletingAccount}
                 >
                   Cancel
