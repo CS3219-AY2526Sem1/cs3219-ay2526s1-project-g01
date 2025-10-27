@@ -264,13 +264,7 @@ export default function ChatComponent() {
   return (
     <div className="flex flex-col h-full bg-stone-900 p-1">
       <div className="flex w-full gap-2 p-2">
-        <video
-          ref={currentVideoRef}
-          autoPlay
-          playsInline
-          muted
-          className="w-[50%]"
-        />
+        <video ref={currentVideoRef} autoPlay playsInline muted className="w-[50%]" />
         <video ref={remoteVideoRef} autoPlay playsInline className="w-[50%]" />
       </div>
 

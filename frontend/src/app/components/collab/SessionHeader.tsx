@@ -33,9 +33,6 @@ export default function SessionHeader() {
         border-b-2
         border-stone-700"
     >
-      <Button>
-        <Mic />
-      </Button>
       <Button
         onClick={() => directToMatch()}
         className="bg-red-500 text-black mr-3 hover:bg-red-300"
