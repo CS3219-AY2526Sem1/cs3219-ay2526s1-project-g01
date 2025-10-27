@@ -90,7 +90,7 @@ export default function SearchComponent({
           {/* Progress Bar */}
           <div className="w-full mt-4 bg-gray-200 rounded-full h-3">
             <div
-              className="bg-stone-600 h-3 rounded-full transition-all duration-1000"
+              className="bg-red-400 h-3 rounded-full transition-all duration-1000"
               style={{
                 width: `${timeRemaining ? (timeRemaining / 300) * 100 : 100}%`,
               }}
