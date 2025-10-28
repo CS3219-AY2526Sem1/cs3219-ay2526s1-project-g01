@@ -86,7 +86,7 @@ export async function getAllQuestions(req, res) {
 */
 export async function addQuestion(req, res) {
   try {
-    const { title, difficulty, description, question_constraints, topics, test_cases } = req.body;
+    let { title, difficulty, description, question_constraints, topics, test_cases } = req.body;
 
     // Validate required fields
     if (!title || !difficulty || !description || !question_constraints || !topics || !test_cases) {
@@ -95,13 +95,21 @@ export async function addQuestion(req, res) {
       });
     }
 
-    // Validate title is non-empty string
-    if (typeof title !== 'string' || title.trim().length === 0) {
-      return res.status(400).json({ message: 'Title must be a non-empty string.' });
+    // Validate and trim title
+    if (typeof title !== 'string') {
+      return res.status(400).json({ message: 'Title must be a string.' });
+    }
+    title = title.trim();
+    if (title.length === 0) {
+      return res.status(400).json({ message: 'Title cannot be empty or just whitespace.' });
     }
 
-    // Validate difficulty
-    if (!VALID_DIFFICULTIES.includes(difficulty.toLowerCase())) {
+    // Validate and trim difficulty
+    if (typeof difficulty !== 'string') {
+      return res.status(400).json({ message: 'Difficulty must be a string.' });
+    }
+    difficulty = difficulty.trim().toLowerCase();
+    if (!VALID_DIFFICULTIES.includes(difficulty)) {
       return res.status(400).json({ 
         message: 'Invalid difficulty value. Must be one of: easy, medium, hard.' 
       });
