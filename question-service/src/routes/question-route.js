@@ -6,7 +6,7 @@
  */
 
 import express from 'express';
-import { getAllQuestions, addQuestion } from '../controller/question-controller.js';
+import { getAllQuestions, addQuestion, deleteQuestion } from '../controller/question-controller.js';
 
 const router = express.Router();
 
@@ -15,5 +15,8 @@ router.post('/', getAllQuestions);
 
 // Route to add a new question
 router.post('/add', addQuestion);
+
+// Route to delete a question by ID
+router.delete('/delete', deleteQuestion);
 
 export default router;

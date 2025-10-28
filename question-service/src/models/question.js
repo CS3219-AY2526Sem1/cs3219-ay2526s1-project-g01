@@ -82,6 +82,51 @@ export async function getAllQuestionsFromDb({ topics, difficulties, limit, rando
 
 
 
+export async function deleteQuestionFromDb(questionId) {
+  const client = await pool.connect();
+  
+  try {
+    // Begin transaction
+    await client.query('BEGIN');
+
+    // First get the question title
+    const questionResult = await client.query(
+      'SELECT title FROM questions WHERE id = $1',
+      [questionId]
+    );
+
+    if (questionResult.rowCount === 0) {
+      await client.query('COMMIT');
+      return { deleted: false };
+    }
+
+    const { title } = questionResult.rows[0];
+
+    // Delete test cases
+    await client.query('DELETE FROM test_cases WHERE question_id = $1', [questionId]);
+
+    // Delete question-topic relationships
+    await client.query('DELETE FROM question_topics WHERE question_id = $1', [questionId]);
+
+    // Delete the question
+    await client.query('DELETE FROM questions WHERE id = $1', [questionId]);
+
+    // Commit transaction
+    await client.query('COMMIT');
+
+    // Return both deletion status and question title
+    return { deleted: true, title };
+  } catch (err) {
+    // Rollback transaction on error
+    await client.query('ROLLBACK');
+    console.error('[ERROR] deleteQuestionFromDb:', err.message);
+    throw err;
+  } finally {
+    // Release client back to pool
+    client.release();
+  }
+}
+
 export async function addQuestionToDb({ title, difficulty, description, question_constraints, topics, test_cases }) {
   const client = await pool.connect();
 

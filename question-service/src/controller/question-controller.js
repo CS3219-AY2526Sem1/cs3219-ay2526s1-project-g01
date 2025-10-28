@@ -7,11 +7,11 @@
 /**
  * AI Assistance Disclosure:
  * Tool: Github Copilot (Claude Sonnet 3.5), date: 2025-10-29
- * Purpose: To implement controllers for adding new questions.
+ * Purpose: To implement controllers for adding new questions, deleting question by id.
  * Author Review: I modified to add validation and error handling, checked correctness and performance of the code.
  */
 
-import { getAllQuestionsFromDb, addQuestionToDb } from '../models/question.js';
+import { getAllQuestionsFromDb, addQuestionToDb, deleteQuestionFromDb } from '../models/question.js';
 
 const VALID_DIFFICULTIES = ['easy', 'medium', 'hard'];
 
@@ -163,6 +163,56 @@ export async function addQuestion(req, res) {
     console.error('[ERROR] Failed to add question:', err.message);
     res.status(500).json({ 
       message: 'Failed to add question', 
+      error: err.message 
+    });
+  }
+}
+
+/*
+  Controller to handle DELETE /question/delete
+  Request query parameters:
+    - id: the ID of the question to delete
+  Returns:
+    - 200: If question was successfully deleted
+    - 404: If question with given ID was not found
+    - 400: If ID is missing or invalid
+    - 500: If there was a server error
+*/
+export async function deleteQuestion(req, res) {
+  try {
+    const { id } = req.query;
+
+    // Validate id is provided
+    if (!id) {
+      return res.status(400).json({ 
+        message: 'Missing required query parameter: id' 
+      });
+    }
+
+    // Validate id is a positive integer
+    const questionId = parseInt(id, 10);
+    if (isNaN(questionId) || questionId <= 0) {
+      return res.status(400).json({ 
+        message: 'Invalid question ID. Must be a positive integer.' 
+      });
+    }
+
+    // Attempt to delete the question
+    const result = await deleteQuestionFromDb(questionId);
+
+    if (!result.deleted) {
+      return res.status(404).json({ 
+        message: `Question with ID ${questionId} not found` 
+      });
+    }
+
+    res.status(200).json({ 
+      message: `Question "${result.title}" (ID: ${questionId}) successfully deleted` 
+    });
+  } catch (err) {
+    console.error('[ERROR] Failed to delete question:', err.message);
+    res.status(500).json({ 
+      message: 'Failed to delete question', 
       error: err.message 
     });
   }
