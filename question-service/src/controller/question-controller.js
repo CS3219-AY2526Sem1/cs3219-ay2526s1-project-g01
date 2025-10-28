@@ -182,16 +182,7 @@ export async function addQuestion(req, res) {
   }
 }
 
-/*
-  Controller to handle GET /question/:id
-  URL parameters:
-    - id: the ID of the question to retrieve
-  Returns:
-    - 200: Question found, returns complete question object
-    - 404: Question not found
-    - 400: Invalid question ID
-    - 500: Server error
-*/
+
 /*
   Controller to handle POST /questions/bulk
   Request body parameters:

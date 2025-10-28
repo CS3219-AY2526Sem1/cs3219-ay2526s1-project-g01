@@ -20,6 +20,12 @@ const router = express.Router();
 // Route to get filtered questions
 router.post('/', getAllQuestions);
 
+// Route to add a new question
+router.post('/add', addQuestion);
+
+// Route to delete a question by ID
+router.delete('/delete', deleteQuestion);
+
 // Route to get multiple questions by IDs
 router.post('/get', getQuestionsByIds);
 
@@ -29,13 +35,7 @@ router.get('/topic', getTopicNames);
 // Route to add a new topic
 router.post('/topic/add', addTopic);
 
-// Route to add a new question
-router.post('/add', addQuestion);
-
 // Route to update an existing question
 router.put('/update', updateQuestion);
-
-// Route to delete a question by ID
-router.delete('/delete', deleteQuestion);
 
 export default router;
