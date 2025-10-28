@@ -97,8 +97,10 @@ export default function SignupForm() {
       special: passwordRegex.special.test(newPassword),
     });
 
-    // Clear error if passwords now match
-    if (confirmPassword && newPassword === confirmPassword) {
+    // Update password match error based on current confirm password value
+    if (confirmPassword && newPassword && newPassword !== confirmPassword) {
+      setPasswordMatchError("Passwords do not match");
+    } else {
       setPasswordMatchError("");
     }
   };
@@ -181,7 +183,7 @@ export default function SignupForm() {
         router.push(
           `/auth/check-email?email=${encodeURIComponent(trimmedEmail)}&username=${encodeURIComponent(trimmedUsername)}`,
         );
-      }, 1500);
+      }, 1000);
     } catch (error: unknown) {
       // Use reusable error handler
       handleApiError(error, "Failed to create account");
