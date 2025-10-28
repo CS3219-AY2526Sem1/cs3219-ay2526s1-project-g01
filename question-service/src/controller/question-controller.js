@@ -7,7 +7,7 @@
 /**
  * AI Assistance Disclosure:
  * Tool: Github Copilot (Claude Sonnet 3.5), date: 2025-10-29
- * Purpose: To implement controllers for adding new questions, deleting question by id.
+ * Purpose: To implement controllers for CRUD operations on questions.
  * Author Review: I modified to add validation and error handling, checked correctness and performance of the code.
  */
 
@@ -138,6 +138,9 @@ export async function addQuestion(req, res) {
         message: 'Topics must be a non-empty array of strings.' 
       });
     }
+    
+    // Trim and lowercase all topics
+    topics = topics.map(topic => topic.trim().toLowerCase());
 
     // Validate test_cases is non-empty array of valid test cases
     if (!Array.isArray(test_cases) || test_cases.length === 0) {
@@ -156,8 +159,8 @@ export async function addQuestion(req, res) {
       }
     }
 
-    // Normalize topics (lowercase and replace underscores with spaces)
-    const normalizedTopics = topics.map(t => t.replace(/_/g, ' ').toLowerCase());
+    // Normalize topics (trim, lowercase and replace underscores with spaces)
+    const normalizedTopics = topics.map(t => t.trim().replace(/_/g, ' ').toLowerCase());
 
     // Add question to database
     const question = await addQuestionToDb({
@@ -340,8 +343,8 @@ export async function updateQuestion(req, res) {
       }
     }
 
-    // Normalize topics (lowercase and replace underscores with spaces)
-    const normalizedTopics = topics.map(t => t.replace(/_/g, ' ').toLowerCase());
+    // Normalize topics (trim, lowercase and replace underscores with spaces)
+    const normalizedTopics = topics.map(t => t.trim().replace(/_/g, ' ').toLowerCase());
 
     // Update question in database
     const result = await updateQuestionInDb({
