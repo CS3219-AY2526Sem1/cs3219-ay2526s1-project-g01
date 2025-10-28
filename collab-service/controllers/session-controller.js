@@ -1,5 +1,5 @@
 import { SessionModel } from "../models/session-model.js";
-import { dbClient } from "../db/connection.js";
+// import { dbClient } from "../db/connection.js";
 import * as z from "zod";
 export async function createSession(req, res) {
   try {
@@ -8,9 +8,10 @@ export async function createSession(req, res) {
       req.body;
     //check if sessionId already exists in redis, if exist return session info
     console.log("Getting question from question service..");
-    await dbClient.set(sessionId, "value in redis");
+    // await dbClient.set(sessionId, "value in redis");
 
-    const value = await dbClient.get(sessionId);
+    // const value = await dbClient.get(sessionId);
+    const value = "test";
     console.log(value);
     //ADD SESSION TO REDIS TEST
 

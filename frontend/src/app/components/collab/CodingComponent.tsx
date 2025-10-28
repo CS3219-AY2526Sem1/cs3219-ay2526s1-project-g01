@@ -114,10 +114,6 @@ export default function CodingComponent() {
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
-        <div className="flex justify-center items-center">
-          <div className="text-white mr-3">derrickwong8909@gmail.com</div>
-          <CircleUser className="text-white mr-2" size="25" />
-        </div>
       </div>
 
       <Editor

@@ -40,22 +40,35 @@ export default function TopicsComponent({ setTopics }: TopicsProps) {
         </CardHeader>
       </div>
       <CardContent className="flex flex-wrap justify-evenly h-full items-center gap-3">
-        {ALL_TOPICS.map((topic) => (
-          <Button
-            key={topic}
-            onClick={() => handleTopicSelect(topic)}
-            className={`flex-1 min-w-[150px] h-[50px] relative bg-blue-200 text-black hover:bg-blue-200/90 flex items-center justify-center`}
-          >
-            <span className="absolute left-1/2 -translate-x-1/2 truncate max-w-[calc(100%-64px)]">
-              {topic}
-            </span>
-            <IoCheckmark
-              className={`absolute right-3 top-1/2 -translate-y-1/2 text-blue-800 text-3xl flex-shrink-0 ${
-                selectedTopics.includes(topic) ? "opacity-100" : "opacity-0"
-              }`}
-            />
-          </Button>
-        ))}
+        {ALL_TOPICS.map((topic) => {
+          const Icon = topic.icon;
+          return (
+            <Button
+              key={topic.name}
+              onClick={() => handleTopicSelect(topic.name)}
+              className={`flex-1 min-w-[150px] min-h-[50px] py-2 relative 
+              ${
+                selectedTopics.includes(topic.name)
+                  ? "bg-gradient-to-r from-indigo-600 to-purple-700 text-white"
+                  : "bg-zinc-800 text-white hover:bg-zinc-700"
+              }
+              flex items-center justify-center pr-10 rounded-xl transition-all duration-200`}
+            >
+              <Icon className={topic.color} />
+              <span className="px-4 whitespace-normal break-words text-center leading-snug">
+                {topic.name}
+              </span>
+              <IoCheckmark
+                strokeWidth={3}
+                className={`absolute right-3 top-1/2 -translate-y-1/2 text-black text-4xl flex-shrink-0 ${
+                  selectedTopics.includes(topic.name)
+                    ? "opacity-100"
+                    : "opacity-0"
+                }`}
+              />
+            </Button>
+          );
+        })}
       </CardContent>
     </Card>
   );

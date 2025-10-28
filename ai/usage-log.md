@@ -889,6 +889,8 @@ Request for a code review of PR #18 https://github.com/CS3219-AY2526Sem1/cs3219-
 
 - Validated the correctness of the spelling changes in the code
 
+---
+
 ## Entry 25
 
 # Date/Time:
@@ -920,8 +922,259 @@ Request information on how to create custom cursors and send cursor information 
 - Researched on deltaDecorations suggested by model and decided that it was not appropriate as its a legacy api, searched online for more suitable modules and implemented cursor binding using IEditorDecorationsCollection instead.
 - Implemented communication logic using websockets myself, only using model for debugging.
 
+--- 
 
 ## Entry 26
+
+# Date/Time:
+
+2025-10-13 02:00
+
+# Tool:
+
+Github Copilot (GPT-5 mini)
+
+# Prompt/Command:
+
+Help me add code to the api-gateway's default.conf file for my question-service and postgres. I am only using postgres from dockerhub's image.
+
+# Output Summary:
+
+- Proposed code for the api-gateway for question-service and postgres
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Modified to ensure the code does minimal disruption to existing logic
+
+---
+
+## Entry 27
+
+# Date/Time:
+
+2025-10-13 14:30
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4)
+
+# Prompt/Command:
+
+Request to implement live reload for all microservices in Docker Compose setup, update npm scripts for hybrid development workflow, and troubleshoot Windows/WSL2 compatibility issues for file watching.
+
+# Output Summary:
+
+- Enhanced docker-compose.yml with live reload configuration for all microservices (user-service, matching-service, collab-service)
+- Implemented nodemon with polling configuration (--legacy-watch --polling-interval 1000) for Windows/WSL2 compatibility
+- Added volume mounting for source code directories with cached performance and node_modules exclusions
+- Updated npm scripts in root package.json for hybrid development workflow (Docker microservices + host frontend)
+- Configured development environment variables and direct port access for debugging
+- Implemented hybrid architecture: frontend runs via npm dev for optimal HMR, microservices run in Docker with live reload
+- Added comprehensive documentation in docker-compose.yml explaining the development setup and workflow
+- Troubleshot and resolved file system watching issues specific to Docker on Windows/WSL2 environments
+- Created production frontend service with profile-based deployment for full Docker stack option
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated nodemon polling configuration successfully resolves Windows/WSL2 file watching limitations
+- Confirmed hybrid architecture provides optimal development experience with both Docker consistency and native performance
+- Tested live reload functionality by modifying controller files and verifying automatic service restarts
+- Verified Docker networking allows proper communication between containerized microservices and host frontend
+- Performance optimized with cached volume mounts and selective node_modules exclusions
+- Maintainability: comprehensive documentation and flexible deployment options (hybrid vs full Docker)
+- Windows/WSL2 compatibility: polling-based file watching ensures reliable live reload across development environments
+
+---
+
+## Entry 28
+
+# Date/Time:
+
+2025-10-16 01:00
+
+# Tool:
+
+Github Copilot (GPT-5 mini)
+
+# Prompt/Command:
+
+"Help me to generate the routes, controller and model for my existing question-service"
+
+
+# Output Summary:
+
+- Generated a rough folder structure and some boilerplate code
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Modified to add validation logic, and more parameters for the querying.
+- Refactored to improve coding quality
+- Wrote the Dockerfile and updated the api-gateway myself.
+- Tested incrementally.
+- Also documented with Github Copilot, but modified where necessary.
+
+---
+
+## Entry 29
+
+# Date/Time:
+
+2025-10-16 17:00
+
+# Tool:
+
+Github Copilot (GPT-5 mini)
+
+# Prompt/Command:
+
+Help me to refactor my controller to handle multiple difficulties
+
+# Output Summary:
+
+- Proposed code changes
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Modified to ensure the code does minimal disruption to existing logic
+
+---
+
+## Entry 30
+
+# Date/Time:
+
+2025-10-20 03:30
+
+# Tool:
+
+Claude Sonnet 4.5
+
+# Prompt/Command:
+
+"Based on this schema, help me to write 30 insert statements for coding interview questions. The topic is sorting. There are 3 difficulty levels: easy, medium, hard. There should be 10 questions for each difficulty level. The questions should NOT be leetcode questions but are original, and you should follow the schema below and ensure that I can just run these lines immediately. I should have 2 test cases per question, so the first test case is index = 1 and the second is index = 2.
+
+Please categorise the all related insert statements by question.
+
+Start the question id from 31 onwards, as I already have questions before that index.
+
+-- Questions table (one difficulty per question)
+CREATE TABLE questions (
+    id SERIAL,
+    title TEXT NOT NULL UNIQUE,
+    difficulty TEXT CHECK (difficulty IN ('easy', 'medium', 'hard')) NOT NULL,
+    description TEXT NOT NULL,
+    constraints TEXT,
+	PRIMARY KEY (id)
+);
+
+-- Topics table (many topics per question)
+CREATE TABLE topics (
+    id SERIAL,
+    name TEXT NOT NULL UNIQUE,
+	PRIMARY KEY (id)
+);
+
+-- Link table: question ↔ topic (many-to-many)
+CREATE TABLE question_topics (
+    question_id INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+    topic_id INT NOT NULL REFERENCES topics(id) ON DELETE CASCADE,
+    PRIMARY KEY (question_id, topic_id)
+);
+
+-- Test cases table
+CREATE TABLE test_cases (
+    question_id INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+    index INTEGER NOT NULL,
+    input TEXT NOT NULL,
+    output TEXT NOT NULL,
+    PRIMARY KEY (question_id, index)
+);
+"
+
+# Output Summary:
+
+- Insert statements based on the description
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Repeated this for topics: sorting, arrays, dynamic programming, hash table.
+- Removed any data with errors that violate constraints still
+- Designed the schema to ensure scalability and versatility of question data stored
+
+---
+
+---
+
+## Entry 31
+
+# Date/Time:
+
+2025-10-22 15:00
+
+# Tool:
+
+ChatGPT
+
+# Prompt/Command:
+
+- Ask for tips on how to implement a background image as well as making components slightly transparent.
+- Review current code and give suggestions on how to improve readability and interactivity.
+- Ask for websites that provide free stock images without the need for attribution.
+
+# Output Summary:
+
+- Use bg-cover, bg-center, and bg-no-repeat in Tailwind for full coverage and positioning.
+- Add a semi-transparent overlay with bg-black/30 or bg-opacity-30 to make text readable.
+- Use drop shadows (drop-shadow-md) on headings for contrast.
+- Recommended websites like Unsplash for stock images that do need require attribution
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Structured the advice for implementing background images and transparency.
+- Reviewed the current UI code and provided actionable improvements.
+- Compiled a list of free stock image sources that do not require attribution.
+- Recommended best practices for interactive and visually readable UI.
+
+
+
+
+## Entry 32
 
 # Date/Time:
 
