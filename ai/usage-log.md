@@ -1883,3 +1883,47 @@ GitHub Copilot (model: Claude Sonnet 4)
 - Tested end-to-end: Token generation at login → Token verification in middleware → User authentication successful
 
 ---
+
+## Entry 50
+
+# Date/Time:
+
+2025-10-29 16:30
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4)
+
+# Prompt/Command:
+
+"add middleware pasring on matching service all u need to do is to parse the jwt token and update the req.user and if not valid throw error put it in all th path" and "update matching controller so user it checks query params match the jwt parsed user id"
+
+# Output Summary:
+
+- Created middleware/auth.js in matching-service with verifyAccessToken function
+- Implemented JWT verification using PUBLIC_JWK from environment variables
+- Added jose library imports (importJWK, exportSPKI) for JWK to PEM conversion
+- Applied verifyAccessToken middleware to all routes in matching-routes.js
+- Added jsonwebtoken and jose dependencies to matching-service package.json
+- Updated matching-controller.js to validate userId in params/body matches authenticated user ID
+- Added authorization checks in startMatch, terminateMatch, checkStatus, and endSession endpoints
+- Returns 403 Forbidden error when users attempt to access other users' resources
+- Extracts user ID from JWT token and stores in req.user for controller access
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated JWT verification middleware follows same pattern as user-service
+- Security: Prevents users from starting matches, terminating, or checking status for other users
+- Confirmed PUBLIC_JWK is already configured in matching-service .env files
+- Tested middleware integration: All routes now require valid JWT tokens
+- Authorization layer ensures userId from JWT matches userId in request parameters
+- Maintains consistency across microservices for authentication architecture
+- Successfully installed jose and jsonwebtoken packages via npm install
+
+---
