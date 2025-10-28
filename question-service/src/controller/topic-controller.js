@@ -5,7 +5,7 @@
  * Author Review: I checked correctness and performance of the code.
  */
 
-import { getTopicNamesFromDb } from '../models/topic.js';
+import { getTopicNamesFromDb, addTopicToDb } from '../models/topic.js';
 
 export async function getTopicNames(req, res) {
   try {
@@ -15,6 +15,52 @@ export async function getTopicNames(req, res) {
     console.error('[ERROR] getTopicNames:', err.message);
     res.status(500).json({ 
       message: 'Failed to retrieve topics',
+      error: err.message 
+    });
+  }
+}
+
+export async function addTopic(req, res) {
+  try {
+    const { name } = req.query;
+
+    // Input validation
+    if (!name) {
+      return res.status(400).json({
+        message: 'Topic name is required in query parameter "name"'
+      });
+    }
+
+    // Trim whitespace and check length
+    const trimmedName = name.trim();
+    if (trimmedName.length === 0) {
+      return res.status(400).json({
+        message: 'Topic name cannot be empty'
+      });
+    }
+
+    if (trimmedName.length > 50) {
+      return res.status(400).json({
+        message: 'Topic name cannot exceed 50 characters'
+      });
+    }
+
+    const result = await addTopicToDb(trimmedName);
+    res.status(201).json({ 
+      message: `Topic "${result.name}" added successfully` 
+    });
+  } catch (err) {
+    console.error('[ERROR] addTopic:', err.message);
+    
+    // Handle duplicate topic error specifically
+    if (err.message.includes('already exists')) {
+      return res.status(409).json({ 
+        message: err.message 
+      });
+    }
+
+    res.status(500).json({ 
+      message: 'Failed to add topic',
       error: err.message 
     });
   }

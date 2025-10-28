@@ -13,7 +13,7 @@ import {
   updateQuestion,
   getQuestionsByIds
 } from '../controller/question-controller.js';
-import { getTopicNames } from '../controller/topic-controller.js';
+import { getTopicNames, addTopic } from '../controller/topic-controller.js';
 
 const router = express.Router();
 
@@ -25,6 +25,9 @@ router.post('/get', getQuestionsByIds);
 
 // Route to get all topic names
 router.get('/topic', getTopicNames);
+
+// Route to add a new topic
+router.post('/topic/add', addTopic);
 
 // Route to add a new question
 router.post('/add', addQuestion);
