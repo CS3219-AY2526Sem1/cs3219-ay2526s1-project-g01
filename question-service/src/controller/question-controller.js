@@ -1,11 +1,19 @@
 /**
  * AI Assistance Disclosure:
  * Tool: Github Copilot (GPT-5 mini), date: 2025-10-16
- * Purpose: To generate a boilerplate controller for question service to get all questions with filters.
+ * Purpose: To implement controllers for retrieving and creating questions.
+ * Author Review: I modified to add validation and error handling, checked correctness and performance of the code.
+ */
+/**
+ * AI Assistance Disclosure:
+ * Tool: Github Copilot (Claude Sonnet 3.5), date: 2025-10-29
+ * Purpose: To implement controllers for adding new questions.
  * Author Review: I modified to add validation and error handling, checked correctness and performance of the code.
  */
 
-import { getAllQuestionsFromDb } from '../models/question.js';
+import { getAllQuestionsFromDb, addQuestionToDb } from '../models/question.js';
+
+const VALID_DIFFICULTIES = ['easy', 'medium', 'hard'];
 
 /*
   Controller to handle POST /question/
@@ -35,10 +43,9 @@ export async function getAllQuestions(req, res) {
     }
 
     // Validate difficulties
-    const validDifficulties = ['easy', 'medium', 'hard'];
     if (difficulty) {
       difficulty = difficulty.map(d => d.toLowerCase()); // 
-      if (!difficulty.every(d => validDifficulties.includes(d))) {
+      if (!difficulty.every(d => VALID_DIFFICULTIES.includes(d))) {
         return res.status(400).json({ message: 'Invalid difficulty value(s)' });
       }
     }
@@ -67,4 +74,97 @@ export async function getAllQuestions(req, res) {
   }
 }
 
+/*
+  Controller to handle POST /question/add
+  Request body parameters:
+    - title: string (required)
+    - difficulty: string (required) - one of 'easy', 'medium', 'hard'
+    - description: string (required)
+    - question_constraints: string (required)
+    - topics: array of strings (required)
+    - test_cases: array of objects (required) - each object having 'input' and 'output' properties
+*/
+export async function addQuestion(req, res) {
+  try {
+    const { title, difficulty, description, question_constraints, topics, test_cases } = req.body;
+
+    // Validate required fields
+    if (!title || !difficulty || !description || !question_constraints || !topics || !test_cases) {
+      return res.status(400).json({ 
+        message: 'Missing required fields. Please provide title, difficulty, description, question_constraints, topics, and test_cases.' 
+      });
+    }
+
+    // Validate title is non-empty string
+    if (typeof title !== 'string' || title.trim().length === 0) {
+      return res.status(400).json({ message: 'Title must be a non-empty string.' });
+    }
+
+    // Validate difficulty
+    if (!VALID_DIFFICULTIES.includes(difficulty.toLowerCase())) {
+      return res.status(400).json({ 
+        message: 'Invalid difficulty value. Must be one of: easy, medium, hard.' 
+      });
+    }
+
+    // Validate description is non-empty string
+    if (typeof description !== 'string' || description.trim().length === 0) {
+      return res.status(400).json({ message: 'Description must be a non-empty string.' });
+    }
+
+    // Validate question_constraints is non-empty string
+    if (typeof question_constraints !== 'string' || question_constraints.trim().length === 0) {
+      return res.status(400).json({ message: 'Question constraints must be a non-empty string.' });
+    }
+
+    // Validate topics is non-empty array of strings
+    if (!Array.isArray(topics) || topics.length === 0 || 
+        !topics.every(topic => typeof topic === 'string' && topic.trim().length > 0)) {
+      return res.status(400).json({ 
+        message: 'Topics must be a non-empty array of strings.' 
+      });
+    }
+
+    // Validate test_cases is non-empty array of valid test cases
+    if (!Array.isArray(test_cases) || test_cases.length === 0) {
+      return res.status(400).json({ 
+        message: 'Test cases must be a non-empty array.' 
+      });
+    }
+
+    // Validate each test case has input and output
+    for (const [index, testCase] of test_cases.entries()) {
+      if (!testCase || typeof testCase !== 'object' || 
+          !('input' in testCase) || !('output' in testCase)) {
+        return res.status(400).json({ 
+          message: `Invalid test case at index ${index}. Each test case must have 'input' and 'output' properties.` 
+        });
+      }
+    }
+
+    // Normalize topics (lowercase and replace underscores with spaces)
+    const normalizedTopics = topics.map(t => t.replace(/_/g, ' ').toLowerCase());
+
+    // Add question to database
+    const question = await addQuestionToDb({
+      title,
+      difficulty: difficulty.toLowerCase(),
+      description,
+      question_constraints,
+      topics: normalizedTopics,
+      test_cases
+    });
+
+    res.status(201).json({ 
+      message: 'Question created successfully',
+      data: question
+    });
+  } catch (err) {
+    console.error('[ERROR] Failed to add question:', err.message);
+    res.status(500).json({ 
+      message: 'Failed to add question', 
+      error: err.message 
+    });
+  }
+}
 
