@@ -11,7 +11,13 @@
  * Author Review: I modified to add validation and error handling, checked correctness and performance of the code.
  */
 
-import { getAllQuestionsFromDb, addQuestionToDb, deleteQuestionFromDb } from '../models/question.js';
+import { 
+  getAllQuestionsFromDb, 
+  addQuestionToDb, 
+  deleteQuestionFromDb, 
+  updateQuestionInDb, 
+  getQuestionsByIdsFromDb 
+} from '../models/question.js';
 
 const VALID_DIFFICULTIES = ['easy', 'medium', 'hard'];
 
@@ -177,6 +183,82 @@ export async function addQuestion(req, res) {
 }
 
 /*
+  Controller to handle GET /question/:id
+  URL parameters:
+    - id: the ID of the question to retrieve
+  Returns:
+    - 200: Question found, returns complete question object
+    - 404: Question not found
+    - 400: Invalid question ID
+    - 500: Server error
+*/
+/*
+  Controller to handle POST /questions/bulk
+  Request body parameters:
+    - ids: array of question IDs to retrieve
+  Returns:
+    - 200: Questions found, returns array of question objects
+    - 400: Invalid request (missing ids or invalid format)
+    - 404: If none of the requested questions were found
+    - 500: Server error
+*/
+export async function getQuestionsByIds(req, res) {
+  try {
+    const { ids } = req.body;
+
+    // Validate ids is provided and is an array
+    if (!ids || !Array.isArray(ids)) {
+      return res.status(400).json({
+        message: 'Request body must include "ids" as an array of question IDs.'
+      });
+    }
+
+    // Validate each ID is a positive integer
+    const questionIds = ids.map(id => parseInt(id, 10));
+    if (questionIds.some(id => isNaN(id) || id <= 0)) {
+      return res.status(400).json({
+        message: 'All question IDs must be positive integers.'
+      });
+    }
+
+    // Remove duplicates
+    const uniqueIds = [...new Set(questionIds)];
+
+    // Get questions from database
+    const questions = await getQuestionsByIdsFromDb(uniqueIds);
+
+    if (questions.length === 0) {
+      return res.status(404).json({
+        message: 'None of the requested questions were found'
+      });
+    }
+
+    // Include information about which questions were found and not found
+    const foundIds = questions.map(q => q.id);
+    const notFoundIds = uniqueIds.filter(id => !foundIds.includes(id));
+
+    const response = {
+      data: questions,
+      meta: {
+        requested: uniqueIds.length,
+        found: questions.length,
+        notFound: notFoundIds
+      }
+    };
+
+    res.status(200).json(response);
+  } catch (err) {
+    console.error('[ERROR] Failed to retrieve questions:', err.message);
+    res.status(500).json({
+      message: 'Failed to retrieve questions',
+      error: err.message
+    });
+  }
+}
+
+
+
+/*
   Controller to handle DELETE /question/delete
   Request query parameters:
     - id: the ID of the question to delete
@@ -186,6 +268,119 @@ export async function addQuestion(req, res) {
     - 400: If ID is missing or invalid
     - 500: If there was a server error
 */
+export async function updateQuestion(req, res) {
+  try {
+    let { id, title, difficulty, description, question_constraints, topics, test_cases } = req.body;
+
+    // Validate question id is provided and valid
+    if (!id) {
+      return res.status(400).json({
+        message: 'Missing required field: id'
+      });
+    }
+
+    // Validate id is a positive integer
+    const questionId = parseInt(id, 10);
+    if (isNaN(questionId) || questionId <= 0) {
+      return res.status(400).json({
+        message: 'Invalid question ID. Must be a positive integer.'
+      });
+    }
+
+    // Validate required fields
+    if (!title || !difficulty || !description || !question_constraints || !topics || !test_cases) {
+      return res.status(400).json({
+        message: 'Missing required fields. Please provide title, difficulty, description, question_constraints, topics, and test_cases.'
+      });
+    }
+
+    // Validate and trim title
+    if (typeof title !== 'string') {
+      return res.status(400).json({ message: 'Title must be a string.' });
+    }
+    title = title.trim();
+    if (title.length === 0) {
+      return res.status(400).json({ message: 'Title cannot be empty or just whitespace.' });
+    }
+
+    // Validate and trim difficulty
+    if (typeof difficulty !== 'string') {
+      return res.status(400).json({ message: 'Difficulty must be a string.' });
+    }
+    difficulty = difficulty.trim().toLowerCase();
+    if (!VALID_DIFFICULTIES.includes(difficulty)) {
+      return res.status(400).json({
+        message: 'Invalid difficulty value. Must be one of: easy, medium, hard.'
+      });
+    }
+
+    // Validate description is non-empty string
+    if (typeof description !== 'string' || description.trim().length === 0) {
+      return res.status(400).json({ message: 'Description must be a non-empty string.' });
+    }
+
+    // Validate question_constraints is non-empty string
+    if (typeof question_constraints !== 'string' || question_constraints.trim().length === 0) {
+      return res.status(400).json({ message: 'Question constraints must be a non-empty string.' });
+    }
+
+    // Validate topics is non-empty array of strings
+    if (!Array.isArray(topics) || topics.length === 0 ||
+        !topics.every(topic => typeof topic === 'string' && topic.trim().length > 0)) {
+      return res.status(400).json({
+        message: 'Topics must be a non-empty array of strings.'
+      });
+    }
+
+    // Validate test_cases is non-empty array of valid test cases
+    if (!Array.isArray(test_cases) || test_cases.length === 0) {
+      return res.status(400).json({
+        message: 'Test cases must be a non-empty array.'
+      });
+    }
+
+    // Validate each test case has input and output
+    for (const [index, testCase] of test_cases.entries()) {
+      if (!testCase || typeof testCase !== 'object' ||
+          !('input' in testCase) || !('output' in testCase)) {
+        return res.status(400).json({
+          message: `Invalid test case at index ${index}. Each test case must have 'input' and 'output' properties.`
+        });
+      }
+    }
+
+    // Normalize topics (lowercase and replace underscores with spaces)
+    const normalizedTopics = topics.map(t => t.replace(/_/g, ' ').toLowerCase());
+
+    // Update question in database
+    const result = await updateQuestionInDb({
+      id: questionId,
+      title,
+      difficulty,
+      description,
+      question_constraints,
+      topics: normalizedTopics,
+      test_cases
+    });
+
+    if (!result.updated) {
+      return res.status(404).json({
+        message: `Question with ID ${questionId} not found`
+      });
+    }
+
+    res.status(200).json({
+      message: `Question "${result.oldTitle}" updated to "${result.newTitle}" successfully`
+    });
+  } catch (err) {
+    console.error('[ERROR] Failed to update question:', err.message);
+    res.status(500).json({
+      message: 'Failed to update question',
+      error: err.message
+    });
+  }
+}
+
 export async function deleteQuestion(req, res) {
   try {
     const { id } = req.query;

@@ -7,6 +7,46 @@
 
 import pool from '../db.js';
 
+export async function getQuestionsByIdsFromDb(ids) {
+  try {
+    const query = `
+      SELECT 
+        q.id,
+        q.title,
+        q.difficulty,
+        q.description,
+        q.question_constraints,
+        -- Get topics as an array
+        COALESCE(
+          (
+            SELECT JSON_AGG(t.name)
+            FROM question_topics qt
+            JOIN topics t ON qt.topic_id = t.id
+            WHERE qt.question_id = q.id
+          ), '[]'
+        ) AS topics,
+        -- Get test cases as an array of objects with input and output
+        COALESCE(
+          (
+            SELECT JSON_AGG(JSON_BUILD_OBJECT('input', tc.input, 'output', tc.output) ORDER BY tc.index)
+            FROM test_cases tc
+            WHERE tc.question_id = q.id
+          ), '[]'
+        ) AS test_cases
+      FROM questions q
+      WHERE q.id = ANY($1)
+      ORDER BY q.id
+    `;
+
+    const { rows } = await pool.query(query, [ids]);
+    return rows;
+  } catch (err) {
+    console.error('[ERROR] getQuestionsByIdsFromDb:', err.message);
+    throw err;
+  }
+}
+
+
 export async function getAllQuestionsFromDb({ topics, difficulties, limit, random }) {
   try {
     let query = `
@@ -81,6 +121,92 @@ export async function getAllQuestionsFromDb({ topics, difficulties, limit, rando
 }
 
 
+
+export async function updateQuestionInDb({ id, title, difficulty, description, question_constraints, topics, test_cases }) {
+  const client = await pool.connect();
+  
+  try {
+    // Begin transaction
+    await client.query('BEGIN');
+
+    // Verify all provided topics exist
+    const loweredTopics = topics.map(t => t.toLowerCase());
+    const { rows: existingTopics } = await client.query(
+      `SELECT id, LOWER(name) AS name FROM topics WHERE LOWER(name) = ANY($1)`,
+      [loweredTopics]
+    );
+
+    // If counts mismatch, some topics don't exist => abort
+    if (existingTopics.length !== topics.length) {
+      const existingNames = existingTopics.map(t => t.name);
+      const missing = topics.filter(t => !existingNames.includes(t.toLowerCase()));
+      throw new Error(`Topic(s) do not exist in DB: ${missing.join(', ')}`);
+    }
+
+    // Check if question exists and get current title
+    const questionResult = await client.query(
+      'SELECT title FROM questions WHERE id = $1',
+      [id]
+    );
+
+    if (questionResult.rowCount === 0) {
+      await client.query('COMMIT');
+      return { updated: false };
+    }
+
+    const oldTitle = questionResult.rows[0].title;
+
+    // Validate difficulty
+    const validDifficulties = ['easy', 'medium', 'hard'];
+    if (!validDifficulties.includes(difficulty.toLowerCase())) {
+      throw new Error(`Invalid difficulty level. Must be one of: ${validDifficulties.join(', ')}`);
+    }
+
+    // Update question
+    await client.query(`
+      UPDATE questions 
+      SET title = $1, difficulty = $2, description = $3, question_constraints = $4
+      WHERE id = $5
+    `, [title, difficulty.toLowerCase(), description, question_constraints, id]);
+
+    // Delete old test cases
+    await client.query('DELETE FROM test_cases WHERE question_id = $1', [id]);
+
+    // Insert new test cases
+    for (const [index, testCase] of test_cases.entries()) {
+      await client.query(`
+        INSERT INTO test_cases (question_id, index, input, output)
+        VALUES ($1, $2, $3, $4)
+      `, [id, index, testCase.input, testCase.output]);
+    }
+
+    // Delete old topic relationships
+    await client.query('DELETE FROM question_topics WHERE question_id = $1', [id]);
+
+    // Insert new topic relationships using the validated existing topics
+    for (const topic of existingTopics) {
+      // Create question-topic relationship
+      await client.query(`
+        INSERT INTO question_topics (question_id, topic_id)
+        VALUES ($1, $2)
+      `, [id, topic.id]);
+    }
+
+    // Commit transaction
+    await client.query('COMMIT');
+
+    // Return updated status and titles
+    return { updated: true, oldTitle, newTitle: title };
+  } catch (err) {
+    // Rollback transaction on error
+    await client.query('ROLLBACK');
+    console.error('[ERROR] updateQuestionInDb:', err.message);
+    throw err;
+  } finally {
+    // Release client back to pool
+    client.release();
+  }
+}
 
 export async function deleteQuestionFromDb(questionId) {
   const client = await pool.connect();
