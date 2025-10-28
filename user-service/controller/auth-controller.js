@@ -1,5 +1,12 @@
 /**
  * AI Assistance Disclosure:
+ * Tool: GitHub Copilot (model: Claude Sonnet 4), date: 2025-10-28
+ * Purpose: To update JWT signing to use JWK (JSON Web Key) private key format instead of shared secret.
+ * Author Review: I validated correctness, security, and performance of the code.
+ */
+
+/**
+ * AI Assistance Disclosure:
  * Tool: GitHub Copilot (model: Claude Sonnet 4), date: 2025-09-24
  * Purpose: To update login functionality to check user verification status before allowing authentication.
  * Author Review: I validated correctness, security, and performance of the code.
@@ -7,6 +14,7 @@
 
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { importJWK, exportPKCS8 } from "jose";
 import { 
   findUserByEmail as _findUserByEmail,  
   createPasswordResetRecord as _createPasswordResetRecord,
@@ -50,11 +58,23 @@ export async function handleLogin(req, res) {
       // This ensures that old email change requests are cleared on fresh login
       await _deleteUserVerifyRecordByUserId(user._id);
 
+      // Parse the PRIVATE_JWK from environment variable
+      const privateJwk = JSON.parse(process.env.PRIVATE_JWK);
+      
+      // Import the JWK as a private key object with extractable flag
+      const privateKeyObject = await importJWK(privateJwk, privateJwk.alg, { extractable: true });
+      
+      // Convert to PEM format that jsonwebtoken library expects
+      const privateKeyPEM = await exportPKCS8(privateKeyObject);
+      
+      // Sign the token using the private key in PEM format
       const accessToken = jwt.sign({
         id: user.id,
-      }, process.env.JWT_SECRET, {
+      }, privateKeyPEM, {
+        algorithm: privateJwk.alg,
         expiresIn: "1d",
       });
+      
       return res.status(200).json({ message: "User logged in", data: { accessToken, ...formatUserResponse(user) } });
     } catch (err) {
       console.error(err);

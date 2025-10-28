@@ -1837,3 +1837,49 @@ Request to create a utility script for generating public/private key pairs in JW
 - Confirmed security: 2048-bit RSA key provides adequate security for JWT signing
 - Performance: Script generates keys quickly for development workflow
 - Keys can be directly copied to environment variables for JWT configuration
+
+---
+
+## Entry 49
+
+# Date/Time:
+
+2025-10-28 23:55
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4)
+
+# Prompt/Command:
+
+"check through my middleware an controller and make it use the private and public jwt instead of the og one"
+
+# Output Summary:
+
+- Updated auth-controller.js handleLogin to sign JWT tokens using PRIVATE_JWK instead of JWT_SECRET
+- Added jose library imports: importJWK and exportPKCS8 for JWK to PEM conversion
+- Implemented private key import from environment variable with extractable flag
+- Converted imported JWK to PEM format using exportPKCS8 for jsonwebtoken compatibility
+- Updated basic-access-control.js middleware to verify tokens using PUBLIC_JWK
+- Added exportSPKI import for public key PEM conversion
+- Implemented public key import and PEM conversion in verifyAccessToken middleware
+- Maintained RS256 algorithm specification in both signing and verification
+- Preserved existing token payload structure (id only) and 1-day expiration
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated asymmetric JWT flow: signing with PRIVATE_JWK, verification with PUBLIC_JWK
+- Confirmed jsonwebtoken library requires PEM format, not raw CryptoKey objects
+- Security: Separation of signing and verification keys allows services to verify without signing capability
+- Troubleshooting: Resolved "secretOrPrivateKey is not valid" and "CryptoKey is not extractable" errors
+- Performance: importJWK and PEM conversion add minimal overhead to JWT operations
+- Architecture: Enables distributed authentication where each service can verify tokens independently
+- Tested end-to-end: Token generation at login → Token verification in middleware → User authentication successful
+
+---
