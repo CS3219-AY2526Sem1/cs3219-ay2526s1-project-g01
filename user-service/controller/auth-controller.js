@@ -70,6 +70,7 @@ export async function handleLogin(req, res) {
       // Sign the token using the private key in PEM format
       const accessToken = jwt.sign({
         id: user.id,
+        isAdmin: user.isAdmin ?? false,
       }, privateKeyPEM, {
         algorithm: privateJwk.alg,
         expiresIn: "1d",
