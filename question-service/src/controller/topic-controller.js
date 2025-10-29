@@ -21,8 +21,8 @@ export async function getTopicNames(req, res) {
 }
 
 export async function addTopic(req, res) {
-  try {
-    const { name } = req.query;
+  try {    
+    const { name } = req.body;
 
     // Input validation
     if (!name) {

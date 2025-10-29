@@ -22,18 +22,74 @@ import {
 const VALID_DIFFICULTIES = ['easy', 'medium', 'hard'];
 
 /*
-  Controller to handle POST /question/
+  Controller to handle GET /question/:id
+  Request parameters:
+    - id: the ID of the question to retrieve
+  Returns:
+    - 200: If question was found
+    - 400: If ID is invalid
+    - 404: If question with given ID was not found
+    - 500: If there was a server error
+*/
+export async function getQuestionById(req, res) {
+  try {
+    const { id } = req.params;
+
+    // Check if id parameter exists
+    if (id === undefined || id === null) {
+      return res.status(400).json({
+        message: 'Question ID parameter is required'
+      });
+    }
+
+    // Validate id is a positive integer
+    const questionId = parseInt(id, 10);
+    if (isNaN(questionId) || questionId <= 0) {
+      return res.status(400).json({
+        message: 'Invalid question ID. Must be a positive integer.'
+      });
+    }
+
+    // Get question from database
+    const questions = await getQuestionsByIdsFromDb([questionId]);
+
+    if (questions.length === 0) {
+      return res.status(404).json({
+        message: `Question with ID ${questionId} not found`
+      });
+    }
+
+    res.status(200).json({
+      data: questions[0]
+    });
+  } catch (err) {
+    console.error('[ERROR] Failed to retrieve question:', err.message);
+    res.status(500).json({
+      message: 'Failed to retrieve question',
+      error: err.message
+    });
+  }
+}
+
+/*
+  Controller to handle POST /question/search
   Handles request body parameters:
     - topic: filter questions by topic
     - difficulty: filter questions by difficulty level (easy, medium, hard)
-  Handles optional query parameters:
+  Handles optional body parameters:
     - limit: limit the number of questions returned
     - random: if true, returns questions in random order
 */
 export async function getAllQuestions(req, res) {
   try {
-    let { topic, difficulty } = req.body ?? {};
-    let { limit, random } = req.query;
+    // All parameters (topic, difficulty, limit, random) should come from request body
+    let { topic, difficulty, limit, random } = req.body ?? {};
+
+    if (!req.body) {
+      return res.status(400).json({
+        message: 'Request body is required and must be valid JSON that includes "ids" as an array of question IDs.'
+      });
+    }
 
     // Convert to arrays if not already in array form
     if (topic && !Array.isArray(topic)) {
@@ -56,14 +112,14 @@ export async function getAllQuestions(req, res) {
       }
     }
 
-    // Parse and validate limit
-    const parsedLimit = limit ? parseInt(limit, 10) : null;
+    // Parse and validate limit (provided in body)
+    const parsedLimit = (limit !== undefined && limit !== null) ? parseInt(limit, 10) : null;
     if (parsedLimit !== null && (isNaN(parsedLimit) || parsedLimit <= 0)) {
       return res.status(400).json({ message: 'Invalid limit value. Must be a positive number.' });
     }
 
-    // Check if random is set to true
-    const isRandom = random === 'true' ? true : false;
+    // Check if random is set to true (accept boolean or string values in body)
+    const isRandom = (typeof random === 'string') ? (random.toLowerCase() === 'true') : Boolean(random);
 
     // Fetch questions from the database
     const questions = await getAllQuestionsFromDb({ 
@@ -92,10 +148,21 @@ export async function getAllQuestions(req, res) {
 */
 export async function addQuestion(req, res) {
   try {
-    let { title, difficulty, description, question_constraints, topics, test_cases } = req.body;
+    let { title, difficulty, description, question_constraints, topics, test_cases } = req.body ?? {};
 
-    // Validate required fields
-    if (!title || !difficulty || !description || !question_constraints || !topics || !test_cases) {
+    if (!req.body) {
+      return res.status(400).json({
+        message: 'Request body is required and must be valid JSON.'
+      });
+    }
+
+    // Validate required fields - now checks for undefined/null explicitly
+    if (title === undefined || title === null ||
+        difficulty === undefined || difficulty === null ||
+        description === undefined || description === null ||
+        question_constraints === undefined || question_constraints === null ||
+        topics === undefined || topics === null ||
+        test_cases === undefined || test_cases === null) {
       return res.status(400).json({ 
         message: 'Missing required fields. Please provide title, difficulty, description, question_constraints, topics, and test_cases.' 
       });
@@ -196,9 +263,56 @@ export async function addQuestion(req, res) {
     - 404: If none of the requested questions were found
     - 500: Server error
 */
+// /**
+//  * Get a single question by ID.
+//  * Path parameter:
+//  *   - id: question ID (positive integer)
+//  * Returns:
+//  *   - 200: Question found
+//  *   - 404: Question not found
+//  *   - 400: Invalid ID format
+//  */
+// export async function getQuestionById(req, res) {
+//   try {
+//     const { id } = req.params;
+    
+//     // Validate id is a positive integer
+//     const questionId = parseInt(id, 10);
+//     if (isNaN(questionId) || questionId <= 0) {
+//       return res.status(400).json({
+//         message: 'Invalid question ID. Must be a positive integer.'
+//       });
+//     }
+
+//     // Get question from database
+//     const question = await getQuestionByIdFromDb(questionId);
+
+//     if (!question) {
+//       return res.status(404).json({
+//         message: `Question with ID ${questionId} not found`
+//       });
+//     }
+
+//     res.status(200).json(question);
+//   } catch (err) {
+//     console.error('[ERROR] Failed to retrieve question:', err.message);
+//     res.status(500).json({ 
+//       message: 'Failed to retrieve question', 
+//       error: err.message 
+//     });
+//   }
+// }
+
 export async function getQuestionsByIds(req, res) {
   try {
-    const { ids } = req.body;
+    const { ids } = req.body ?? {};
+
+    // Validate request body exists
+    if (!req.body) {
+      return res.status(400).json({
+        message: 'Request body is required and must be valid JSON that includes "ids" as an array of question IDs.'
+      });
+    }
 
     // Validate ids is provided and is an array
     if (!ids || !Array.isArray(ids)) {
@@ -253,31 +367,47 @@ export async function getQuestionsByIds(req, res) {
 
 
 /*
-  Controller to handle DELETE /question/delete
-  Request query parameters:
-    - id: the ID of the question to delete
+  Controller to handle PUT /question/:id
+  Request parameters:
+    - id: the ID of the question to update (in URL)
+  Request body:
+    - id: must match the ID in URL
+    - title: string (required)
+    - difficulty: string (required) - one of 'easy', 'medium', 'hard'
+    - description: string (required)
+    - question_constraints: string (required)
+    - topics: array of strings (required)
+    - test_cases: array of objects (required) - each object having 'input' and 'output' properties
   Returns:
-    - 200: If question was successfully deleted
+    - 200: If question was successfully updated
+    - 400: If ID is invalid or request body is invalid
     - 404: If question with given ID was not found
-    - 400: If ID is missing or invalid
+    - 409: If ID in URL doesn't match ID in body
     - 500: If there was a server error
 */
 export async function updateQuestion(req, res) {
   try {
-    let { id, title, difficulty, description, question_constraints, topics, test_cases } = req.body;
+    const { id: urlId } = req.params;
+    let { id: bodyId, title, difficulty, description, question_constraints, topics, test_cases } = req.body ?? {};
 
-    // Validate question id is provided and valid
-    if (!id) {
+    if (!req.body) {
       return res.status(400).json({
-        message: 'Missing required field: id'
+        message: 'Request body is required and must be valid JSON.'
       });
     }
 
-    // Validate id is a positive integer
-    const questionId = parseInt(id, 10);
+    // Validate URL id is a positive integer
+    const questionId = parseInt(urlId, 10);
     if (isNaN(questionId) || questionId <= 0) {
       return res.status(400).json({
-        message: 'Invalid question ID. Must be a positive integer.'
+        message: 'Invalid question ID in URL. Must be a positive integer.'
+      });
+    }
+
+    // Validate request body exists
+    if (!req.body) {
+      return res.status(400).json({
+        message: 'Request body is required and must be valid JSON'
       });
     }
 
@@ -285,6 +415,13 @@ export async function updateQuestion(req, res) {
     if (!title || !difficulty || !description || !question_constraints || !topics || !test_cases) {
       return res.status(400).json({
         message: 'Missing required fields. Please provide title, difficulty, description, question_constraints, topics, and test_cases.'
+      });
+    }
+
+    // Validate body id matches URL id
+    if (!bodyId || parseInt(bodyId, 10) !== questionId) {
+      return res.status(409).json({
+        message: 'ID in request body must match ID in URL'
       });
     }
 
@@ -375,9 +512,10 @@ export async function updateQuestion(req, res) {
   }
 }
 
+
 export async function deleteQuestion(req, res) {
   try {
-    const { id } = req.query;
+    const { id } = req.params;
 
     // Validate id is provided
     if (!id) {

@@ -11,31 +11,36 @@ import {
   addQuestion, 
   deleteQuestion, 
   updateQuestion,
-  getQuestionsByIds
+  getQuestionsByIds,
+  getQuestionById
 } from '../controller/question-controller.js';
 import { getTopicNames, addTopic } from '../controller/topic-controller.js';
 
 const router = express.Router();
 
-// Route to get filtered questions
-router.post('/', getAllQuestions);
+// Route to search questions (changed from POST /)
+// All search parameters are expected in the request body
+router.post('/search', getAllQuestions);
 
 // Route to add a new question
-router.post('/add', addQuestion);
-
-// Route to delete a question by ID
-router.delete('/delete', deleteQuestion);
+router.post('/create', addQuestion);
 
 // Route to get multiple questions by IDs
-router.post('/get', getQuestionsByIds);
+router.post('/batch', getQuestionsByIds);
 
 // Route to get all topic names
-router.get('/topic', getTopicNames);
+router.get('/topics', getTopicNames);
 
 // Route to add a new topic
-router.post('/topic/add', addTopic);
+router.post('/topics', addTopic);
 
-// Route to update an existing question
-router.put('/update', updateQuestion);
+// Route to get a question by ID
+router.get('/:id', getQuestionById);
+
+// Route to update a question by ID
+router.put('/:id', updateQuestion);
+
+// Route to delete a question by ID
+router.delete('/:id', deleteQuestion);
 
 export default router;

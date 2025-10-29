@@ -4,6 +4,12 @@
  * Purpose: Database operations for questions including retrieval and creation.
  * Author Review: I checked correctness and performance of the code.
  */
+/**
+ * AI Assistance Disclosure:
+ * Tool: Github Copilot (Claude Sonnet 3.5), date: 2025-10-29
+ * Purpose: To implement functions for CRUD operations on questions.
+ * Author Review: I modified to add validation and error handling, checked correctness and performance of the code.
+ */
 
 import pool from '../db.js';
 
