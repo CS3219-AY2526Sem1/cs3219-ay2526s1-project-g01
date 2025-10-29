@@ -30,8 +30,11 @@ export default function ChatComponent() {
   const pendingCandidatesRef = useRef<RTCIceCandidateInit[]>([]);
 
   // Enable audio and mute video by default
-  const [audioStatus, setAudioStatus] = useState<boolean>(true);
-  const [videoStatus, setVideoStatus] = useState<boolean>(true);
+  const [localAudioStatus, setLocalAudioStatus] = useState<boolean>(true);
+  const [localVideoStatus, setLocalVideoStatus] = useState<boolean>(true);
+
+  // Remote user's audio
+  const [remoteAudioStatus, setRemoteAudioStatus] = useState<boolean>(true);
 
   const servers = {
     iceServers: [
@@ -54,25 +57,31 @@ export default function ChatComponent() {
 
     const initializeConnection = async () => {
       try {
-        // Get media stream first
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true,
-        });
-
-        if (currentVideoRef.current) {
-          currentVideoRef.current.srcObject = stream;
-          currentStreamRef.current = stream;
-        }
-
         // Create peer connection
         const pc = new RTCPeerConnection(servers);
         connectionRef.current = pc;
 
-        // Add tracks to connection
-        stream.getTracks().forEach((track) => {
-          pc.addTrack(track, stream);
-        });
+        let stream = null;
+
+        try {
+          // Get media stream first
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true,
+          });
+        } catch (error) {
+          console.error("User refuses to give permission:", error);
+        }
+
+        // If user gives permission to use media devices, then we can send over our stream
+        if (stream && currentVideoRef.current) {
+          currentVideoRef.current.srcObject = stream;
+          currentStreamRef.current = stream;
+
+          stream.getTracks().forEach((track) => {
+            pc.addTrack(track, stream);
+          });
+        }
 
         // Set up event handlers
         pc.ontrack = (event) => {
@@ -233,7 +242,7 @@ export default function ChatComponent() {
     }
   }
 
-  async function muteAudio() {
+  async function muteLocalAudio() {
     const currentAudio = currentStreamRef.current
       ?.getTracks()
       .find((track) => track.kind === "audio");
@@ -241,15 +250,15 @@ export default function ChatComponent() {
     if (currentAudio) {
       if (currentAudio?.enabled) {
         currentAudio.enabled = false;
-        setAudioStatus(false);
+        setLocalAudioStatus(false);
       } else if (!currentAudio?.enabled) {
         currentAudio.enabled = true;
-        setAudioStatus(true);
+        setLocalAudioStatus(true);
       }
     }
   }
 
-  async function muteVideo() {
+  async function muteLocalVideo() {
     const currentVideo = currentStreamRef.current
       ?.getTracks()
       .find((track) => track.kind === "video");
@@ -257,10 +266,22 @@ export default function ChatComponent() {
     if (currentVideo) {
       if (currentVideo?.enabled) {
         currentVideo.enabled = false;
-        setVideoStatus(false);
+        setLocalVideoStatus(false);
       } else if (!currentVideo?.enabled) {
         currentVideo.enabled = true;
-        setVideoStatus(true);
+        setLocalVideoStatus(true);
+      }
+    }
+  }
+
+  async function muteRemoteAudio() {
+    if (remoteVideoRef.current) {
+      if (remoteVideoRef.current.muted) {
+        remoteVideoRef.current.muted = false; // Unmute other user
+        setRemoteAudioStatus(true);
+      } else {
+        remoteVideoRef.current.muted = true; // Mute other user
+        setRemoteAudioStatus(false);
       }
     }
   }
@@ -278,29 +299,47 @@ export default function ChatComponent() {
         <video ref={remoteVideoRef} autoPlay playsInline className="w-[50%]" />
       </div>
 
-      <div className="flex gap-2 px-2">
-        <Button
-          onClick={() => muteAudio()}
-          className="
+      <div className="flex w-full">
+        {/* Button for local stream */}
+        <div className="flex gap-2 px-2 w-[50%]">
+          <Button
+            onClick={() => muteLocalAudio()}
+            className="
             text-white 
             bg-stone-900
             border 
             border-white
             hover:bg-stone-500"
-        >
-          {audioStatus ? <Mic /> : <MicOff />}
-        </Button>
-        <Button
-          onClick={() => muteVideo()}
-          className="
+          >
+            {localAudioStatus ? <Mic /> : <MicOff />}
+          </Button>
+          <Button
+            onClick={() => muteLocalVideo()}
+            className="
             text-white 
             bg-stone-900
             border 
             border-white
             hover:bg-stone-500"
-        >
-          {videoStatus ? <Video /> : <VideoOff />}
-        </Button>
+          >
+            {localVideoStatus ? <Video /> : <VideoOff />}
+          </Button>
+        </div>
+
+        {/* Button for remote stream */}
+        <div className="flex gap-2 px-2 w-[50%]">
+          <Button
+            onClick={() => muteRemoteAudio()}
+            className="
+            text-white 
+            bg-stone-900
+            border 
+            border-white
+            hover:bg-stone-500"
+          >
+            {remoteAudioStatus ? <Mic /> : <MicOff />}
+          </Button>
+        </div>
       </div>
 
       <div className="flex bg-stone-500 h-full m-2 rounded-lg"></div>
