@@ -1,4 +1,11 @@
 //With reference to https://dev.to/akormous/building-a-shared-code-editor-using-nodejs-websocket-and-crdt-4l0f for binding editor to yjs
+
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2024-10-28
+ * Purpose: Added props interface and callbacks to expose editor instance and language for AI assistant
+ * Author Review: Callback integration and useEffect dependencies validated
+ */
 "use client";
 import * as Y from "yjs";
 import Editor from "@monaco-editor/react";
@@ -21,7 +28,16 @@ import {
 } from "./CollabWebSocket";
 import { useUser } from "@/contexts/UserContext";
 import { useRouter } from "next/navigation";
-export default function CodingComponent() {
+
+interface CodingComponentProps {
+  onEditorMount?: (editor: monaco.editor.IStandaloneCodeEditor) => void;
+  onLanguageChange?: (language: string) => void;
+}
+
+export default function CodingComponent({
+  onEditorMount,
+  onLanguageChange,
+}: CodingComponentProps) {
   const [codeContent, setCodeContent] = useState<string>("");
   const [selectedLanguage, setSeletedLanguage] = useState<string>("JavaScript");
   const router = useRouter();
@@ -31,6 +47,14 @@ export default function CodingComponent() {
   const user_id: string = user?.username || "1";
 
   const session_id = "123"; //HARDCODED FOR TESTING
+
+  // Notify parent when language changes
+  useEffect(() => {
+    if (onLanguageChange) {
+      onLanguageChange(selectedLanguage);
+    }
+  }, [selectedLanguage, onLanguageChange]);
+
   function setInitialContent(value: string | undefined) {
     if (value != undefined) {
       setCodeContent(value);
@@ -39,6 +63,10 @@ export default function CodingComponent() {
 
   function handleEditorMount(editor: monaco.editor.IStandaloneCodeEditor) {
     setEditorInstance(editor);
+    // Notify parent component
+    if (onEditorMount) {
+      onEditorMount(editor);
+    }
   }
 
   useEffect(() => {
