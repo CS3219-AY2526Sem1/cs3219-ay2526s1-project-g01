@@ -5,11 +5,7 @@
   "description": "PeerPrep - Collaborative coding interview platform",
   "scripts": {
     "dev": "concurrently \"npm run dev:docker\" \"npm run dev:frontend\"",
-<<<<<<< HEAD
-    "dev:docker": "docker compose up api-gateway user-service matching-service collab-service communication-service redis-collab-service redis-matching-service --build",
-=======
-    "dev:docker": "docker compose up api-gateway user-service matching-service collab-service question-service redis-collab-service redis-matching-service pg-question-service --build",
->>>>>>> master
+    "dev:docker": "docker compose up api-gateway user-service matching-service collab-service question-service communication-service redis-collab-service redis-matching-service pg-question-service --build",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:microservices": "docker compose up user-service matching-service collab-service question-service redis-collab-service redis-matching-service pg-question-service --build",
     "dev:with-db": "concurrently \"npm run dev:docker\" \"npm run dev:frontend\" \"npm run localdb\"",
