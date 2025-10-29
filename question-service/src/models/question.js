@@ -13,6 +13,7 @@
 
 import pool from '../db.js';
 
+
 export async function getQuestionsByIdsFromDb(ids) {
   try {
     const query = `
@@ -127,7 +128,6 @@ export async function getAllQuestionsFromDb({ topics, difficulties, limit, rando
 }
 
 
-
 export async function updateQuestionInDb({ id, title, difficulty, description, question_constraints, topics, test_cases }) {
   const client = await pool.connect();
   
@@ -214,6 +214,7 @@ export async function updateQuestionInDb({ id, title, difficulty, description, q
   }
 }
 
+
 export async function deleteQuestionFromDb(questionId) {
   const client = await pool.connect();
   
@@ -259,6 +260,7 @@ export async function deleteQuestionFromDb(questionId) {
   }
 }
 
+
 export async function addQuestionToDb({ title, difficulty, description, question_constraints, topics, test_cases }) {
   const client = await pool.connect();
 
@@ -266,17 +268,7 @@ export async function addQuestionToDb({ title, difficulty, description, question
     // Start transaction
     await client.query('BEGIN');
 
-    // -----------------------------
-    // 0) Make sure the questions sequence is in sync
-    // -----------------------------
-    // PROBLEM ADDRESSED:
-    // If earlier rows were inserted with explicit id values (hardcoded),
-    // the underlying SERIAL sequence (questions_id_seq) may be behind the max id.
-    // In that case nextval() can produce an id that already exists and lead to a duplicate key error.
-    //
-    // SOLUTION:
-    // Use pg_get_serial_sequence to find the sequence name for questions.id
-    // and set it to MAX(id) so the next nextval will be > max(id).
+    // Ensure question ID sequence is correct
     const seqRes = await client.query(
       `SELECT pg_get_serial_sequence('questions', 'id') AS seqname`
     );
@@ -289,10 +281,8 @@ export async function addQuestionToDb({ title, difficulty, description, question
         [seqName]
       );
     }
-    // -----------------------------
-    // 1) Verify all provided topics exist (no auto-creation)
-    // -----------------------------
-    // We use LOWER(name) comparisons so the check is case-insensitive.
+    
+    // Verify all provided topics exist
     const loweredTopics = topics.map(t => t.toLowerCase());
     const { rows: existingTopics } = await client.query(
       `SELECT id, LOWER(name) AS name FROM topics WHERE LOWER(name) = ANY($1)`,
@@ -306,9 +296,7 @@ export async function addQuestionToDb({ title, difficulty, description, question
       throw new Error(`Topic(s) do not exist in DB: ${missing.join(', ')}`);
     }
 
-    // -----------------------------
-    // 2) Insert the question
-    // -----------------------------
+    // Insert the question
     const questionInsertQuery = `
       INSERT INTO questions (title, difficulty, description, question_constraints)
       VALUES ($1, $2, $3, $4)
@@ -318,10 +306,7 @@ export async function addQuestionToDb({ title, difficulty, description, question
     const qRes = await client.query(questionInsertQuery, questionValues);
     const questionId = qRes.rows[0].id;
 
-    // -----------------------------
-    // 3) Link question -> topics
-    // -----------------------------
-    // Use topic ids from existingTopics (they were fetched above).
+    // Link question -> topics
     for (const t of existingTopics) {
       await client.query(
         `INSERT INTO question_topics (question_id, topic_id) VALUES ($1, $2)`,
@@ -329,11 +314,7 @@ export async function addQuestionToDb({ title, difficulty, description, question
       );
     }
 
-    // -----------------------------
-    // 4) Insert test cases
-    // -----------------------------
-    // Use provided testCase.index if present (and numeric), otherwise auto-assign 1-based index.
-    // NOTE: test_cases primary key is (question_id, index) so ensure indexes start at 1 and don't collide.
+    // Insert test cases
     for (let i = 0; i < test_cases.length; i++) {
       const tc = test_cases[i];
 
@@ -356,10 +337,7 @@ export async function addQuestionToDb({ title, difficulty, description, question
     // Commit everything
     await client.query('COMMIT');
 
-    // -----------------------------
-    // 5) Return the created question by id (deterministic)
-    // -----------------------------
-    // We replicate the aggregation used in getAllQuestionsFromDb but filter by the exact id.
+    // Fetch and return the newly created question with all details
     const fetchQuery = `
       SELECT 
         q.id,

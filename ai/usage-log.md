@@ -1824,6 +1824,7 @@ similar to adding a new question. However the question id remains the same"
 # Output Summary:
 
 - Created the some routers, controllers and functions part by part based on the existing database and code structure
+- Modified endpoints and added a few endpoints afterwards to make it more intuitive
 
 # Action Taken:
 

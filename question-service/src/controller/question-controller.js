@@ -252,57 +252,16 @@ export async function addQuestion(req, res) {
   }
 }
 
-
 /*
-  Controller to handle POST /questions/bulk
-  Request body parameters:
-    - ids: array of question IDs to retrieve
-  Returns:
-    - 200: Questions found, returns array of question objects
-    - 400: Invalid request (missing ids or invalid format)
-    - 404: If none of the requested questions were found
-    - 500: Server error
+  Controller to handle POST /questions/batch
+  Request body:
+    - ids: array of question IDs to retrieve  
+  Returns:  
+    - 200: If questions were found
+    - 400: If request body is invalid
+    - 404: If none of the questions with given IDs were found
+    - 500: If there was a server error
 */
-// /**
-//  * Get a single question by ID.
-//  * Path parameter:
-//  *   - id: question ID (positive integer)
-//  * Returns:
-//  *   - 200: Question found
-//  *   - 404: Question not found
-//  *   - 400: Invalid ID format
-//  */
-// export async function getQuestionById(req, res) {
-//   try {
-//     const { id } = req.params;
-    
-//     // Validate id is a positive integer
-//     const questionId = parseInt(id, 10);
-//     if (isNaN(questionId) || questionId <= 0) {
-//       return res.status(400).json({
-//         message: 'Invalid question ID. Must be a positive integer.'
-//       });
-//     }
-
-//     // Get question from database
-//     const question = await getQuestionByIdFromDb(questionId);
-
-//     if (!question) {
-//       return res.status(404).json({
-//         message: `Question with ID ${questionId} not found`
-//       });
-//     }
-
-//     res.status(200).json(question);
-//   } catch (err) {
-//     console.error('[ERROR] Failed to retrieve question:', err.message);
-//     res.status(500).json({ 
-//       message: 'Failed to retrieve question', 
-//       error: err.message 
-//     });
-//   }
-// }
-
 export async function getQuestionsByIds(req, res) {
   try {
     const { ids } = req.body ?? {};
@@ -512,7 +471,16 @@ export async function updateQuestion(req, res) {
   }
 }
 
-
+/*
+  Controller to handle DELETE /question/:id
+  Request parameters:
+    - id: the ID of the question to delete
+  Returns:
+    - 200: If question was successfully deleted
+    - 400: If ID is invalid
+    - 404: If question with given ID was not found
+    - 500: If there was a server error
+*/
 export async function deleteQuestion(req, res) {
   try {
     const { id } = req.params;
