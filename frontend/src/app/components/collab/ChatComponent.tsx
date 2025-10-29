@@ -105,7 +105,7 @@ export default function ChatComponent() {
         const socket = io(
           process.env.NEXT_PUBLIC_API_GATEWAY_BASE_URL as string,
           {
-            path: "/communication-socket",
+            path: "/communication-socket/",
           },
         );
         console.log("Conncected to Signalling server successfully");
