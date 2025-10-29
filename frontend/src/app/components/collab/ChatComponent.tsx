@@ -103,7 +103,7 @@ export default function ChatComponent() {
 
         // Connect to signaling server
         const socket = io(
-          process.env.NEXT_PUBLIC_SIGNALLING_SERVER_URL as string,
+          process.env.NEXT_PUBLIC_API_GATEWAY_BASE_URL as string,
           {
             path: "/communication-socket",
           },
