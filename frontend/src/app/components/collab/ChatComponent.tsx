@@ -14,7 +14,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useUser } from "@/contexts/UserContext";
-import { ChevronRightIcon, Mic, MicOff, Video, VideoOff } from "lucide-react";
+import { SendHorizonalIcon, Mic, MicOff, Video, VideoOff } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 
@@ -95,8 +95,8 @@ export default function ChatComponent() {
         const socket = io(
           process.env.NEXT_PUBLIC_SIGNALLING_SERVER_URL as string,
           {
-            path: '/communication-socket',
-          }
+            path: "/communication-socket",
+          },
         );
         console.log("Conncected to Signalling server successfully");
         socketRef.current = socket;
@@ -308,7 +308,7 @@ export default function ChatComponent() {
       <div className="flex w-full mt-auto gap-2">
         <Input className="bg-white" placeholder="Type a message..." />
         <Button variant="secondary" size="icon" className="size-9">
-          <ChevronRightIcon />
+          <SendHorizonalIcon />
         </Button>
       </div>
     </div>

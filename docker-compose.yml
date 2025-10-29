@@ -263,16 +263,26 @@ services:
 
   question-service:
     image: ignitioteo/question-service
+    pull_policy: never
     build:
       context: ./question-service
       dockerfile: Dockerfile
+    ports:
+      - "7000:7000" # Expose for direct access during development
+    volumes:
+      # Mount source code for live reload
+      - ./question-service:/app:cached
+      # Exclude node_modules to prevent conflicts
+      - /app/node_modules
+    working_dir: /app
     env_file:
       - ./question-service/.env
       - ./.env
     depends_on:
       - pg-question-service
-    ports:
-      - "7000:7000"
+    environment:
+      - NODE_ENV=development # Development mode
+    command: ["/bin/sh", "-c", "npm install && npx nodemon --legacy-watch --polling-interval 1000 src/index.js"] # Install deps and run with polling for Windows/WSL2
 
 
   # does not require password

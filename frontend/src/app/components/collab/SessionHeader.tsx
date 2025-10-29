@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Mic } from "lucide-react";
+import { CircleUser, Mic } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { endSession } from "@/services/matchingServiceApi";
 import { useUser } from "@/contexts/UserContext";
@@ -23,7 +23,7 @@ export default function SessionHeader() {
   return (
     <header
       className="flex
-        justify-end
+        justify-between
         items-center
         gap-3
         bg-stone-800
@@ -33,6 +33,10 @@ export default function SessionHeader() {
         border-b-2
         border-stone-700"
     >
+      <div className="flex justify-center items-center ml-5">
+        <CircleUser className="text-white mr-2" size="25" />
+        <div className="text-white mr-3">{user?.username || "Guest User"}</div>
+      </div>
       <Button
         onClick={() => directToMatch()}
         className="bg-red-500 text-black mr-3 hover:bg-red-300"

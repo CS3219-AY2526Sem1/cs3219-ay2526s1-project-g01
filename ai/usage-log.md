@@ -1025,6 +1025,12 @@ Github Copilot (GPT-5 mini)
 
 # Author Notes:
 
+# Output Summary:
+
+- Generated a rough folder structure and some boilerplate code
+
+# Author Notes:
+
 - Modified to add validation logic, and more parameters for the querying.
 - Refactored to improve coding quality
 - Wrote the Dockerfile and updated the api-gateway myself.
@@ -1137,6 +1143,666 @@ CREATE TABLE test_cases (
 
 # Date/Time:
 
+
+2025-10-21 01:30
+
+# Tool:
+
+ChatGPT (model: ChatGPT 5 thinking)
+
+"How do I check if an email address is valid? Note that I already check its syntax, so I just need a helper function in JS served on an Express backend to check if the email actually exists. You may use any library you want; make sure it is well commented."
+
+# Output Summary:
+
+- Created comprehensive email verification utility with DNS MX lookup and SMTP RCPT TO probing
+- Implemented proper error handling and timeout management
+- Added support for STARTTLS upgrade and multiple MX host attempts
+- Included detailed JSDoc documentation for all functions
+
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- I validated correctness, security, and performance of the code. I also redued the retry timer for more responsiveness.
+
+---
+
+## Entry 32
+
+# Date/Time:
+
+2025-10-21 02:00
+
+# Tool:
+
+GitHub Copilot (Grok Code Fast 1)
+
+# Prompt/Command:
+
+To add error handling for DNS resolution failures in verifyEmailExists function to prevent service crashes.
+
+# Output Summary:
+
+- Added try-catch block around resolveMx() DNS lookup call
+- Implemented graceful handling of ENOTFOUND errors for invalid domains
+- Return proper "unknown" status instead of throwing unhandled exceptions
+- Prevent 500 errors during user registration with non-existent domains
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Added try-catch block around resolveMx() call to handle ENOTFOUND errors gracefully and return proper unknown status instead of throwing unhandled exceptions.
+
+---
+
+## Entry 33
+
+# Date/Time:
+
+2025-10-21 13:40
+
+# Tool:
+
+GitHub Copilot (Grok Code Fast 1)
+
+# Prompt/Command:
+
+To add password reset email functionality with link generation and email sending functions similar to verification emails.
+
+# Output Summary:
+
+- Created makeResetPasswordLink function taking email, username, and rawToken parameters
+- Created sendResetPasswordEmail function with professional HTML/plaintext templates
+- Added comprehensive JSDoc documentation for both functions
+- Implemented proper error handling and parameter validation
+- Followed same security patterns as verification email functions
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated functions follow the same pattern as verification emails with proper security and error handling
+- Ensured consistent API design and documentation standards
+- Added appropriate expiration notices and user-friendly email templates
+
+---
+
+## Entry 34
+
+# Date/Time:
+
+2025-10-21 14:00
+
+# Tool:
+
+GitHub Copilot (Grok Code Fast 1)
+
+# Prompt/Command:
+
+To create a password reset model similar to user verification model with proper MongoDB schema and security features.
+
+# Output Summary:
+
+- Created PasswordResetModel schema with userId, token, and createdAt fields
+- Implemented proper indexing for userId and token fields for performance
+- Added 1-hour expiration for reset tokens using MongoDB TTL
+- Included comprehensive AI disclosure and documentation
+- Followed same security patterns as UserVerifyModel
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated schema structure follows MongoDB best practices with proper indexing
+- Ensured token expiration prevents stale reset links
+- Maintained consistency with existing verification model patterns
+
+
+---
+
+## Entry 35
+
+# Date/Time:
+
+2025-10-21 16:00
+
+# Tool:
+
+GitHub Copilot (Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+To create a forgot password page with email input, reset link sending functionality, and proper error handling including 429 rate limiting with 30-second cooldown, and add forgot password link to login page.
+
+# Output Summary:
+
+- Created forgot password page at /auth/forgot-password with email input form
+- Implemented 30-second cooldown timer similar to unverified page
+- Added comprehensive error handling for 429 (rate limiting), 404 (user not found), and 403 (unverified email) status codes
+- Added forgot password link to login component footer for easy access
+- Integrated sendPasswordResetEmail API function from userServiceApi
+- Used consistent styling and layout matching other auth pages
+- Added AI disclosure header to new page
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated error handling covers all expected failure scenarios including rate limiting
+- Ensured cooldown timer prevents spam requests
+- Confirmed visual consistency with existing auth pages (login, signup, unverified)
+- Tested email validation before making API calls
+
+---
+
+## Entry 36
+
+# Date/Time:
+
+2025-10-21 17:00
+
+# Tool:
+
+GitHub Copilot (Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+To create a password reset page that validates reset tokens from URL query parameters, displays loading state during validation, shows password input fields with strength validation similar to signup page, and handles password reset confirmation with proper error handling.
+
+# Output Summary:
+
+- Created reset password page at /auth/reset-password with query parameter parsing for email, username, and token
+- Implemented initial token validation on page load with loading spinner
+- Added three distinct UI states: validating token (spinner), invalid token (error message), and valid token (password reset form)
+- Integrated password strength validation with visual indicators matching signup page requirements (length, uppercase, lowercase, number, special character)
+- Added password visibility toggles for both password and confirm password fields
+- Implemented debounced confirm password validation to check password match
+- Used handleApiError for consistent error handling across all API calls
+- Added comprehensive HTML comments explaining each section of the UI
+- Displayed username and email (read-only) in password reset form for user verification
+- Implemented automatic redirect to login page after successful password reset
+- Added AI disclosure header to new page
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated token validation occurs before showing password form to prevent unauthorized access
+- Ensured password requirements match signup page for consistency
+- Confirmed error handling covers all scenarios: invalid token, expired token, missing parameters, API failures
+- Tested UI states transition correctly from loading to error/success states
+- Verified proper integration with validatePasswordResetToken and confirmPasswordReset API functions
+- Modified to improve code readability and maintainability with additional comments
+- Modified to standardize styling and layout with existing auth pages
+
+---
+
+## Entry 37
+
+# Date/Time:
+
+2025-10-21 20:30
+
+# Tool:
+
+GitHub Copilot (Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Create a user account management page at /account with profile settings and password change functionality, matching the design and validation patterns from the signup page. Save buttons should only be enabled when fields are changed or filled, and disabled states should be visually obvious. Simulate API calls with timeouts and show toast notifications for success.
+
+# Output Summary:
+
+- Created /account page with three sections: Email Address (read-only), Profile (editable username), and Password (current, new, confirm fields)
+- Implemented password strength validation and match checking identical to signup page, with visual indicators for requirements
+- Added password visibility toggles for all password fields
+- Save Changes button for username only enabled when username is changed; disabled state shows helper text and styling
+- Save Changes button for password only enabled when all fields are filled; disabled state shows helper text and styling
+- Simulated API calls for both profile and password changes using setTimeout
+- Used toast notifications for success, matching app style
+- Comprehensive comments and region organization for maintainability
+- AI disclosure header included at top of file
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated all button enable/disable logic and visual feedback for disabled states
+- Ensured password validation and UX matches signup page for consistency
+- Confirmed toast notifications and simulated API calls work as expected
+- Code is clean, modular, and easy to maintain
+
+---
+
+## Entry 38
+
+# Date/Time:
+
+2025-10-21 23:30
+
+# Tool:
+
+GitHub Copilot (Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Create backend routes and controller functions for updating user password and username separately. PATCH /:id/password route accepts currentPassword and newPassword in body. PATCH /:id/username route accepts username in body. Include proper authentication, validation, and error handling.
+
+# Output Summary:
+
+- Added AI disclosure headers to user-routes.js, user-controller.js, and repository.js
+- Created PATCH /:id/password route with verifyAccessToken and verifyIsOwnerOrAdmin middleware
+- Created PATCH /:id/username route with verifyAccessToken and verifyIsOwnerOrAdmin middleware
+- Implemented updateUserPassword controller function with:
+  - Current password verification using bcrypt.compare
+  - New password strength validation (minimum 8 characters)
+  - Password hashing with bcrypt
+  - Proper error handling for incorrect current password, missing fields, and user not found
+- Implemented updateUsername controller function with:
+  - Username uniqueness validation
+  - Conflict checking to prevent duplicate usernames
+  - Proper error handling for missing username and user not found
+- Added updateUsernameById repository function to update username in database
+- Both functions return formatted user response on success
+- Added console.log debugging statements for both controller functions
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated proper authentication and authorization using existing middleware
+- Ensured password validation matches security requirements from signup
+- Confirmed username uniqueness check prevents conflicts
+- Verified bcrypt password comparison for current password verification
+- Routes follow RESTful conventions and existing codebase patterns
+
+---
+
+## Entry 39
+
+# Date/Time:
+
+2025-10-22 15:00
+
+# Tool:
+
+ChatGPT
+
+# Prompt/Command:
+
+- Ask for tips on how to implement a background image as well as making components slightly transparent.
+- Review current code and give suggestions on how to improve readability and interactivity.
+- Ask for websites that provide free stock images without the need for attribution.
+
+# Output Summary:
+
+- Use bg-cover, bg-center, and bg-no-repeat in Tailwind for full coverage and positioning.
+- Add a semi-transparent overlay with bg-black/30 or bg-opacity-30 to make text readable.
+- Use drop shadows (drop-shadow-md) on headings for contrast.
+- Recommended websites like Unsplash for stock images that do need require attribution
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Structured the advice for implementing background images and transparency.
+- Reviewed the current UI code and provided actionable improvements.
+- Compiled a list of free stock image sources that do not require attribution.
+- Recommended best practices for interactive and visually readable UI.
+
+---
+
+## Entry 40
+
+# Date/Time:
+
+2025-10-23 12:00
+
+# Tool:
+
+GitHub Copilot (model: Grok Code Fast 1)
+
+# Prompt/Command:
+
+"with syntax similar to password-reset-models (but not the logic) generate a ChangeEmailCodeSchema which contains the user id and a 6 digit code which expires in one hour"
+
+# Output Summary:
+
+- Created ChangeEmailCodeSchema in change-email-code.js with userId, code (6-digit), and createdAt with 1-hour expiration
+- Followed password reset model syntax with proper indexing and MongoDB TTL for expiration
+- Included comprehensive AI disclosure and documentation
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated schema structure follows MongoDB best practices with proper indexing for userId and code fields
+- Ensured 1-hour expiration prevents stale change codes using MongoDB TTL
+- Maintained consistency with existing password reset model patterns for code organization
+
+---
+
+## Entry 41
+
+# Date/Time:
+
+2025-10-23 12:05
+
+# Tool:
+
+GitHub Copilot (model: Grok Code Fast 1)
+
+# Prompt/Command:
+
+implement the change emai code model related fns in the repostory i just need one which find by user id
+
+# Output Summary:
+
+- Added ChangeEmailCode model import to repository.js
+- Implemented repository functions for change email code operations: createChangeEmailCodeRecord, findChangeEmailCodeByUserId, findChangeEmailCodeByCodeAndUserId, and deleteChangeEmailCodeByUserId
+- Functions follow the same pattern as other models with proper MongoDB operations
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated functions follow the same pattern as other models with proper MongoDB operations and error handling
+- Ensured findChangeEmailCodeByUserId function meets the specific requirement
+- Maintained consistency with existing repository function naming and structure
+
+---
+
+## Entry 42
+
+# Date/Time:
+
+2025-10-23 12:10
+
+# Tool:
+
+GitHub Copilot (model: Grok Code Fast 1)
+
+# Prompt/Command:
+
+implement the change email code functions which takes in an email user id user name and a 6 digit token and send to user. in the email address the user by his user name with bracket user id and tell him what is this code for and give a warning that if he did not request for it he should change his password immediately
+
+# Output Summary:
+
+- Implemented sendChangeEmailCode function in emailSender.js that sends 6-digit verification codes for email changes
+- Added personalized greeting with username and userId in brackets as requested
+- Included clear explanation that the code is for changing email address
+- Added prominent security warning about changing password if request was not made
+- Function follows the same pattern as other email functions with HTML and plaintext versions
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated email template includes proper user identification with username (userId) format
+- Ensured security warning is prominent and clear about password change recommendation
+- Confirmed function parameters match requirements: email, userId, username, and 6-digit code
+- Maintained consistency with existing email function patterns and error handling
+
+---
+
+## Entry 43
+
+# Date/Time:
+
+2025-10-23 12:20
+
+# Tool:
+
+GitHub Copilot (model: Grok Code Fast 1)
+
+# Prompt/Command:
+
+now create a function which send a warning to the user that a request to change email is made. this will be sent when user confirm want to change email. and request user to change password immediately and if he is already uanble to log in contact Peerprep technical support to report a phishing attempt
+
+# Output Summary:
+
+- Implemented sendEmailChangeWarning function in emailSender.js for security alerts when email change requests are initiated
+- Included clear action steps: change password immediately and contact support if unable to log in
+- Function follows security email patterns with both HTML and plaintext versions
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated security-focused email template provides clear, urgent warnings about potential phishing attempts
+- Ensured contact information is prominently displayed for technical support access
+- Confirmed function parameters match requirements: email, userId, username
+- Maintained consistency with existing security email patterns and error handling
+
+---
+
+## Entry 44
+
+# Date/Time:
+
+2025-10-23 12:30
+
+# Tool:
+
+GitHub Copilot (model: Grok Code Fast 1)
+
+# Prompt/Command:
+
+update the user-verify model to include a new field called purpose which should be either "new" or "change email" (change the phrasing as needed) the go to every single function for verify email to utilise the purpose including emailSender,routes to verify email (optional queryParams for purpose which defaults to new so i no need modify frontend) etc etc update ai dislosure to any file where u cchange where u change and then append new entry to ai/usage-log at the back. do not need to add new functions for new email yet just put it as a todo for now where it is expected
+
+# Output Summary:
+
+- Added purpose field to UserVerifyModel schema with enum values 'signup' and 'email-change', defaulting to 'signup'
+- Updated createUserVerifyRecord repository function to accept optional purpose parameter
+- Modified user-controller.js createUser function to pass 'signup' purpose when creating verification records
+- Updated verification-controller.js to handle optional purpose query parameter in verifyUser and resendVerification functions
+- Added TODO comment in verifyUser for implementing email change verification logic (returns 501 Not Implemented for now)
+- Modified makeVerificationLink in emailSender.js to accept and include optional purpose parameter
+- Updated verification routes to document optional purpose query parameter
+- Added AI disclosure headers to all modified files: user-verify-model.js, repository.js, user-controller.js, verification-controller.js, emailSender.js, and verification-routes.js
+- Purpose parameter defaults to 'signup' throughout the application to maintain backward compatibility
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that purpose field uses appropriate enum values ('signup' and 'email-change')
+- Confirmed backward compatibility by making purpose optional with default value 'signup'
+- Ensured all verification functions properly handle the purpose parameter
+- Added TODO placeholder for future email change verification implementation
+- Verified that existing frontend code doesn't need modification due to default parameter values
+
+---
+
+## Entry 45
+
+# Date/Time:
+
+2025-10-23 13:30
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+ok now implement the needed route one to request for the 6 digit verification code to change email another to request for email change which will send an email verification to the email it will take in the 6 digit code username and new user email old user email and will only send the verification email if relevant
+
+# Output Summary:
+
+- Created two new email change routes in verification-routes.js: POST /request-email-change-code and POST /change-email
+- Implemented requestEmailChangeCode controller function that generates 6-digit code, saves to ChangeEmailCode collection, and sends code to current email
+- Implemented changeEmail controller function that validates 6-digit code, creates UserVerifyModel record with email-change purpose and newEmail field, sends verification link to new email, and sends security warning to old email
+- Added imports for new email sender functions (sendChangeEmailCode, sendEmailChangeWarning) and repository functions (createChangeEmailCodeRecord, findChangeEmailCodeByCodeAndUserId, deleteChangeEmailCodeByUserId, findUserByEmail)
+- Both routes include comprehensive validation: userId, username, email verification, code validation, duplicate email checking
+- Routes follow existing authentication patterns and error handling conventions
+- Added AI disclosure headers to verification-controller.js and verification-routes.js documenting the changes
+- Simplified verifyUser function to remove newEmail field dependency - now uses email from query params directly
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that two-route flow properly separates code generation from email change request
+- Confirmed security measures: 6-digit code validation, duplicate email checking, warnings sent to old email
+- Ensured newEmail field simplification aligns with "keep it simple" principle - uses query params instead
+- User undid the newEmail simplification and kept the field for data integrity
+- Verified error handling covers all scenarios: missing fields, invalid codes, email conflicts
+
+---
+
+## Entry 46
+
+# Date/Time:
+
+2025-10-23 13:35
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+"create a route to verify the 6 digit email-change-code only, and modify the verify page and the api endpoint it called to take in query params purpose and when purpose is not empty or signup there should not be a resend email button but instead will be replaced by a message log in to request for a new email change request (on the error page)""
+
+# Output Summary:
+
+- Created POST /verification/verify-email-change-code route that validates 6-digit codes without sending verification links
+- Implemented verifyEmailChangeCode controller function with userId and code validation, returns success if code is valid
+- Updated verifyUserEmail API function to accept optional purpose parameter and include it in query string
+- Modified verify page to extract purpose from URL query params and pass it to API and error redirects
+- Updated error page to extract purpose parameter and conditionally render:
+  - Resend button when purpose is empty or "signup"
+  - Login message ("Please log in to request a new email change verification.") when purpose is email-change
+- Added AI disclosure headers to verification-controller.js, verification-routes.js, verify page, and error page
+- Code does not delete or consume the verification code, allowing reuse until expiration
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated verify-email-change-code route provides separate validation step before sending verification link
+- Confirmed purpose parameter properly controls UI behavior on error page based on verification type
+- Ensured backward compatibility with existing signup flow (purpose defaults to signup)
+- Verified error page shows appropriate next steps based on verification context
+- Code validation endpoint enables frontend to check code validity before proceeding with email change
+
+---
+
+## Entry 47
+
+# Date/Time:
+
+2025-10-23 23:15
+
+# Tool:
+
+GitHub Copilot (Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+"add a delete account section which on click open a confirmation dialog which does the following ask user to enter their user name and press confirm and user can only press confirm when he typed it in and upon confirm call api user api helper function(implement it for me) and upon successfully delete account log out and rmb to clear cookies upon logging out"
+
+# Output Summary:
+
+- Created deleteAccount API function in userServiceApi.ts that calls DELETE /users/:userId with authentication
+- Added delete account dialog states (isDeleteDialogOpen, deleteConfirmUsername, isDeletingAccount)
+- Implemented handleDeleteAccount function with username confirmation validation
+- Added automatic logout with cookie clearing (removeToken) and redirect to login after successful deletion
+- Created Danger Zone card section with red border and destructive styling
+- Implemented confirmation dialog requiring exact username match before enabling delete button
+- Added proper error handling and toast notifications for delete operations
+- Integrated with existing authentication flow and user context management
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated deleteAccount API function uses correct endpoint (USER_SERVICE) and authentication header
+- Confirmed username confirmation prevents accidental account deletion
+- Ensured cookie clearing and logout flow properly cleans up user session
+- Verified destructive/red styling provides clear visual warning for dangerous action
+- Tested dialog flow: open → username input → confirm → delete → logout → redirect
+- Security validated: requires authentication token and exact username match
+- Structured the advice for implementing background images and transparency.
+- Reviewed the current UI code and provided actionable improvements.
+- Compiled a list of free stock image sources that do not require attribution.
+- Recommended best practices for interactive and visually readable UI.
+
+## Entry 48
+
+# Date/Time:
+
 2025-10-24 22:45
 
 # Tool:
@@ -1169,7 +1835,7 @@ Author Notes:
 
 ---
 
-## Entry 32
+## Entry 49
 
 # Date/Time:
 
@@ -1200,3 +1866,62 @@ remote description is set
 another teammate
 - No bugs were observed during the test
 - Remove unnessecary loggings and refactor some code into a separate function (eg answerCall())
+
+---
+
+## Entry 51
+
+# Date/Time:
+2025-10-28 20:00
+
+# Tool:
+Claude Sonnet 4.5
+
+# Prompt/Command:
+Request to route Socket.IO frontend connection through API Gateway (Nginx) instead of connecting directly to Express server at localhost:8080
+
+# Output Summary:
+- Provided solution to route Socket.IO through Nginx API Gateway
+- Added `communication-service` to docker-compose.yaml with live reload capability
+- Changed service port from 8080 to 6000 to resolve port conflict
+- Configured Nginx location block for WebSocket proxying with `/communication-socket/` custom path
+- Updated frontend Socket.IO client to use custom path option: `{ path: '/communication-socket/' }`
+- Explained Nginx `proxy_pass` path rewriting mechanism (how `/communication-socket/` rewrites to `/socket.io/` on backend)
+- Added proper WebSocket headers: `Upgrade`, `Connection`, `proxy_http_version 1.1`
+- Configured CORS headers for Socket.IO through API Gateway
+- Updated docker-compose dependencies and environment variables for `COMMUNICATION_SERVICE_URL`
+
+# Action Taken:
+- [X] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+- Validated that the updated code is working by testing with 2 users and verifying that both users are using the api-gateway to connect to the Socket.IO server 
+- Validated that the server is able to exchange offers/calls, allowing both users to communicate with each other
+
+---
+
+## Entry 51
+
+# Date/Time:
+2025-10-29 11:00
+
+# Tool:
+Claude Sonnet 4.5
+
+# Prompt/Command:
+Request to change the Socket.IO route in nginx config from /socket.io/ to /communication-socket/ for better readability and clarity
+
+# Output Summary:
+- Updated nginx location block from `location /socket.io/` to `location /communication-socket/`
+- Added `path: '/communication-socket/'` for the frontend Socket.IO client configuration
+
+# Action Taken:
+- [X] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+- Similar to entry 50, validated that the updated code is working by testing with 2 users and verifying that both users are using the api-gateway to connect to the Socket.IO server 
+- Validated that the server is able to exchange offers/calls, allowing both users to communicate with each other

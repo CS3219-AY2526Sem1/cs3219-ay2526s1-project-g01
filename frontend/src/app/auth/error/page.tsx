@@ -7,6 +7,11 @@
  * Tool: GitHub Copilot (model: Claude Sonnet 4), date: 2025-09-24
  * Purpose: To fix Next.js 15 production build issues by replacing useSearchParams with window.location URLSearchParams for client-side URL parameter parsing.
  * Author Review: I validated the solution works in both development and production builds, maintaining the same functionality while avoiding Suspense boundary requirements.
+ *
+ * Additional AI Assistance Disclosure:
+ * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-23
+ * Purpose: To add purpose parameter handling to conditionally show resend button or login message based on verification type.
+ * Author Review: I validated correctness, security, and performance of the code.
  */
 
 "use client";
@@ -22,6 +27,7 @@ import { toast } from "sonner";
 export default function ErrorPage() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
+  const [purpose, setPurpose] = useState("");
   const [isResending, setIsResending] = useState(false);
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [canResend, setCanResend] = useState(true);
@@ -32,8 +38,10 @@ export default function ErrorPage() {
       const params = new URLSearchParams(window.location.search);
       const emailParam = params.get("email") || "";
       const usernameParam = params.get("username") || "";
+      const purposeParam = params.get("purpose") || "signup";
       setEmail(emailParam);
       setUsername(usernameParam);
+      setPurpose(purposeParam);
     }
   }, []);
 
@@ -90,7 +98,10 @@ export default function ErrorPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
+      style={{ backgroundImage: "url('/login/login-1.jpg')" }}
+    >
       <Image
         src="/PeerPrepLogo.png"
         alt="PeerprepLogo"
@@ -98,32 +109,32 @@ export default function ErrorPage() {
         height={200}
       />
 
-      <Card className="min-h-[40%] min-w-[40%] mt-3">
+      <Card className="min-h-[40%] min-w-[40%] mt-3 mb-45 bg-white/50 backdrop-blur-sm border-black">
         <CardHeader className="mt-5">
-          <CardTitle className="text-center text-3xl font-bold text-red-600">
+          <CardTitle className="text-center text-4xl font-bold text-red-700">
             Verification Failed
           </CardTitle>
         </CardHeader>
 
         <CardContent className="px-15 pt-2 text-center">
           <div className="flex flex-col gap-6">
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-black">
               {email
                 ? `The verification link for ${email} is invalid or has expired.`
                 : "The verification link is invalid or has expired."}
             </p>
 
             {username && (
-              <p className="text-sm text-gray-500">Username: {username}</p>
+              <p className="text-sm text-black">Username: {username}</p>
             )}
 
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-black">
               Please request a new verification email or contact support if the
               problem persists.
             </p>
 
             <div className="flex flex-col gap-4">
-              {email ? (
+              {email && (!purpose || purpose === "signup") ? (
                 <Button
                   onClick={handleResendVerification}
                   disabled={isResending || !canResend}
@@ -135,6 +146,10 @@ export default function ErrorPage() {
                       ? `Resend in ${cooldownSeconds}s`
                       : "Resend Verification Email"}
                 </Button>
+              ) : email && purpose && purpose !== "signup" ? (
+                <p className="text-sm text-gray-600 bg-gray-100 p-4 rounded-md">
+                  Please log in to request a new email change verification.
+                </p>
               ) : (
                 <Link
                   href="/auth/signup"
@@ -146,7 +161,7 @@ export default function ErrorPage() {
 
               <Link
                 href="/auth/login"
-                className="text-blue-500 hover:underline text-sm"
+                className="text-blue-700 hover:underline text-sm"
               >
                 Back to Login
               </Link>

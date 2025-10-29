@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Difficulty } from "@/types/difficulty";
+import { Check, HardHat, Pen } from "lucide-react";
 
 type DifficultyProps = {
   setDifficulty: React.Dispatch<React.SetStateAction<string[]>>;
@@ -44,13 +45,20 @@ export default function DifficultyComponent({
       <CardContent className="flex flex-wrap justify-evenly h-full items-center gap-3">
         <Button
           onClick={() => handleDifficultySelect(Difficulty.EASY)}
-          className={`flex-1 h-[50px] min-w-[150px] relative bg-green-200 text-black hover:bg-green-200/90 flex items-center justify-center`}
+          className={`flex-1 min-w-[150px] min-h-[50px] py-2 relative 
+              ${
+                selectedDifficulty.includes(Difficulty.EASY)
+                  ? "bg-gradient-to-r from-indigo-600 to-purple-700 text-white"
+                  : "bg-zinc-800 text-white hover:bg-zinc-700"
+              }
+              flex items-center justify-center pr-10 rounded-xl transition-all duration-200`}
         >
+          <Check className="absolute left-3/8 text-green-500" />
           <span className="absolute left-1/2 -translate-x-1/2 max-w-[calc(100%-64px)] truncate">
             {Difficulty.EASY}
           </span>
           <IoCheckmark
-            className={`absolute right-3 top-1/2 -translate-y-1/2 text-green-800 text-3xl flex-shrink-0 ${
+            className={`absolute right-3 top-1/2 -translate-y-1/2 text-green-500 text-4xl flex-shrink-0 ${
               selectedDifficulty.includes(Difficulty.EASY)
                 ? "opacity-100"
                 : "opacity-0"
@@ -59,13 +67,20 @@ export default function DifficultyComponent({
         </Button>
         <Button
           onClick={() => handleDifficultySelect(Difficulty.MEDIUM)}
-          className={`flex-1 h-[50px] min-w-[150px] relative bg-yellow-200 text-black hover:bg-yellow-200/90 flex items-center justify-center`}
+          className={`flex-1 min-w-[150px] min-h-[50px] py-2 relative 
+              ${
+                selectedDifficulty.includes(Difficulty.MEDIUM)
+                  ? "bg-gradient-to-r from-indigo-600 to-purple-700 text-white"
+                  : "bg-zinc-800 text-white hover:bg-zinc-700"
+              }
+              flex items-center justify-center pr-10 rounded-xl transition-all duration-200`}
         >
+          <Pen className="absolute left-3/8 text-yellow-500" />
           <span className="absolute left-1/2 -translate-x-1/2 max-w-[calc(100%-64px)] truncate">
             {Difficulty.MEDIUM}
           </span>
           <IoCheckmark
-            className={`absolute right-3 top-1/2 -translate-y-1/2 text-yellow-800 text-3xl flex-shrink-0 ${
+            className={`absolute right-3 top-1/2 -translate-y-1/2 text-yellow-500 text-4xl flex-shrink-0 ${
               selectedDifficulty.includes(Difficulty.MEDIUM)
                 ? "opacity-100"
                 : "opacity-0"
@@ -74,13 +89,20 @@ export default function DifficultyComponent({
         </Button>
         <Button
           onClick={() => handleDifficultySelect(Difficulty.HARD)}
-          className={`flex-1 h-[50px] min-w-[150px] relative bg-red-200 text-black hover:bg-red-200/90 flex items-center justify-center`}
+          className={`flex-1 min-w-[150px] min-h-[50px] py-2 relative 
+              ${
+                selectedDifficulty.includes(Difficulty.HARD)
+                  ? "bg-gradient-to-r from-indigo-600 to-purple-700 text-white"
+                  : "bg-zinc-800 text-white hover:bg-zinc-700"
+              }
+              flex items-center justify-center pr-10 rounded-xl transition-all duration-200`}
         >
+          <HardHat className="absolute left-3/8 text-red-500" />
           <span className="absolute left-1/2 -translate-x-1/2 max-w-[calc(100%-64px)] truncate">
             {Difficulty.HARD}
           </span>
           <IoCheckmark
-            className={`absolute right-3 top-1/2 -translate-y-1/2 text-red-800 text-3xl flex-shrink-0 ${
+            className={`absolute right-3 top-1/2 -translate-y-1/2 text-red-500 text-4xl flex-shrink-0 ${
               selectedDifficulty.includes(Difficulty.HARD)
                 ? "opacity-100"
                 : "opacity-0"

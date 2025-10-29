@@ -12,7 +12,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { User, LogOut, ChevronDown } from "lucide-react";
+import { User, LogOut, ChevronDown, Settings } from "lucide-react";
 import { removeToken } from "@/services/userServiceCookies";
 import { useUser } from "@/contexts/UserContext";
 import Image from "next/image";
@@ -65,7 +65,7 @@ export default function Navbar() {
               height={40}
               className="object-contain"
             />
-            <span className="text-blue-600 font-bold text-xl">PeerPrep</span>
+            <span className="text-black font-bold text-xl">PeerPrep</span>
           </Link>
         </div>
 
@@ -112,6 +112,13 @@ export default function Navbar() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => router.push("/account")}
+                className="cursor-pointer"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Manage Account
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={handleLogout}
                 className="text-red-600 cursor-pointer"

@@ -90,7 +90,10 @@ export default function CheckEmailPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center">
+    <div
+      className="h-screen flex flex-col items-center justify-center bg-cover bg-center"
+      style={{ backgroundImage: "url('/login/login-1.jpg')" }}
+    >
       <Image
         src="/PeerPrepLogo.png"
         alt="PeerprepLogo"
@@ -98,7 +101,7 @@ export default function CheckEmailPage() {
         height={200}
       />
 
-      <Card className="min-h-[40%] min-w-[40%] mt-3">
+      <Card className="min-h-[40%] min-w-[40%] mt-3 mb-20 bg-white/50 backdrop-blur-sm border-black">
         <CardHeader className="mt-5">
           <CardTitle className="text-center text-3xl font-bold">
             Check Your Email
@@ -107,12 +110,12 @@ export default function CheckEmailPage() {
 
         <CardContent className="px-15 pt-2 text-center">
           <div className="flex flex-col gap-6">
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-black">
               A verification link has been sent to your email. Please check your
               inbox to verify your account.
             </p>
 
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-black">
               Didn&apos;t receive the email? Check your spam folder or request a
               new one.
             </p>
@@ -132,7 +135,7 @@ export default function CheckEmailPage() {
 
               <Link
                 href="/auth/login"
-                className="text-blue-500 hover:underline text-sm"
+                className="text-blue-700 hover:underline text-sm"
               >
                 Back to Login
               </Link>
