@@ -94,7 +94,11 @@ export default function ChatComponent() {
         // Connect to signaling server
         const socket = io(
           process.env.NEXT_PUBLIC_SIGNALLING_SERVER_URL as string,
+          {
+            path: '/communication-socket',
+          }
         );
+        console.log("Conncected to Signalling server successfully");
         socketRef.current = socket;
 
         socket.on("offer-made", async (offer) => {
