@@ -47,6 +47,7 @@ export default function ChatComponent() {
     ],
   };
 
+  // Hardcode session id
   const sessionID = "98r4389r43r894389";
 
   useEffect(() => {
