@@ -75,6 +75,7 @@ services:
       - MATCHING_SERVICE_URL=http://matching-service:3002
       - COLLAB_SERVICE_URL=http://collab-service:8000
       - FRONTEND_BASE_URL=http://localhost:3000
+      - QUESTION_SERVICE_URL=http://question-service:7000
       - PORT=80 # Override Dockerfile default for local development
 
     # Frontend Next.js Application
@@ -206,6 +207,69 @@ services:
     volumes:
       - redis-data-collab-service:/data
 
+  ## postgres-question-service:
+  ##   image: postgres:16
+  ##   container_name: question-service-postgres-gateway
+  ##   environment:
+  ##     POSTGRES_USER: ${QUESTION_SERVICE_USER}
+  ##     POSTGRES_PASSWORD: ${QUESTION_SERVICE_PASSWORD}
+  ##     POSTGRES_DB: ${QUESTION_SERVICE_DB}
+  ##   ports:
+  ##     - "7001:5432"
+  ##   env_file:
+  ##     - ./.env
+  ##   volumes:
+  ##     - postgres-question-data:/var/lib/postgresql/data
+
+  # postgres-db:
+  #   image: postgres:16
+  #   ports: 
+  #     -  5432:5432
+  #   environment:
+  #     POSTGRES_USER: ${QUESTION_SERVICE_USER}
+  #     POSTGRES_PASSWORD: ${QUESTION_SERVICE_PASSWORD}
+  #     POSTGRES_DB: ${QUESTION_SERVICE_DB}
+  #   volumes:
+  #     - postgres-data-question-service:/var/lib/postgresql/data
+  #     - ./question-service/db-init2.sql:/docker-entrypoint-initdb.d/db-init2.sql:ro
+  
+  pg-question-service:
+    image: postgres:16
+    container_name: pg-question-service ## matches DB_HOST
+    ports:
+      - 5432:5432 ## matches DB_PORT
+    environment:
+      POSTGRES_USER: ${QUESTION_SERVICE_USER} ## matches DB_USER
+      POSTGRES_PASSWORD: ${QUESTION_SERVICE_PASSWORD}
+      POSTGRES_DB: ${QUESTION_SERVICE_DB} ## matches DB_NAME
+    volumes:
+      - pg-data-question-service:/var/lib/postgresql/data
+      - ./question-service/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  question-service:
+    image: ignitioteo/question-service
+    pull_policy: never
+    build:
+      context: ./question-service
+      dockerfile: Dockerfile
+    ports:
+      - "7000:7000" # Expose for direct access during development
+    volumes:
+      # Mount source code for live reload
+      - ./question-service:/app:cached
+      # Exclude node_modules to prevent conflicts
+      - /app/node_modules
+    working_dir: /app
+    env_file:
+      - ./question-service/.env
+      - ./.env
+    depends_on:
+      - pg-question-service
+    environment:
+      - NODE_ENV=development # Development mode
+    command: ["/bin/sh", "-c", "npm install && npx nodemon --legacy-watch --polling-interval 1000 src/index.js"] # Install deps and run with polling for Windows/WSL2
+
+
   # does not require password
   redis-matching-service:
     image: redis:latest
@@ -221,3 +285,4 @@ volumes:
   mongodb-data-user-services:
   redis-data-collab-service:
   redis-data-matching-service:
+  pg-data-question-service:

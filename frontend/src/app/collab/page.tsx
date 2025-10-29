@@ -37,7 +37,7 @@ export default function CollabPage() {
         }}
       />
 
-      <div className="flex flex-1 w-full bg-stone-800 ">
+      <div className="flex flex-1 w-full bg-black ">
         <div className="flex-1 p-5">
           <QuestionComponent />
         </div>
