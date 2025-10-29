@@ -1,3 +1,5 @@
+//With reference to https://github.com/websockets/ws/blob/master/examples/express-session-parse/index.js for ws framework
+
 import { WebSocketServer } from "ws";
 import { initialiseWebSocket } from "./websockets/socketConnection.js";
 import logger from "./utils/logger.js";

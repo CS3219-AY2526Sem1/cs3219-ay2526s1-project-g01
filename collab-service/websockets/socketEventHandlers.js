@@ -1,3 +1,10 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: ChatGPT (model: GPT 5.0), date: 2025-10-29
+ * Purpose: To understand how to to use redis hash to store session data
+ * Author Review: I validated correctness, security, and performance of the code and modified the code to fit use case
+ */
+
 import WebSocket from "ws";
 import * as Y from "yjs";
 import logger from "../utils/logger.js";

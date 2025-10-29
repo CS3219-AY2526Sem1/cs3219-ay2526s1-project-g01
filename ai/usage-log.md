@@ -1823,3 +1823,34 @@ Request to implement Alert Dialog from radix-ui
 - Tested that alert dialog box works as intended
 
 ---
+
+## Entry 49
+
+# Date/Time:
+
+2025-10-29 09:50
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Request on sample code on how to use redish hash to store session data
+
+# Output Summary:
+
+- Provided explanation on how redis hash works and sample code to create a redish hash from ydoc, hashset and number fields.
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Verified online on naming convention for redish hash key
+- Modified how timestamp fields are stored
+
+---
