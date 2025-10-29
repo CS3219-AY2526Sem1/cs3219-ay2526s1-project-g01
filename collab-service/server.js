@@ -6,19 +6,20 @@
 import http from "http";
 import "dotenv/config";
 import app from "./app.js";
-// import { startDB } from "./db/connection.js";
+import { startDB } from "./db/connection.js";
 import initWebSocketServer from "./webSocketServer.js";
+import logger from "./utils/logger.js";
 const port = process.env.PORT;
 const server = http.createServer(app);
 const webSocketServer = initWebSocketServer();
 
 async function startServer() {
   try {
-    // await startDB();
+    await startDB();
     server.listen(port);
-    console.log(`Collab-service-server listening on ${port}`);
+    logger.info(`Collab-service-server listening on ${port}`);
   } catch (error) {
-    console.log("Unable to start collab-service server");
+    logger.info("Unable to start collab-service server");
   }
 }
 

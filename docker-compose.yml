@@ -12,7 +12,7 @@
 # =============================================================================
 #
 # 🔥 LIVE RELOAD ENABLED FOR MICROSERVICES ONLY
-# 
+#
 # ARCHITECTURE:
 # ├── 🌐 Frontend (Next.js) - Runs via NPM DEV (host machine)
 # ├── 🚀 Microservices - Run via DOCKER with live reload
@@ -113,7 +113,11 @@ services:
     environment:
       - DB_LOCAL_URI=mongodb://root:example@mongodb-user-services:27017 # Override for container
       - NODE_ENV=development # Development mode for better error messages
-    command: ["/bin/sh", "-c", "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js"] # Install deps and run with polling for Windows/WSL2
+    command: [
+        "/bin/sh",
+        "-c",
+        "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js",
+      ] # Install deps and run with polling for Windows/WSL2
 
   # Matching Service - DEVELOPMENT MODE WITH LIVE RELOAD
   matching-service:
@@ -135,7 +139,11 @@ services:
       - ./matching-service/.env
     environment:
       - NODE_ENV=development # Development mode
-    command: ["/bin/sh", "-c", "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js"] # Install deps and run with polling for Windows/WSL2
+    command: [
+        "/bin/sh",
+        "-c",
+        "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js",
+      ] # Install deps and run with polling for Windows/WSL2
 
   # Collaboration Service - DEVELOPMENT MODE WITH LIVE RELOAD
   collab-service:
@@ -146,7 +154,7 @@ services:
       dockerfile: Dockerfile
       # No target specified - uses default single-stage build
     ports:
-      - "8000:8000" # Expose for direct access during development  
+      - "8000:8000" # Expose for direct access during development
     volumes:
       # Mount source code for live reload (adjust paths based on actual structure)
       - ./collab-service:/app:cached
@@ -157,7 +165,11 @@ services:
       - ./collab-service/.env
     environment:
       - NODE_ENV=development # Development mode
-    command: ["/bin/sh", "-c", "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js"] # Install deps and run with polling for Windows/WSL2
+    command: [
+        "/bin/sh",
+        "-c",
+        "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js",
+      ] # Install deps and run with polling for Windows/WSL2
 
   # MongoDB Database for User Services
   mongodb-user-services:
@@ -188,14 +200,7 @@ services:
   redis-collab-service:
     image: redis:latest
     container_name: collab-redis
-    command:
-      [
-        "redis-server",
-        "--requirepass",
-        "${REDIS_PASSWORD}",
-        "--appendonly",
-        "yes",
-      ]
+    command: ["redis-server", "--appendonly", "yes"]
     env_file:
       - ./collab-service/.env
     volumes:
