@@ -17,19 +17,21 @@ import {
   handleInitialDocSync,
   broadcastToRoom,
   handleSocketDisconnection,
+  saveLocalState,
 } from "./socketEventHandlers.js";
 import logger from "../utils/logger.js";
+
 //Initialises backend socket events
-function initialiseWebSocket(wss, ws, request, roomToDocMap) {
+async function initialiseWebSocket(wss, ws, request, redisDb, roomToDataMap) {
   const path_params = request.url.split("/");
   const userId = path_params[2];
-  const roomId = path_params[3];
+  const sessionId = path_params[3];
 
   ws.isAlive = true;
-  ws.room = roomId;
+  ws.sessionId = sessionId;
   ws.userId = userId;
-  handleSocketConnection(roomToDocMap, userId, roomId);
-  const doc = roomToDocMap.get(roomId).doc;
+
+  await handleSocketConnection(redisDb, userId, sessionId, roomToDataMap);
 
   ws.on("pong", () => {
     ws.isAlive = true;
@@ -39,9 +41,11 @@ function initialiseWebSocket(wss, ws, request, roomToDocMap) {
 
   ws.on("message", (update) => {
     const cursorData = parseCursorUpdate(update);
+    const localSessionData = roomToDataMap.get(sessionId);
+    const doc = localSessionData.doc;
 
     if (cursorData != null) {
-      broadcastToRoom(wss, ws, roomId, cursorData);
+      broadcastToRoom(wss, ws, sessionId, cursorData);
       return;
     }
 
@@ -51,12 +55,20 @@ function initialiseWebSocket(wss, ws, request, roomToDocMap) {
 
     const yUpdate = new Uint8Array(update);
     Y.applyUpdate(doc, yUpdate);
-    broadcastToRoom(wss, ws, roomId, yUpdate);
+    broadcastToRoom(wss, ws, sessionId, yUpdate);
+
+    //Save local state to redis if last saved more than 30 seconds ago
+    if (Date.now() - Number(localSessionData.lastSavedAt) >= 30000) {
+      const key = `session:${sessionId}`;
+      localSessionData.lastSavedAt = Date.now();
+      saveLocalState(key, redisDb, localSessionData);
+      logger.info("state saved in redis");
+    }
   });
 
-  ws.on("close", () => {
+  ws.on("close", async () => {
     logger.info("websocket on server closed");
-    handleSocketDisconnection(ws, wss, roomToDocMap);
+    await handleSocketDisconnection(ws, wss, roomToDataMap, redisDb);
   });
 }
 export { initialiseWebSocket };

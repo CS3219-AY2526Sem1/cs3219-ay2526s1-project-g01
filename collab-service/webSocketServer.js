@@ -1,17 +1,26 @@
 import { WebSocketServer } from "ws";
 import { initialiseWebSocket } from "./websockets/socketConnection.js";
 import logger from "./utils/logger.js";
+import { dbClient } from "./db/connection.js";
 
 //Set up Websocket Server to handle incoming connection requests and heartbeat mechanism
 export default function initWebSocketServer() {
   const webSocketServer = new WebSocketServer({ noServer: true });
-  const roomToData = new Map(); // stores session_id to {doc, users, lastEmptyAt}]
+
+  // Local session data storage, stores session_id to {ydoc, users, lastEmptyAt, lastSavedAt}
+  const roomToData = new Map();
   logger.info("WebsocketServer started!");
 
   //Handles client connection
-  webSocketServer.on("connection", (ws, request) => {
+  webSocketServer.on("connection", async (ws, request) => {
     logger.info("Websocketconnection opened!!");
-    initialiseWebSocket(webSocketServer, ws, request, roomToData);
+    await initialiseWebSocket(
+      webSocketServer,
+      ws,
+      request,
+      dbClient,
+      roomToData
+    );
   });
 
   //Heartbeat mechanism for persistent connection
@@ -26,8 +35,8 @@ export default function initWebSocketServer() {
     });
   }, 30000);
 
-  //For clearing of y doc state on server if more than 2 minutes has passed since room is empty
-  const state_interval = setInterval(() => {
+  //For clearing of y doc state on server and redis if more than 2 minutes has passed since room is empty
+  const state_interval = setInterval(async () => {
     const current_time = Date.now();
     for (const [roomId, room] of roomToData.entries()) {
       if (
@@ -40,6 +49,9 @@ export default function initWebSocketServer() {
         );
         room.doc.destroy();
         roomToData.delete(roomId);
+        const key = `session:${roomId}`;
+        await dbClient.del(key);
+        logger.info("Deleting state from redisDb");
       }
     }
   }, 60000);
