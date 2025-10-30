@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import SessionCreatingDialog from "@/components/loading-dialog";
 
 interface SearchComponentProps {
   onSearch: () => void;
@@ -35,10 +36,11 @@ export default function SearchComponent({
   };
 
   return (
-    <Dialog open={isSearching}>
-      <DialogTrigger asChild>
-        <Button
-          className="
+    <>
+      <Dialog open={isSearching}>
+        <DialogTrigger asChild>
+          <Button
+            className="
             mb-15 
             w-[40%] 
             bg-black 
@@ -48,15 +50,15 @@ export default function SearchComponent({
             border-stone-400
             hover:bg-stone-900
             hover:text-white"
-          variant="outline"
-          onClick={onSearch}
-          disabled={isMatched || isSearching}
-        >
-          Start Searching
-        </Button>
-      </DialogTrigger>
-      <DialogContent
-        className="
+            variant="outline"
+            onClick={onSearch}
+            disabled={isMatched || isSearching}
+          >
+            Start Searching!!!
+          </Button>
+        </DialogTrigger>
+        <DialogContent
+          className="
           w-[40%] 
           flex 
           flex-col 
@@ -64,40 +66,42 @@ export default function SearchComponent({
           bg-stone-800 
           rounded-2xl 
           border-black"
-        onPointerDownOutside={(e) => e.preventDefault()}
-        onEscapeKeyDown={(e) => e.preventDefault()}
-        showCloseButton={false}
-      >
-        <div className="absolute top-3 right-3">
-          <Button className="bg-transparent" size="sm" onClick={onCancel}>
-            <X />
-          </Button>
-        </div>
-        <DialogHeader className="flex items-center text-white w-full">
-          <DialogTitle>Searching for a match...</DialogTitle>
-          <DialogDescription>Hold on tight!</DialogDescription>
-        </DialogHeader>
-
-        <Spinner variant="circle-filled" className="text-white" />
-
-        {/* Countdown Timer */}
-        <div className="w-full mt-4 text-center">
-          <p className="text-2xl font-bold text-white">
-            {formatTimeRemaining(timeRemaining)}
-          </p>
-          <p className="text-sm text-white mt-1">Time remaining</p>
-
-          {/* Progress Bar */}
-          <div className="w-full mt-4 bg-gray-200 rounded-full h-3">
-            <div
-              className="bg-red-400 h-3 rounded-full transition-all duration-1000"
-              style={{
-                width: `${timeRemaining ? (timeRemaining / 300) * 100 : 100}%`,
-              }}
-            ></div>
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          showCloseButton={false}
+        >
+          <div className="absolute top-3 right-3">
+            <Button className="bg-transparent" size="sm" onClick={onCancel}>
+              <X />
+            </Button>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+          <DialogHeader className="flex items-center text-white w-full">
+            <DialogTitle>Searching for a match...</DialogTitle>
+            <DialogDescription>Hold on tight!</DialogDescription>
+          </DialogHeader>
+
+          <Spinner variant="circle-filled" className="text-white" />
+
+          {/* Countdown Timer */}
+          <div className="w-full mt-4 text-center">
+            <p className="text-2xl font-bold text-white">
+              {formatTimeRemaining(timeRemaining)}
+            </p>
+            <p className="text-sm text-white mt-1">Time remaining</p>
+
+            {/* Progress Bar */}
+            <div className="w-full mt-4 bg-gray-200 rounded-full h-3">
+              <div
+                className="bg-red-400 h-3 rounded-full transition-all duration-1000"
+                style={{
+                  width: `${timeRemaining ? (timeRemaining / 300) * 100 : 100}%`,
+                }}
+              ></div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      <SessionCreatingDialog open={isMatched} />
+    </>
   );
 }
