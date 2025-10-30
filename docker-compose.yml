@@ -94,6 +94,8 @@ services:
     environment:
       - NODE_ENV=production # Set Node.js to production mode
       - PORT=3000 # Ensure Next.js listens on port 3000
+    env_file:
+      - ./frontend/.env
 
   # User Service - DEVELOPMENT MODE WITH LIVE RELOAD
   user-service:
