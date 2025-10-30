@@ -1,38 +1,82 @@
 import { SessionModel } from "../models/session-model.js";
-// import { dbClient } from "../db/connection.js";
+import { dbClient } from "../db/connection.js";
+import { roomToData } from "../webSocketServer.js";
+import { saveLocalState } from "../utils/sessionDataHandler.js";
 import * as z from "zod";
+import * as Y from "yjs";
+import logger from "../utils/logger.js";
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+// //Store session to sessionData on hashmap on WebSocketServer for each room and save data in redis
+// async function handleSocketConnection(
+//   redisDb,
+//   userId,
+//   sessionId,
+//   roomToDataMap
+// ) {
+//   const key = `session:${sessionId}`;
+
+//   let sessionData = roomToDataMap.get(sessionId);
+//   if (!sessionData) {
+//     const redisData = await redisDb.hGetAll(key);
+//     // Case where session crated but server crashed so sessionData only exists in redis so form local sesionData from redis
+//     if (Object.keys(redisData).length > 0) {
+//       sessionData = convertDataFromDB(redisData);
+//       // Case where its a brand new session
+//     } else {
+//       sessionData = {
+//         doc: new Y.Doc(),
+//         users: new Set(),
+//         lastEmptyAt: null,
+//         lastSavedAt: Date.now(),
+//       };
+//     }
+//     roomToDataMap.set(sessionId, sessionData);
+//   }
+
+//   sessionData.users.add(userId);
+//   sessionData.lastEmptyAt = null;
+//   await saveLocalState(key, redisDb, sessionData);
+// }
+
 export async function createSession(req, res) {
   try {
     SessionModel.parse(req.body);
-    const { sessionId, user1Id, user2Id, questionDifficulty, questionTopic } =
-      req.body;
-    //check if sessionId already exists in redis, if exist return session info
-    console.log("Getting question from question service..");
-    // await dbClient.set(sessionId, "value in redis");
+    const { sessionId, user1, user2, criteria } = req.body;
+    const redisKey = `session:${sessionId}`;
 
-    // const value = await dbClient.get(sessionId);
-    const value = "test";
-    console.log(value);
-    //ADD SESSION TO REDIS TEST
-
-    //temp mock question
+    //CALL QUESTION SERVICE ENDPOINT based on criteria  TO GET QUESTION
+    //store questionId retrieve in redis and local map object to reduce memory usage
     const question = {
-      title: "2 sum",
-      difficulty: "Easy",
-      description: "return indexes of two elements that add up to target",
-      input: "target = 5, nums = [1,2,3]",
+      Title: "two sum",
+      description: "adasdasdkadjakdaskldajsdlkasdlkakdasd",
+      id: "123",
     };
+
+    const sessionData = {
+      doc: new Y.Doc(),
+      users: new Set([user1.userId, user2.userId]),
+      lastEmptyAt: null,
+      lastSavedAt: Date.now(),
+      questionId: question.id,
+    };
+
+    roomToData.set(sessionId, sessionData);
+    await saveLocalState(redisKey, dbClient, sessionData);
+    await delay(5000);
     res.status(201).json({
       message: `Created new session ${sessionId} successfully`,
       question,
-      sessionId,
-      value,
     });
   } catch (err) {
     if (err instanceof z.ZodError) {
       return res.status(400).json({ error: "Invalid request body" });
     }
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res
+      .status(500)
+      .json({ message: "Internal server error, unable to create session" });
   }
 }

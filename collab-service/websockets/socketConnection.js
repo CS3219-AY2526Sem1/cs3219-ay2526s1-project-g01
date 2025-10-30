@@ -12,26 +12,27 @@
 
 import * as Y from "yjs";
 import {
-  handleSocketConnection,
   parseCursorUpdate,
   handleInitialDocSync,
   broadcastToRoom,
   handleSocketDisconnection,
-  saveLocalState,
 } from "./socketEventHandlers.js";
 import logger from "../utils/logger.js";
+import { saveLocalState } from "../utils/sessionDataHandler.js";
 
 //Initialises backend socket events
 async function initialiseWebSocket(wss, ws, request, redisDb, roomToDataMap) {
   const path_params = request.url.split("/");
   const userId = path_params[2];
   const sessionId = path_params[3];
+  const sessionData = roomToDataMap[sessionId];
 
+  //validate the connection here
   ws.isAlive = true;
   ws.sessionId = sessionId;
   ws.userId = userId;
 
-  await handleSocketConnection(redisDb, userId, sessionId, roomToDataMap);
+  // await handleSocketConnection(redisDb, userId, sessionId, roomToDataMap);
 
   ws.on("pong", () => {
     ws.isAlive = true;

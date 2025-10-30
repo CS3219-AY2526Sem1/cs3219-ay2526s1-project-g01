@@ -4,15 +4,13 @@ import { WebSocketServer } from "ws";
 import { initialiseWebSocket } from "./websockets/socketConnection.js";
 import logger from "./utils/logger.js";
 import { dbClient } from "./db/connection.js";
+export const roomToData = new Map();
 
 //Set up Websocket Server to handle incoming connection requests and heartbeat mechanism
-export default function initWebSocketServer() {
+export function initWebSocketServer() {
   const webSocketServer = new WebSocketServer({ noServer: true });
-
   // Local session data storage, stores session_id to {ydoc, users, lastEmptyAt, lastSavedAt}
-  const roomToData = new Map();
   logger.info("WebsocketServer started!");
-
   //Handles client connection
   webSocketServer.on("connection", async (ws, request) => {
     logger.info("Websocketconnection opened!!");
