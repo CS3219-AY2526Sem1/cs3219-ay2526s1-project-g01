@@ -125,9 +125,9 @@ function CollabPageContent() {
           />
         </div>
 
-        <div className="flex-1 p-5">
+        <div className="flex-1 p-5 min-h-0 overflow-hidden">
           {/* Toggle between Chat and AI Assist */}
-          <div className="h-full flex flex-col">
+          <div className="h-full min-h-0 flex flex-col">
             {/* Toggle Buttons */}
             <div className="flex gap-2 mb-4">
               <Button
