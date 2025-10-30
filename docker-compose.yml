@@ -174,8 +174,8 @@ services:
       - ./communication-service:/app:cached
       - /app/node_modules
     working_dir: /app
-    env_file:
-      - ./communication-service/.env
+    # env_file:
+    #   - ./communication-service/.env
     environment:
       - NODE_ENV=development
     command: ["/bin/sh", "-c", "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js"]
