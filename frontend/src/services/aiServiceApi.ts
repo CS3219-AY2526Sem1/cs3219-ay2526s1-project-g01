@@ -41,7 +41,7 @@ export interface ChatResponse {
  * @returns Promise with the AI response
  */
 export async function sendAiChatMessage(
-  request: ChatRequest
+  request: ChatRequest,
 ): Promise<ChatResponse> {
   try {
     const response = await fetch(`${AI_SERVICE_URL}/api/ai/chat`, {

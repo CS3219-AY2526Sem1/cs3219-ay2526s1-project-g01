@@ -2,7 +2,7 @@
  * AI Assistance Disclosure:
  * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2024-10-28
  * Purpose: Google Gemini API integration for generating AI responses with code context
- * Author Review: API integration validated, prompt engineering reviewed, error handling tested
+ * Author Review: API integration validated, prompt engineering reviewed, error handling tested, added system guardrails
  */
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
@@ -95,7 +95,9 @@ Safety guardrails:
     }
 
     if (error.message?.includes("Not Found")) {
-      throw new Error(`Gemini model "${modelName}" is unavailable. Update GEMINI_MODEL to a supported model from https://ai.google.dev/models.`);
+      throw new Error(
+        `Gemini model "${modelName}" is unavailable. Update GEMINI_MODEL to a supported model from https://ai.google.dev/models.`,
+      );
     }
 
     throw new Error("Failed to generate AI response");

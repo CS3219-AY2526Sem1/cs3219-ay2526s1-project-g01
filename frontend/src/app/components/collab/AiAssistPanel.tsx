@@ -8,10 +8,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import * as monaco from "monaco-editor";
-import {
-  sendAiChatMessage,
-  ChatMessage,
-} from "@/services/aiServiceApi";
+import { sendAiChatMessage, ChatMessage } from "@/services/aiServiceApi";
 import { Button } from "@/components/ui/button";
 import { Loader2, Send, Sparkles, Copy, Check } from "lucide-react";
 import ReactMarkdown from "react-markdown";
@@ -154,7 +151,9 @@ export default function AiAssistPanel({
                         components={{
                           code(props) {
                             const { children, className, ...rest } = props;
-                            const match = /language-(\w+)/.exec(className || "");
+                            const match = /language-(\w+)/.exec(
+                              className || "",
+                            );
                             return match ? (
                               <code
                                 className="block bg-stone-900 p-2 rounded overflow-x-auto"
