@@ -36,17 +36,6 @@ export default function ChatComponent() {
   // Remote user's audio
   const [remoteAudioStatus, setRemoteAudioStatus] = useState<boolean>(true);
 
-  const servers = {
-    iceServers: [
-      { urls: "stun:stun.l.google.com:19302" },
-      {
-        urls: "turn:numb.viagenie.ca",
-        credential: "muazkh",
-        username: "webrtc@live.com",
-      },
-    ],
-  };
-
   // Hardcode session id
   const sessionID = "98r4389r43r894389";
 
@@ -58,8 +47,13 @@ export default function ChatComponent() {
 
     const initializeConnection = async () => {
       try {
+
+        const res = await fetch("/api/turn");
+        const iceServers = await res.json();
+        console.log("ICE SERVERS FETCHED")
+        
         // Create peer connection
-        const pc = new RTCPeerConnection(servers);
+        const pc = new RTCPeerConnection({ iceServers });
         connectionRef.current = pc;
 
         let stream = null;
