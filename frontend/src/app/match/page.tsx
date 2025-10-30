@@ -27,9 +27,10 @@ export default function MatchPage() {
   };
 
   useEffect(() => {
-    if (status === "matched" && sessionId) {
+    if (status === "active" && sessionId) {
       router.push(`/collab?sessionId=${sessionId}`);
     }
+    console.log("useeffect should run ");
   }, [status, sessionId, router]);
 
   useEffect(() => {
