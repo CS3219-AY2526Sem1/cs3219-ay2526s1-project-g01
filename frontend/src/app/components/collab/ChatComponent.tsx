@@ -59,7 +59,33 @@ export default function ChatComponent() {
     const initializeConnection = async () => {
       try {
         // Create peer connection
-        const pc = new RTCPeerConnection(servers);
+        const pc = new new RTCPeerConnection({
+          iceServers: [
+              {
+                urls: "stun:stun.relay.metered.ca:80",
+              },
+              {
+                urls: "turn:global.relay.metered.ca:80",
+                username: "4d1c97838e2d0905bd91a8cb",
+                credential: "f9X8G+cs9VYeKKcE",
+              },
+              {
+                urls: "turn:global.relay.metered.ca:80?transport=tcp",
+                username: "4d1c97838e2d0905bd91a8cb",
+                credential: "f9X8G+cs9VYeKKcE",
+              },
+              {
+                urls: "turn:global.relay.metered.ca:443",
+                username: "4d1c97838e2d0905bd91a8cb",
+                credential: "f9X8G+cs9VYeKKcE",
+              },
+              {
+                urls: "turns:global.relay.metered.ca:443?transport=tcp",
+                username: "4d1c97838e2d0905bd91a8cb",
+                credential: "f9X8G+cs9VYeKKcE",
+              },
+          ],
+        });
         connectionRef.current = pc;
 
         let stream = null;
