@@ -30,9 +30,16 @@
 
 #### Running the project (development)
 
-1. Run `npm run dev` to start up the user-service and frontend concurrently
-2. ALternatively, you can run `cd user-service && npm run dev` and `cd frontend && npm run dev` in separate terminal windows to start up the user-service and frontend respectively
-3. The frontend will be running at `localhost:3000` and user-service will be running at `localhost:5000`
+1. Run `npm run dev` to start up all microservices (user-service, matching-service, collab-service, question-service) in Docker with live reload, and the frontend on your host machine
+2. The microservices run in Docker with hot reload enabled - any code changes will automatically restart the service
+3. The frontend runs natively on your machine at `localhost:3000` for optimal Hot Module Replacement (HMR) performance
+4. All microservices are exposed on their respective ports:
+   - User Service: `localhost:4000`
+   - Matching Service: `localhost:3002`
+   - Collaboration Service: `localhost:8000`
+   - Question Service: `localhost:7000`
+   - API Gateway: `localhost` (port 80)
+5. Alternative: Run `npm run dev:frontend` to start only the frontend, or `npm run dev:docker` to start only the Docker services
 
 #### Testing Docker production build
 

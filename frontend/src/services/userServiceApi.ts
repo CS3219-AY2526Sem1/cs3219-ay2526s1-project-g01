@@ -3,6 +3,11 @@
  * Tool: GitHub Copilot (model: Claude Sonnet 4), date: 2025-09-16
  * Purpose: To fix Docker networking bug where middleware (server-side) and browser (client-side) need different API endpoints for same service.
  * Author Review: I validated correctness, security, and performance of the dynamic client creation approach.
+ *
+ * AI Assistance Disclosure:
+ * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-23
+ * Purpose: To add deleteAccount API function for permanent account deletion with proper authentication.
+ * Author Review: I validated the implementation follows security best practices with authentication token validation.
  */
 
 // API Configuration for PeerPrep Frontend
@@ -163,12 +168,15 @@ const verifyUserEmail = async (
   token: string,
   username: string,
   email: string,
+  purpose?: string,
 ) => {
   try {
     const apiClient = createApiClient();
-    const response = await apiClient.get(
-      `${API_ENDPOINTS.VERIFICATION_SERVICE}/verify?token=${encodeURIComponent(token)}&username=${encodeURIComponent(username)}&email=${encodeURIComponent(email)}`,
-    );
+    let url = `${API_ENDPOINTS.VERIFICATION_SERVICE}/verify?token=${encodeURIComponent(token)}&username=${encodeURIComponent(username)}&email=${encodeURIComponent(email)}`;
+    if (purpose) {
+      url += `&purpose=${encodeURIComponent(purpose)}`;
+    }
+    const response = await apiClient.get(url);
     return response;
   } catch (error) {
     console.error("Error verifying email:", error);
@@ -189,5 +197,203 @@ const resendEmailVerification = async (username: string, email: string) => {
   }
 };
 
+const sendPasswordResetEmail = async (email: string) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.post(
+      `${API_ENDPOINTS.AUTH_SERVICE}/password/request-reset`,
+      { email },
+    );
+    return response;
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    throw error;
+  }
+};
+
+const validatePasswordResetToken = async (
+  username: string,
+  email: string,
+  token: string,
+) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.get(
+      `${API_ENDPOINTS.AUTH_SERVICE}/password/validate-token?username=${encodeURIComponent(username)}&email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`,
+    );
+    return response;
+  } catch (error) {
+    console.error("Error validating password reset token:", error);
+    throw error;
+  }
+};
+
+const confirmPasswordReset = async (
+  username: string,
+  email: string,
+  token: string,
+  newPassword: string,
+) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.post(
+      `${API_ENDPOINTS.AUTH_SERVICE}/password/confirm-reset?username=${encodeURIComponent(username)}&email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`,
+      { newPassword },
+    );
+    return response;
+  } catch (error) {
+    console.error("Error confirming password reset:", error);
+    throw error;
+  }
+};
+
+const updateUserPassword = async (
+  userId: string,
+  currentPassword: string,
+  newPassword: string,
+  token: string,
+) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.patch(
+      `${API_ENDPOINTS.USER_SERVICE}/${userId}/password`,
+      { currentPassword, newPassword },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return response;
+  } catch (error) {
+    console.error("Error updating user password:", error);
+    throw error;
+  }
+};
+
+const updateUsername = async (
+  userId: string,
+  username: string,
+  token: string,
+) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.patch(
+      `${API_ENDPOINTS.USER_SERVICE}/${userId}/username`,
+      { username },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return response;
+  } catch (error) {
+    console.error("Error updating username:", error);
+    throw error;
+  }
+};
+
+const requestEmailChangeCode = async (userId: string, token: string) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.post(
+      `${API_ENDPOINTS.VERIFICATION_SERVICE}/request-email-change-code`,
+      { userId },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return response;
+  } catch (error) {
+    console.error("Error requesting email change code:", error);
+    throw error;
+  }
+};
+
+const verifyEmailChangeCode = async (
+  userId: string,
+  code: string,
+  token: string,
+) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.post(
+      `${API_ENDPOINTS.VERIFICATION_SERVICE}/verify-email-change-code`,
+      { userId, code },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return response;
+  } catch (error) {
+    console.error("Error verifying email change code:", error);
+    throw error;
+  }
+};
+
+const changeEmail = async (
+  userId: string,
+  username: string,
+  oldEmail: string,
+  newEmail: string,
+  code: string,
+  token: string,
+) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.post(
+      `${API_ENDPOINTS.VERIFICATION_SERVICE}/change-email`,
+      { userId, username, oldEmail, newEmail, code },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return response;
+  } catch (error) {
+    console.error("Error changing email:", error);
+    throw error;
+  }
+};
+
+const deleteAccount = async (userId: string, token: string) => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.delete(
+      `${API_ENDPOINTS.USER_SERVICE}/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return response;
+  } catch (error) {
+    console.error("Error deleting account:", error);
+    throw error;
+  }
+};
+
 // Export configuration
-export { verifyToken, login, signup, verifyUserEmail, resendEmailVerification };
+export {
+  verifyToken,
+  login,
+  signup,
+  verifyUserEmail,
+  resendEmailVerification,
+  sendPasswordResetEmail,
+  validatePasswordResetToken,
+  confirmPasswordReset,
+  updateUserPassword,
+  updateUsername,
+  requestEmailChangeCode,
+  verifyEmailChangeCode,
+  changeEmail,
+  deleteAccount,
+};

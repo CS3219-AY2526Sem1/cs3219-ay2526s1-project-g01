@@ -7,6 +7,11 @@
  * Tool: GitHub Copilot (model: Claude Sonnet 4), date: 2025-09-24
  * Purpose: To fix Next.js 15 production build issues by replacing useSearchParams with window.location URLSearchParams for client-side URL parameter parsing.
  * Author Review: I validated the solution works in both development and production builds, maintaining the same functionality while avoiding Suspense boundary requirements.
+ *
+ * Additional AI Assistance Disclosure:
+ * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-10-23
+ * Purpose: To add purpose parameter handling for email verification to support both signup and email-change verification flows.
+ * Author Review: I validated correctness, security, and performance of the code.
  */
 
 "use client";
@@ -29,19 +34,20 @@ export default function VerifyPage() {
         const token = params.get("token");
         const email = params.get("email") || "";
         const username = params.get("username") || "";
+        const purpose = params.get("purpose") || "signup";
 
         if (!token) {
           toast.error("Invalid verification link", {
             description: "No verification token found.",
           });
           router.push(
-            `/auth/error?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`,
+            `/auth/error?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}&purpose=${encodeURIComponent(purpose)}`,
           );
           return;
         }
 
         try {
-          await verifyUserEmail(token, username, email);
+          await verifyUserEmail(token, username, email, purpose);
 
           toast.success("Email verified successfully!", {
             description: "You can now sign in to your account.",
@@ -55,7 +61,7 @@ export default function VerifyPage() {
           handleApiError(error, "Email verification failed");
           setTimeout(() => {
             router.push(
-              `/auth/error?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`,
+              `/auth/error?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}&purpose=${encodeURIComponent(purpose)}`,
             );
           }, 1000);
         }
