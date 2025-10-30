@@ -37,17 +37,12 @@ export default function SessionHeader() {
         <CircleUser className="text-white mr-2" size="25" />
         <div className="text-white mr-3">{user?.username || "Guest User"}</div>
       </div>
-      <div>
-        <Button className="mr-3">
-          <Mic />
-        </Button>
-        <Button
-          onClick={() => directToMatch()}
-          className="bg-red-500 text-black mr-3 hover:bg-red-300"
-        >
-          Leave Session
-        </Button>
-      </div>
+      <Button
+        onClick={() => directToMatch()}
+        className="bg-red-500 text-black mr-3 hover:bg-red-300"
+      >
+        Leave Session
+      </Button>
     </header>
   );
 }
