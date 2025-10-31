@@ -261,13 +261,17 @@ class MatchingService {
       );
       if (sessionId) {
         const matchData = await this.getSession(sessionId);
-        console.log("polling for status and sessionId is valid");
-        console.log(matchData);
-        console.log(matchData.status);
-        return {
+        let response = {
           status: matchData.status,
           sessionId,
         };
+        if (matchData.status === "active") {
+          response = {
+            question: matchData.question,
+            ...response,
+          };
+        }
+        return response;
       }
 
       // check if user is searching
