@@ -6,12 +6,35 @@
  * Purpose: To understand root cause of ReferenceError: window is not defined when CollabPage is being built by docker
  * Author Review: I validated correctness of the code and modified the solution based on online research
  */
+
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2024-10-28
+ * Purpose: Added props for editor instance and language change callbacks to support AI assistant integration
+ * Author Review: Props interface and forwarding pattern validated
+ */
 "use client";
 
 import dynamic from "next/dynamic";
+import * as monaco from "monaco-editor";
 
-const CodingComponentWrapper = dynamic(() => import("./CodingComponent"), {
+interface CodingComponentWrapperProps {
+  onEditorMount?: (editor: monaco.editor.IStandaloneCodeEditor) => void;
+  onLanguageChange?: (language: string) => void;
+}
+
+const CodingComponent = dynamic(() => import("./CodingComponent"), {
   ssr: false,
 });
 
-export default CodingComponentWrapper;
+export default function CodingComponentWrapper({
+  onEditorMount,
+  onLanguageChange,
+}: CodingComponentWrapperProps) {
+  return (
+    <CodingComponent
+      onEditorMount={onEditorMount}
+      onLanguageChange={onLanguageChange}
+    />
+  );
+}
