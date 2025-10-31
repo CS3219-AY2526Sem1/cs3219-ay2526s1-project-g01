@@ -1,0 +1,71 @@
+# AI Assistance Disclosure:
+# Tool: GitHub Copilot(Claude Sonnet 4), date: 2025-09-15
+# Purpose: To create comprehensive .dockerignore for Express.js user-service build optimization.
+# Author Review: I validated file exclusions for security and build performance.
+
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Logs
+logs
+*.log
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Runtime data
+lib-cov
+coverage
+.nyc_output
+.coverage
+*.lcov
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# Git
+.git
+.gitignore
+README.md
+MongoDBSetup.md
+
+# Docker
+Dockerfile
+.dockerignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Guide assets
+GuideAssets/
+
+# Other
+*.md
