@@ -50,6 +50,9 @@ export function useMatchingService(userId: string | undefined) {
               }
             } else if (data.status === "active") {
               setStatus("active");
+              //For question integration on front end
+              //Change the MatchStatusResponse interface accordingly for the question fields
+              const question = data.question;
               console.log("frontend sets status to active");
               clearPolling();
             } else if (data.status === "idle") {

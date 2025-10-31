@@ -36,6 +36,10 @@ export interface MatchStatusResponse {
     difficulty: string[];
     topics: string[];
   };
+  question?: {
+    id: string;
+    title: string;
+  };
 }
 
 export interface TerminateResponse {

@@ -49,6 +49,7 @@ export async function createSession(req, res) {
 
     //CALL QUESTION SERVICE ENDPOINT based on criteria  TO GET QUESTION
     //store questionId retrieve in redis and local map object to reduce memory usage
+    //Dummy question object with some fields
     const question = {
       Title: "two sum",
       description: "adasdasdkadjakdaskldajsdlkasdlkakdasd",
