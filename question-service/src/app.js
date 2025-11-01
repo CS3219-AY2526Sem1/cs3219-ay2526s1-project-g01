@@ -18,7 +18,7 @@ app.use((req, res, next) => {
 });
 
 // Question routes
-app.use('/question', questionRoutes);
+app.use('/questions', questionRoutes);
 
 app.use((req, res, next) => {
   const error = new Error("Invalid route");

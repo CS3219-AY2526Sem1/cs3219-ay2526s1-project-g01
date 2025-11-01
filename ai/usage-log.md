@@ -1927,3 +1927,39 @@ GitHub Copilot (model: Claude Sonnet 4)
 - Successfully installed jose and jsonwebtoken packages via npm install
 
 ---
+
+## Entry 51
+
+# Date/Time:
+
+2025-10-29 06:15
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 3.5)
+
+# Prompt/Command:
+
+"Give code for /api/question/add endpoint that adds a question. It should pass a JSON req.body that specifies all the data required to insert 1 question, as demonstrated in my init.sql file"
+"Give code for api/question/delete endpoint that deletes a question by the question id. It should get the question id from the req query.
+All the tables related to that 1 question should be deleted, as shown by the data inserted to insert 1 question in the init.sql file."
+"Give me code for the api/question/update-question that will update an existing question. An updated question is sent, with all the details 
+similar to adding a new question. However the question id remains the same"
+"Give me code for the api/question/{id} to get question by id. It should return the full JSON that is similar to the JSON body added"
+"give me code for the api/question/topic/add that will add a new topic specified in the query param to the topics tables in init.sql"
+
+# Output Summary:
+
+- Created the some routers, controllers and functions part by part based on the existing database and code structure
+- Modified endpoints and added a few endpoints afterwards to make it more intuitive
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+- Modified controller function incrementally to ensure more checks are done, as there were errors in testing
+- Modified functions added new topic during update, to only allow updates if the with preexisting topics and difficulties
+- Verified to ensure that all the endpoints work as intended after modifications
