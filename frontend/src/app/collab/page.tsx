@@ -13,7 +13,6 @@ import { editorWebSocketManager } from "@/services/editorSocketManager";
 import { deleteSession } from "@/services/collabServiceApi";
 
 export default function CollabPage() {
-  const searchParams = useSearchParams();
   const [showConfirmationAlert, setshowConfirmationAlert] =
     useState<boolean>(false);
   const [showLoadingDialog, setShowLoadingDialog] = useState<boolean>(true);

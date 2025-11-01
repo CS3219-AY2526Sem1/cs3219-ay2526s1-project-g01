@@ -75,7 +75,7 @@ export default function MatchPage() {
     if (user?.id) {
       console.log("rejoin room function runs");
       getUserSessionStatus(
-        user?.id!,
+        user.id,
         (sid) => setSessionId(sid),
         () => setshowRejoinRoomDialog(true),
       );
