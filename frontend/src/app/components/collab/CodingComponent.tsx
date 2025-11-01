@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 import ReconnectingWebSocket from "reconnecting-websocket";
 import DisconnectAlertDialog from "@/components/ui/alert-dialog";
 import { editorWebSocketManager } from "@/services/editorSocketManager";
-import LoadingDialog from "@/components/loading-dialog";
+import LoadingDialog from "@/components/ui/loading-dialog";
 import {
   configureCollabWebsocket,
   initEditor,
@@ -61,7 +61,7 @@ export default function CodingComponent({
     cursorCollections: Record<
       string,
       monaco.editor.IEditorDecorationsCollection
-    >
+    >,
   ) {
     const cursorDecorator: monaco.editor.IEditorDecorationsCollection =
       cursorCollections[userId];
@@ -80,7 +80,7 @@ export default function CodingComponent({
     const binding: MonacoBinding = new MonacoBinding(
       yText,
       editorInstance.getModel()!,
-      new Set([editorInstance])
+      new Set([editorInstance]),
     );
 
     const cursorCollections: Record<
@@ -99,7 +99,7 @@ export default function CodingComponent({
       () => {
         router.replace("/match");
       },
-      () => setshowDisconnectAlert(true)
+      () => setshowDisconnectAlert(true),
     );
 
     registerCursorUpdateHandler(
@@ -107,7 +107,7 @@ export default function CodingComponent({
       editorInstance,
       cursorCollections,
       clientWS,
-      user_name
+      user_name,
     );
 
     registerEditorUpdateHandler(ydoc, clientWS);

@@ -1986,6 +1986,39 @@ Request on sample code on how to use redish hash to store session data
 
 # Date/Time:
 
+2025-10-29 10:50
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Create a loading dialog box with spinner in radix
+
+# Output Summary:
+
+- Provided sample code to create a dialog box
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that logic implemented for buttons works
+- Modified css styling to suit overall aesthetic of application
+- Modified component to make it reusable
+- Tested that loading dialog box works as intended
+
+---
+
+## Entry 54
+
+# Date/Time:
+
 2025-10-31 10:44
 
 # Tool:
@@ -2013,7 +2046,40 @@ Singleton class to manage websocket connection for client frontend
 
 ---
 
-## Entry 54
+## Entry 55
+
+# Date/Time:
+
+2025-11-01 16:10
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Creaet a not authorised dialog box in radix to notify user that they are not allowed to access the room
+
+# Output Summary:
+
+- Provided sample code to create a dialog box in radix
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that logic implemented for button works
+- Modified css styling to suit overall aesthetic of application
+- Modified component to make it reusable
+- Tested that notification dialog box works as intended
+
+---
+
+## Entry 56
 
 # Date/Time:
 
@@ -2036,7 +2102,6 @@ similar to adding a new question. However the question id remains the same"
 # Output Summary:
 
 - Created the some routers, controllers and functions part by part based on the existing database and code structure
-- Modified endpoints and added a few endpoints afterwards to make it more intuitive
 
 # Action Taken:
 
@@ -2046,6 +2111,8 @@ similar to adding a new question. However the question id remains the same"
 
 # Author Notes:
 
+- Modified endpoints and added a few endpoints afterwards to make it more intuitive
 - Modified controller function incrementally to ensure more checks are done, as there were errors in testing
 - Modified functions added new topic during update, to only allow updates if the with preexisting topics and difficulties
 - Verified to ensure that all the endpoints work as intended after modifications
+

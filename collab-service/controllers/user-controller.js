@@ -7,6 +7,14 @@ export function getUserSessionStatus(req, res) {
   if (!userId) {
     return res.status(400).json({ error: "Missing userId" });
   }
+
+  if (userId !== req.user.id) {
+    return res.status(403).json({
+      hasSession: false,
+      error: "Forbidden: Cannot check session for another user",
+    });
+  }
+
   if (!userToRoom.has(userId)) {
     return res.json({ hasSession: false });
   }
@@ -28,6 +36,13 @@ export function deleteUserSession(req, res) {
 
   if (!userId) {
     return res.status(400).json({ error: "Missing userId" });
+  }
+
+  if (userId !== req.user.id) {
+    return res.status(403).json({
+      success: false,
+      error: "Forbidden: Cannot delete session for another user",
+    });
   }
   if (!userToRoom.has(userId)) {
   } else {

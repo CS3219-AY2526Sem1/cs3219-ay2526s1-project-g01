@@ -30,16 +30,11 @@ async function initialiseWebSocket(wss, ws, request, redisDb, roomToDataMap) {
   const fullUrl = `ws://host${request.url}`;
   const url = new URL(fullUrl);
   logger.info(fullUrl);
-  const userId = url.searchParams.get("token");
   const sessionId = url.searchParams.get("sessionId");
-  logger.info(userId);
   logger.info(sessionId);
   //validate the connection here
   ws.isAlive = true;
   ws.sessionId = sessionId;
-  ws.userId = userId;
-
-  // await handleSocketConnection(redisDb, userId, sessionId, roomToDataMap);
 
   ws.on("pong", () => {
     ws.isAlive = true;
