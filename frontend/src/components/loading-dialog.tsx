@@ -17,13 +17,17 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 
-interface SessionCreatingDialogProps {
+interface LoadingDialogProps {
   open: boolean;
+  title: string;
+  description: string;
 }
 
-export default function SessionCreatingDialog({
+export default function LoadingDialog({
   open,
-}: SessionCreatingDialogProps) {
+  title,
+  description,
+}: LoadingDialogProps) {
   return (
     <Dialog open={open}>
       <DialogContent
@@ -44,11 +48,9 @@ export default function SessionCreatingDialog({
         showCloseButton={false}
       >
         <DialogHeader className="text-white mb-6">
-          <DialogTitle className="text-xl font-semibold">
-            Creating your session...
-          </DialogTitle>
+          <DialogTitle className="text-xl font-semibold">{title}</DialogTitle>
           <DialogDescription className="text-gray-300">
-            Please wait while we connect you and your partner.
+            {description}
           </DialogDescription>
         </DialogHeader>
 

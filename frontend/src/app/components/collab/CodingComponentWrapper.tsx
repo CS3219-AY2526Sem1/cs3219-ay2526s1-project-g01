@@ -15,9 +15,11 @@ const CodingComponent = dynamic(() => import("./CodingComponent"), {
 });
 
 export default function CodingComponentWrapper({
-  sessionId,
+  isOpen,
+  closeDialog,
 }: {
-  sessionId: string;
+  isOpen: boolean;
+  closeDialog: () => void;
 }) {
-  return <CodingComponent sessionId={sessionId} />;
+  return <CodingComponent isOpen={isOpen} closeDialog={closeDialog} />;
 }
