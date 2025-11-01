@@ -3,9 +3,9 @@ import {
   getUserSessionStatus,
   deleteUserSession,
 } from "../controllers/user-controller.js";
-
+import { verifyAccessToken } from "../middleware/auth.js";
 const userRouter = express.Router();
 
-userRouter.get("/:userId", getUserSessionStatus);
-userRouter.delete("/:userId", deleteUserSession);
+userRouter.get("/:userId", verifyAccessToken, getUserSessionStatus);
+userRouter.delete("/:userId", verifyAccessToken, deleteUserSession);
 export default userRouter;
