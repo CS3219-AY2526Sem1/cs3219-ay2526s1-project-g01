@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import LoadingDialog from "@/components/loading-dialog";
+import LoadingDialog from "@/components/ui/loading-dialog";
 
 interface SearchComponentProps {
   onSearch: () => void;

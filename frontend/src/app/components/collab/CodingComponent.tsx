@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 import ReconnectingWebSocket from "reconnecting-websocket";
 import DisconnectAlertDialog from "@/components/ui/alert-dialog";
 import { editorWebSocketManager } from "@/services/editorSocketManager";
-import LoadingDialog from "@/components/loading-dialog";
+import LoadingDialog from "@/components/ui/loading-dialog";
 import {
   configureCollabWebsocket,
   initEditor,
