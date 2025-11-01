@@ -5,6 +5,7 @@ import { initialiseWebSocket } from "./websockets/socketConnection.js";
 import logger from "./utils/logger.js";
 import { dbClient } from "./db/connection.js";
 export const roomToData = new Map();
+export const userToRoom = new Map();
 
 //Set up Websocket Server to handle incoming connection requests and heartbeat mechanism
 export function initWebSocketServer() {

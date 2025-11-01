@@ -76,6 +76,7 @@ async function handleSocketDisconnection(ws, wss, roomToDocMap, redisDb) {
   const room = roomToDocMap.get(ws.sessionId);
   room.users.delete(ws.userId);
   if (room.users.size === 0) {
+    logger.info("room is empty");
     room.lastEmptyAt = Date.now();
   }
 

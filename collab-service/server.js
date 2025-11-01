@@ -32,6 +32,27 @@ server.on("upgrade", (request, socket, head) => {
   webSocketServer.handleUpgrade(request, socket, head, (ws) => {
     webSocketServer.emit("connection", ws, request);
   });
+
+  // try {
+  //   const token = request.url.split("token=")[1];
+  //   if (!token) throw new Error("No token provided");
+
+  //   // Verify JWT token
+  //   jwt.verify(token, 'your-secret-key', (err, decoded) => {
+  //     if (err) {
+  //       socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+  //       socket.destroy();
+  //       return;
+  //     }
+
+  //     webSocketServer.handleUpgrade(request, socket, head, (ws) => {
+  //       ws.userId = decoded;
+  //       webSocketServer.emit("connection", ws, request);
+  //     });)
+  // } catch (error) {
+  //   socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
+  //   socket.destroy();
+  // }
 });
 
 startServer();
