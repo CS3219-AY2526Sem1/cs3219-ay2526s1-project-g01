@@ -9,6 +9,7 @@ import { useMatchingService } from "@/hooks/useMatchingService";
 import { editorWebSocketManager } from "@/services/editorSocketManager";
 import { getToken } from "@/services/userServiceCookies";
 import DisconnectAlertDialog from "@/components/ui/alert-dialog";
+import { getUserSessionStatus } from "@/services/collabServiceApi";
 
 export default function MatchPage() {
   const [difficulty, setDifficulty] = useState<string[]>([]);
@@ -66,26 +67,13 @@ export default function MatchPage() {
   }, [status]);
 
   useEffect(() => {
-    const rejoinRoom = async () => {
-      try {
-        console.log("call get endpoint to check if have session");
-        const collabURL = process.env.NEXT_PUBLIC_COLLAB_URL;
-        const response = await fetch(
-          `${collabURL}/${encodeURIComponent(user?.id!)}`
-        );
-        const data = await response.json();
-        if (data.hasSession) {
-          console.log("user has session ongoing");
-          setSessionId(data.sessionId);
-          setshowRejoinRoomDialog(true);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
     if (user?.id) {
       console.log("rejoin room function runs");
-      rejoinRoom();
+      getUserSessionStatus(
+        user?.id!,
+        (sid) => setSessionId(sid),
+        () => setshowRejoinRoomDialog(true)
+      );
     }
   }, [user?.id]);
 
