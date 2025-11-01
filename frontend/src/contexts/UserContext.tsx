@@ -21,7 +21,6 @@ interface User {
   id: string;
   username: string;
   email: string;
-  onEditor: boolean;
 }
 
 interface UserContextType {
@@ -66,7 +65,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 id: userData.id,
                 username: userData.username,
                 email: userData.email,
-                onEditor: false,
               });
             } else {
               console.log("User data incomplete:", userData);

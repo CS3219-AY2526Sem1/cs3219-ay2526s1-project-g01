@@ -35,6 +35,7 @@ server.on("upgrade", async (request, socket, head) => {
     const fullUrl = `ws://host${request.url}`;
     const url = new URL(fullUrl);
     const token = url.searchParams.get("token");
+    const sessionId = url.searchParams.get("sessionId");
     if (!token) {
       throw new Error("No token provided");
     }
@@ -65,6 +66,10 @@ server.on("upgrade", async (request, socket, head) => {
 
         webSocketServer.handleUpgrade(request, socket, head, (ws) => {
           ws.userId = decoded.id;
+          const sessionData = roomToData.get(sessionId);
+          if (!sessionData.users.has(decoded.id)) {
+            sessionData.users.add(decoded.id);
+          }
           webSocketServer.emit("connection", ws, request);
         });
       }
