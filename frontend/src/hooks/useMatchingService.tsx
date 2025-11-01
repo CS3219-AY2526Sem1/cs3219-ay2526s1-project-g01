@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 export function useMatchingService(userId: string | undefined) {
   const [status, setStatus] = useState<
-    "idle" | "searching" | "matched" | "active"
+    "idle" | "searching" | "matched" | "active" | "connected"
   >("idle");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
@@ -33,10 +33,8 @@ export function useMatchingService(userId: string | undefined) {
     (uid: string) => {
       pollingInterval.current = setInterval(async () => {
         try {
-          console.log("TEST TEST TEST");
           const data = await getMatchStatus(uid);
           if (data.success) {
-            console.log("what is data", data);
             if (data.status === "matched") {
               if (!sessionId) {
                 setSessionId(data.sessionId!);
@@ -134,5 +132,7 @@ export function useMatchingService(userId: string | undefined) {
     startMatching,
     handleCancelSearch,
     clearPolling,
+    setStatus,
+    setSessionId,
   };
 }

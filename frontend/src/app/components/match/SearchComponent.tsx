@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import SessionCreatingDialog from "@/components/loading-dialog";
+import LoadingDialog from "@/components/loading-dialog";
 
 interface SearchComponentProps {
   onSearch: () => void;
@@ -101,7 +101,11 @@ export default function SearchComponent({
           </div>
         </DialogContent>
       </Dialog>
-      <SessionCreatingDialog open={isMatched} />
+      <LoadingDialog
+        open={isMatched}
+        title={"Creating your session..."}
+        description={"Please wait while we connect you and your partner."}
+      />
     </>
   );
 }
