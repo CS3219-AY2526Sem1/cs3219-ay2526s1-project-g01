@@ -19,6 +19,8 @@ export default function CollabPage() {
   const [checkingConnection, setCheckingConnection] = useState<boolean>(true);
   const router = useRouter();
   const { user, setUser } = useUser();
+
+  //Delete userId to {sessionId, parternId} mapping in backend server
   async function directToMatch() {
     if (user?.id) {
       try {
@@ -31,6 +33,7 @@ export default function CollabPage() {
     router.replace("/match");
   }
 
+  //Prevents unauthorised navigation to the collab page if there is no socket connection
   useEffect(() => {
     if (!editorWebSocketManager.getSocket()) {
       router.replace("/match");
@@ -38,6 +41,7 @@ export default function CollabPage() {
       setCheckingConnection(false);
     }
   }, []);
+
   if (checkingConnection) {
     return <div className="bg-stone-900 h-screen" />;
   }

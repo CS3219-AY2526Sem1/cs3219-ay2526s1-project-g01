@@ -21,6 +21,9 @@ export default function MatchPage() {
   const { user, setUser } = useUser();
   const router = useRouter();
 
+  const wsBaseUrl =
+    process.env.NEXT_PUBLIC_COLLAB_WS_URL || "ws://localhost/collab-socket";
+
   const {
     status,
     sessionId,
@@ -39,8 +42,6 @@ export default function MatchPage() {
   //Handles every socket connection to server and closes the creating room dialog box
   useEffect(() => {
     if (status === "active" && sessionId) {
-      const wsBaseUrl =
-        process.env.NEXT_PUBLIC_COLLAB_WS_URL || "ws://localhost/collab-socket";
       const jwt = getToken() || "";
       const wsUrl = `${wsBaseUrl}/?token=${encodeURIComponent(jwt)}&sessionId=${sessionId}`;
       const socket = editorWebSocketManager.connect(wsUrl);
@@ -71,13 +72,14 @@ export default function MatchPage() {
     }
   }, [status]);
 
+  //Determines if user left an existing session accidentally and provide option to rejoin
   useEffect(() => {
     if (user?.id) {
       console.log("rejoin room function runs");
       getUserSessionStatus(
         user.id,
         (sid) => setSessionId(sid),
-        () => setshowRejoinRoomDialog(true),
+        () => setshowRejoinRoomDialog(true)
       );
     }
   }, [user?.id]);

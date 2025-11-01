@@ -1,5 +1,7 @@
 import { useUser } from "@/contexts/UserContext";
 import { getToken } from "./userServiceCookies";
+
+//Makes delete request to backend to delete userID TO {sessionId, partnerid} mapping
 export async function deleteSession(userId: string) {
   try {
     const token = getToken();
@@ -16,10 +18,11 @@ export async function deleteSession(userId: string) {
   }
 }
 
+//Makes get request to backend to determine if user has an active session
 export async function getUserSessionStatus(
   userId: string,
   setSessionId: (sid: string) => void,
-  setshowRejoinRoomDialog: () => void,
+  setshowRejoinRoomDialog: () => void
 ) {
   try {
     console.log("call get endpoint to check if have session");

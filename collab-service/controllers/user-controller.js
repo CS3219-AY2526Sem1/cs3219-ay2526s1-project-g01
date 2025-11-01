@@ -1,6 +1,7 @@
 import { userToRoom, roomToData } from "../webSocketServer.js";
 import logger from "../utils/logger.js";
 
+//Get sessionId and partner Id stored in local memory from userId
 export function getUserSessionStatus(req, res) {
   const userId = req.params.userId;
 
@@ -31,6 +32,7 @@ export function getUserSessionStatus(req, res) {
   }
 }
 
+//Delete userId to sessionId and partner mapping in local memory
 export function deleteUserSession(req, res) {
   const userId = req.params.userId;
 

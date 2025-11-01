@@ -8,6 +8,7 @@
 
 import ReconnectingWebSocket from "reconnecting-websocket";
 
+//Singleton class so that client has at most ONE socket connection at all times
 class WebSocketManager {
   private socket: ReconnectingWebSocket | null = null;
   private static instance: WebSocketManager;

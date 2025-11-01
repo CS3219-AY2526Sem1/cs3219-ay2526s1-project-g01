@@ -7,6 +7,9 @@ import {
 import { toast } from "sonner";
 
 export function useMatchingService(userId: string | undefined) {
+  //matched status === found a partner
+  //active status === room created in backend server
+  //connected status === socket connection established and ready for navigation to collab page
   const [status, setStatus] = useState<
     "idle" | "searching" | "matched" | "active" | "connected"
   >("idle");
@@ -57,7 +60,7 @@ export function useMatchingService(userId: string | undefined) {
               clearPolling();
               setStatus("idle");
               setErrorMessage(
-                "No match found within 5 minutes. Please try again with different criteria.",
+                "No match found within 5 minutes. Please try again with different criteria."
               );
             }
           }
@@ -69,7 +72,7 @@ export function useMatchingService(userId: string | undefined) {
         }
       }, 1000);
     },
-    [clearPolling],
+    [clearPolling]
   );
 
   const startMatching = useCallback(
@@ -108,7 +111,7 @@ export function useMatchingService(userId: string | undefined) {
         setStatus("idle");
       }
     },
-    [userId, pollStatus],
+    [userId, pollStatus]
   );
 
   const handleCancelSearch = useCallback(async () => {
