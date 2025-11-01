@@ -1,4 +1,12 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: GitHub Copilot (model: Claude Sonnet 4), date: 2025-10-29
+ * Purpose: To add JWT authentication to matching service API calls for secure communication.
+ * Author Review: I validated correctness, security, and performance of the code.
+ */
+
 import axios from "axios";
+import { getToken } from "./userServiceCookies";
 
 const API_GATEWAY_BASE_URL: string =
   process.env.NEXT_PUBLIC_API_GATEWAY_BASE_URL || "http://localhost";
@@ -52,12 +60,17 @@ const getBaseURL = () => {
   return `${API_GATEWAY_BASE_URL}/api`;
 };
 
-const createApiClient = () =>
-  axios.create({
+const createApiClient = () => {
+  const token = getToken();
+  return axios.create({
     baseURL: getBaseURL(),
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
     timeout: 10000,
   });
+};
 
 const API_ENDPOINTS = {
   MATCH: "/matching/match",

@@ -1795,6 +1795,133 @@ GitHub Copilot (Claude Sonnet 4.5)
 
 # Date/Time:
 
+2025-10-28 11:00
+
+# Tool:
+
+ChatGPT (model: ChatGPT 5 thinking)
+
+# Prompt/Command:
+
+Request to create a utility script for generating public/private key pairs in JWK format for JWT signing and verification.
+
+# Output Summary:
+
+- Created generate-key.mjs utility script using jose library for JWK generation
+- Implemented RS256 algorithm with 2048-bit modulus length for RSA key pairs
+- Generated keys with extractable option enabled for export capabilities
+- Added unique kid (key ID) using crypto.randomUUID() for key identification
+- Set alg (algorithm) and use (signature) fields in JWK output
+- Exported both public and private keys in JWK format ready for .env configuration
+- Script outputs PUBLIC_JWK and PRIVATE_JWK as JSON strings for easy environment variable usage
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated correctness of JWK format and RS256 algorithm selection
+- Confirmed security: 2048-bit RSA key provides adequate security for JWT signing
+- Performance: Script generates keys quickly for development workflow
+- Keys can be directly copied to environment variables for JWT configuration
+
+---
+
+## Entry 49
+
+# Date/Time:
+
+2025-10-28 23:55
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4)
+
+# Prompt/Command:
+
+"check through my middleware an controller and make it use the private and public jwt instead of the og one"
+
+# Output Summary:
+
+- Updated auth-controller.js handleLogin to sign JWT tokens using PRIVATE_JWK instead of JWT_SECRET
+- Added jose library imports: importJWK and exportPKCS8 for JWK to PEM conversion
+- Implemented private key import from environment variable with extractable flag
+- Converted imported JWK to PEM format using exportPKCS8 for jsonwebtoken compatibility
+- Updated basic-access-control.js middleware to verify tokens using PUBLIC_JWK
+- Added exportSPKI import for public key PEM conversion
+- Implemented public key import and PEM conversion in verifyAccessToken middleware
+- Maintained RS256 algorithm specification in both signing and verification
+- Preserved existing token payload structure (id only) and 1-day expiration
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated asymmetric JWT flow: signing with PRIVATE_JWK, verification with PUBLIC_JWK
+- Confirmed jsonwebtoken library requires PEM format, not raw CryptoKey objects
+- Security: Separation of signing and verification keys allows services to verify without signing capability
+- Troubleshooting: Resolved "secretOrPrivateKey is not valid" and "CryptoKey is not extractable" errors
+- Performance: importJWK and PEM conversion add minimal overhead to JWT operations
+- Architecture: Enables distributed authentication where each service can verify tokens independently
+- Tested end-to-end: Token generation at login → Token verification in middleware → User authentication successful
+
+---
+
+## Entry 50
+
+# Date/Time:
+
+2025-10-29 16:30
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4)
+
+# Prompt/Command:
+
+"add middleware pasring on matching service all u need to do is to parse the jwt token and update the req.user and if not valid throw error put it in all th path" and "update matching controller so user it checks query params match the jwt parsed user id"
+
+# Output Summary:
+
+- Created middleware/auth.js in matching-service with verifyAccessToken function
+- Implemented JWT verification using PUBLIC_JWK from environment variables
+- Added jose library imports (importJWK, exportSPKI) for JWK to PEM conversion
+- Applied verifyAccessToken middleware to all routes in matching-routes.js
+- Added jsonwebtoken and jose dependencies to matching-service package.json
+- Updated matching-controller.js to validate userId in params/body matches authenticated user ID
+- Added authorization checks in startMatch, terminateMatch, checkStatus, and endSession endpoints
+- Returns 403 Forbidden error when users attempt to access other users' resources
+- Extracts user ID from JWT token and stores in req.user for controller access
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated JWT verification middleware follows same pattern as user-service
+- Security: Prevents users from starting matches, terminating, or checking status for other users
+- Confirmed PUBLIC_JWK is already configured in matching-service .env files
+- Tested middleware integration: All routes now require valid JWT tokens
+- Authorization layer ensures userId from JWT matches userId in request parameters
+- Maintains consistency across microservices for authentication architecture
+- Successfully installed jose and jsonwebtoken packages via npm install
+
+---
+
+## Entry 51
+
+# Date/Time:
+
 2025-10-22 17:40
 
 # Tool:
@@ -1824,7 +1951,7 @@ Request to implement Alert Dialog from radix-ui
 
 ---
 
-## Entry 49
+## Entry 52
 
 # Date/Time:
 
@@ -1852,5 +1979,36 @@ Request on sample code on how to use redish hash to store session data
 
 - Verified online on naming convention for redish hash key
 - Modified how timestamp fields are stored
+
+---
+
+## Entry 53
+
+# Date/Time:
+
+2025-10-31 10:44
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Singleton class to manage websocket connection for client frontend
+
+# Output Summary:
+
+- Provided boilerplate code for singleton class
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Verified that instance methods are appropriate
+- Modified instance methods to fit use case
 
 ---
