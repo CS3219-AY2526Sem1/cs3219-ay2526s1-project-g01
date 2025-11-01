@@ -10,11 +10,13 @@ import { editorWebSocketManager } from "@/services/editorSocketManager";
 import { getToken } from "@/services/userServiceCookies";
 import DisconnectAlertDialog from "@/components/ui/alert-dialog";
 import { getUserSessionStatus } from "@/services/collabServiceApi";
-
+import NotAuthorizedDialog from "@/components/ui/not-authorised-dialog";
 export default function MatchPage() {
   const [difficulty, setDifficulty] = useState<string[]>([]);
   const [topics, setTopics] = useState<string[]>([]);
   const [showRejoinRoomDialog, setshowRejoinRoomDialog] =
+    useState<boolean>(false);
+  const [showConnectionErrorDialog, setShowConnectionErrorDialog] =
     useState<boolean>(false);
   const { user, setUser } = useUser();
   const router = useRouter();
@@ -40,8 +42,7 @@ export default function MatchPage() {
       const wsBaseUrl =
         process.env.NEXT_PUBLIC_COLLAB_WS_URL || "ws://localhost/collab-socket";
       const jwt = getToken() || "";
-      // const wsUrl = `${wsBaseUrl}/?token=${encodeURIComponent(jwt)}&sessionId=${sessionId}`;
-      const wsUrl = `${wsBaseUrl}/?token=${user?.id}&sessionId=${sessionId}`;
+      const wsUrl = `${wsBaseUrl}/?token=${encodeURIComponent(jwt)}&sessionId=${sessionId}`;
       const socket = editorWebSocketManager.connect(wsUrl);
 
       socket.onopen = () => {
@@ -51,6 +52,10 @@ export default function MatchPage() {
 
       socket.onclose = () => {
         console.log("Socket connection closed");
+        if (status === "active") {
+          setShowConnectionErrorDialog(true);
+          setStatus("idle");
+        }
         editorWebSocketManager.close();
       };
     }
@@ -123,6 +128,13 @@ export default function MatchPage() {
         buttonTwoTitle={"No"}
         title={"You left an ongoing session"}
         description={"Do you want to join back the session?"}
+      />
+      <NotAuthorizedDialog
+        open={showConnectionErrorDialog}
+        onClose={() => setShowConnectionErrorDialog(false)}
+        title={"Unauthorized Access"}
+        description={"You don’t have permission to join this room."}
+        buttonName={"Back"}
       />
     </div>
   );

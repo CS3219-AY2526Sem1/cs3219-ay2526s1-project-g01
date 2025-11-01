@@ -12,6 +12,8 @@ import logger from "./utils/logger.js";
 import { loadAllSessionsFromRedis } from "./utils/sessionDataHandler.js";
 import { dbClient } from "./db/connection.js";
 import { roomToData } from "./webSocketServer.js";
+import jwt from "jsonwebtoken";
+import { importJWK, exportSPKI } from "jose";
 
 const port = process.env.PORT;
 const server = http.createServer(app);
@@ -28,31 +30,48 @@ async function startServer() {
   }
 }
 
-server.on("upgrade", (request, socket, head) => {
-  webSocketServer.handleUpgrade(request, socket, head, (ws) => {
-    webSocketServer.emit("connection", ws, request);
-  });
+server.on("upgrade", async (request, socket, head) => {
+  try {
+    const fullUrl = `ws://host${request.url}`;
+    const url = new URL(fullUrl);
+    const token = url.searchParams.get("token");
+    if (!token) {
+      throw new Error("No token provided");
+    }
+    // Parse the PUBLIC_JWK from environment variable
+    const publicJwk = JSON.parse(process.env.PUBLIC_JWK);
 
-  // try {
-  //   const token = request.url.split("token=")[1];
-  //   if (!token) throw new Error("No token provided");
+    // Import the JWK as a public key object with extractable flag
+    const publicKeyObject = await importJWK(publicJwk, publicJwk.alg, {
+      extractable: true,
+    });
 
-  //   // Verify JWT token
-  //   jwt.verify(token, 'your-secret-key', (err, decoded) => {
-  //     if (err) {
-  //       socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-  //       socket.destroy();
-  //       return;
-  //     }
+    // Convert to PEM format that jsonwebtoken library expects
+    const publicKeyPEM = await exportSPKI(publicKeyObject);
+    logger.info("part 3 ");
 
-  //     webSocketServer.handleUpgrade(request, socket, head, (ws) => {
-  //       ws.userId = decoded;
-  //       webSocketServer.emit("connection", ws, request);
-  //     });)
-  // } catch (error) {
-  //   socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
-  //   socket.destroy();
-  // }
+    // Verify the token using the public key in PEM format
+    jwt.verify(
+      token,
+      publicKeyPEM,
+      { algorithms: [publicJwk.alg] },
+      (err, decoded) => {
+        if (err) {
+          socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
+          socket.destroy();
+
+          return;
+        }
+
+        webSocketServer.handleUpgrade(request, socket, head, (ws) => {
+          ws.userId = decoded.id;
+          webSocketServer.emit("connection", ws, request);
+        });
+      }
+    );
+  } catch (error) {
+    socket.destroy();
+  }
 });
 
 startServer();
