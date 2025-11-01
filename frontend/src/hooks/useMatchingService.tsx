@@ -1,8 +1,16 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-02
+ * Purpose: To integrate question data retrieval and display in the collaboration page.
+ * Author Review: Verified correctness and functionality of the code.
+ */
+
 import { useState, useRef, useCallback, useEffect } from "react";
 import {
   startMatch,
   getMatchStatus,
   terminateMatch,
+  Question,
 } from "@/services/matchingServiceApi";
 import { toast } from "sonner";
 
@@ -13,6 +21,7 @@ export function useMatchingService(userId: string | undefined) {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [question, setQuestion] = useState<Question | null>(null);
   const pollingInterval = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -48,9 +57,11 @@ export function useMatchingService(userId: string | undefined) {
               }
             } else if (data.status === "active") {
               setStatus("active");
-              //For question integration on front end
-              //Change the MatchStatusResponse interface accordingly for the question fields
-              const question = data.question;
+              // Store the question data from the response
+              if (data.question) {
+                setQuestion(data.question);
+                console.log("Question data received:", data.question);
+              }
               console.log("frontend sets status to active");
               clearPolling();
             } else if (data.status === "idle") {
@@ -69,7 +80,7 @@ export function useMatchingService(userId: string | undefined) {
         }
       }, 1000);
     },
-    [clearPolling],
+    [clearPolling, sessionId],
   );
 
   const startMatching = useCallback(
@@ -129,6 +140,7 @@ export function useMatchingService(userId: string | undefined) {
     status,
     sessionId,
     timeRemaining,
+    question,
     startMatching,
     handleCancelSearch,
     clearPolling,

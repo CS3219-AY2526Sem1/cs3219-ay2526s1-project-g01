@@ -25,6 +25,7 @@ export default function MatchPage() {
     status,
     sessionId,
     timeRemaining,
+    question,
     startMatching,
     handleCancelSearch,
     clearPolling,
@@ -65,11 +66,15 @@ export default function MatchPage() {
   //Handles navigation to collab page and closing of socket connection when user leaves a session willingly
   useEffect(() => {
     if (status === "connected" && sessionId) {
+      // Store question data in sessionStorage for collab page
+      if (question) {
+        sessionStorage.setItem(`question_${sessionId}`, JSON.stringify(question));
+      }
       router.push(`/collab?sessionId=${sessionId}`);
     } else if (status === "idle" && editorWebSocketManager.getSocket()) {
       editorWebSocketManager.close();
     }
-  }, [status]);
+  }, [status, question, sessionId, router]);
 
   useEffect(() => {
     if (user?.id) {

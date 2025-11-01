@@ -2116,3 +2116,71 @@ similar to adding a new question. However the question id remains the same"
 - Modified functions added new topic during update, to only allow updates if the with preexisting topics and difficulties
 - Verified to ensure that all the endpoints work as intended after modifications
 
+
+
+## Entry 56
+
+# Date/Time:
+
+2025-11-02 05:00
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+I want to propagate the question data that matching received as a response from calling collab. I think I need to do a few things:
+
+Update the matchingServiceApi MatchStatusResponse question field to accomodate for JSON of the similar form to:
+question: {
+"id": 11,
+"title": "Sort by Frequency and Value",
+"difficulty": "medium",
+"description": "Given an array of integers, sort them by frequency in descending order. If two numbers have the same frequency, sort them by value in ascending order.",
+"question_constraints": "Array length: 1 ≤ n ≤ 1000; Array elements: -10^6 ≤ arr[i] ≤ 10^6",
+"topics": [
+{
+"id": 1,
+"topic": "sorting"
+}
+],
+"test_cases": [
+{
+"index": 1,
+"input": "[1, 1, 2, 2, 2, 3]",
+"output": "[2, 2, 2, 1, 1, 3]"
+},
+{
+"index": 2,
+"input": "[4, 5, 6, 5, 4, 3]",
+"output": "[4, 4, 5, 5, 3, 6]"
+}
+]
+}
+
+Doing this should extract the data correctly. Might need to log to verify. Then getMatchStatus's data return should include the question data now
+
+pollStatus const question will then be updated with the question in task 1. Then I want to propagate this change to reflect on the frontend, specifically using this data to replace the hardcoded data in QuestionComponent.tsx
+
+
+# Output Summary:
+
+- Updated MatchStatusResponse question field
+- Updated getMatchStatus to be able to return the full question
+- Updated pollStatus to also return question now
+- QuestionComponent.tsx hard coded data is replaced with the newly retrieved data
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Designed the general approach to integration
+- Validated that a question is sent from question service's existing questions
+- Validated that the question sent matches the criteria specified by both users
+
+---
