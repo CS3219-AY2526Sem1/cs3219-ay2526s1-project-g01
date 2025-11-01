@@ -21,11 +21,12 @@ interface User {
   id: string;
   username: string;
   email: string;
+  onEditor: boolean;
 }
 
 interface UserContextType {
   user: User | null;
-  setUser: (user: User | null) => void;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -65,6 +66,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 id: userData.id,
                 username: userData.username,
                 email: userData.email,
+                onEditor: false,
               });
             } else {
               console.log("User data incomplete:", userData);
