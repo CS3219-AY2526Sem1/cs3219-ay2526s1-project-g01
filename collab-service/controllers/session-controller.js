@@ -1,6 +1,6 @@
 import { SessionModel } from "../models/session-model.js";
 import { dbClient } from "../db/connection.js";
-import { roomToData } from "../webSocketServer.js";
+import { roomToData, userToRoom } from "../webSocketServer.js";
 import { saveLocalState } from "../utils/sessionDataHandler.js";
 import * as z from "zod";
 import * as Y from "yjs";
@@ -63,6 +63,14 @@ export async function createSession(req, res) {
       lastSavedAt: Date.now(),
       questionId: question.id,
     };
+    userToRoom.set(user1.userId, { sessionId, partner: user2.userId });
+    userToRoom.set(user2.userId, { sessionId, partner: user1.userId });
+    for (const [userId, value] of userToRoom.entries()) {
+      logger.info("entry in userToRoom");
+      logger.info(
+        `userId:, ${userId}, value.partner: ${value.partner} and value.sessionId ${value.sessionId}`
+      );
+    }
 
     roomToData.set(sessionId, sessionData);
     await saveLocalState(redisKey, dbClient, sessionData);
