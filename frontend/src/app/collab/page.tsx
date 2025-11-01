@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ChatComponent from "../components/collab/ChatComponent";
 import CodingComponentWrapper from "../components/collab/CodingComponentWrapper";
 import QuestionComponent from "../components/collab/QuestionComponent";
@@ -9,24 +9,38 @@ import { useSearchParams, useRouter } from "next/navigation";
 import DisconnectAlertDialog from "@/components/ui/alert-dialog";
 import { useUser } from "@/contexts/UserContext";
 import { endSession } from "@/services/matchingServiceApi";
+import { editorWebSocketManager } from "@/services/editorSocketManager";
+import { deleteSession } from "@/services/collabServiceApi";
 
 export default function CollabPage() {
   const searchParams = useSearchParams();
   const [showConfirmationAlert, setshowConfirmationAlert] =
     useState<boolean>(false);
-  const sessionId: string = searchParams.get("sessionId") || "123";
+  const [showLoadingDialog, setShowLoadingDialog] = useState<boolean>(true);
+  const [checkingConnection, setCheckingConnection] = useState<boolean>(true);
   const router = useRouter();
-  const { user } = useUser();
-
+  const { user, setUser } = useUser();
   async function directToMatch() {
     if (user?.id) {
       try {
         await endSession(user.id);
+        await deleteSession(user.id);
       } catch (error) {
         console.error("Failed to end session:", error);
       }
     }
     router.replace("/match");
+  }
+
+  useEffect(() => {
+    if (!editorWebSocketManager.getSocket()) {
+      router.replace("/match");
+    } else {
+      setCheckingConnection(false);
+    }
+  }, []);
+  if (checkingConnection) {
+    return <div className="bg-stone-900 h-screen" />;
   }
 
   return (
@@ -43,7 +57,10 @@ export default function CollabPage() {
         </div>
 
         <div className="flex-[2]">
-          <CodingComponentWrapper sessionId={sessionId} />
+          <CodingComponentWrapper
+            isOpen={showLoadingDialog}
+            closeDialog={() => setShowLoadingDialog(false)}
+          />
         </div>
 
         <div className="flex-1 p-5">
