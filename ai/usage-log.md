@@ -922,7 +922,7 @@ Request information on how to create custom cursors and send cursor information 
 - Researched on deltaDecorations suggested by model and decided that it was not appropriate as its a legacy api, searched online for more suitable modules and implemented cursor binding using IEditorDecorationsCollection instead.
 - Implemented communication logic using websockets myself, only using model for debugging.
 
---- 
+---
 
 ## Entry 26
 
@@ -1012,7 +1012,6 @@ Github Copilot (GPT-5 mini)
 
 "Help me to generate the routes, controller and model for my existing question-service"
 
-
 # Output Summary:
 
 - Generated a rough folder structure and some boilerplate code
@@ -1022,12 +1021,6 @@ Github Copilot (GPT-5 mini)
 - [ ] Accepted as-is
 - [x] Modified
 - [ ] Rejected
-
-# Author Notes:
-
-# Output Summary:
-
-- Generated a rough folder structure and some boilerplate code
 
 # Author Notes:
 
@@ -1089,35 +1082,35 @@ Start the question id from 31 onwards, as I already have questions before that i
 
 -- Questions table (one difficulty per question)
 CREATE TABLE questions (
-    id SERIAL,
-    title TEXT NOT NULL UNIQUE,
-    difficulty TEXT CHECK (difficulty IN ('easy', 'medium', 'hard')) NOT NULL,
-    description TEXT NOT NULL,
-    constraints TEXT,
-	PRIMARY KEY (id)
+id SERIAL,
+title TEXT NOT NULL UNIQUE,
+difficulty TEXT CHECK (difficulty IN ('easy', 'medium', 'hard')) NOT NULL,
+description TEXT NOT NULL,
+constraints TEXT,
+PRIMARY KEY (id)
 );
 
 -- Topics table (many topics per question)
 CREATE TABLE topics (
-    id SERIAL,
-    name TEXT NOT NULL UNIQUE,
-	PRIMARY KEY (id)
+id SERIAL,
+name TEXT NOT NULL UNIQUE,
+PRIMARY KEY (id)
 );
 
 -- Link table: question ↔ topic (many-to-many)
 CREATE TABLE question_topics (
-    question_id INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
-    topic_id INT NOT NULL REFERENCES topics(id) ON DELETE CASCADE,
-    PRIMARY KEY (question_id, topic_id)
+question_id INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+topic_id INT NOT NULL REFERENCES topics(id) ON DELETE CASCADE,
+PRIMARY KEY (question_id, topic_id)
 );
 
 -- Test cases table
 CREATE TABLE test_cases (
-    question_id INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
-    index INTEGER NOT NULL,
-    input TEXT NOT NULL,
-    output TEXT NOT NULL,
-    PRIMARY KEY (question_id, index)
+question_id INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+index INTEGER NOT NULL,
+input TEXT NOT NULL,
+output TEXT NOT NULL,
+PRIMARY KEY (question_id, index)
 );
 "
 
@@ -1143,7 +1136,6 @@ CREATE TABLE test_cases (
 
 # Date/Time:
 
-
 2025-10-21 01:30
 
 # Tool:
@@ -1158,7 +1150,6 @@ ChatGPT (model: ChatGPT 5 thinking)
 - Implemented proper error handling and timeout management
 - Added support for STARTTLS upgrade and multiple MX host attempts
 - Included detailed JSDoc documentation for all functions
-
 
 # Action Taken:
 
@@ -1274,7 +1265,6 @@ To create a password reset model similar to user verification model with proper 
 - Validated schema structure follows MongoDB best practices with proper indexing
 - Ensured token expiration prevents stale reset links
 - Maintained consistency with existing verification model patterns
-
 
 ---
 
@@ -1932,6 +1922,101 @@ GitHub Copilot (model: Claude Sonnet 4)
 
 # Date/Time:
 
+2025-10-22 17:40
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Request to implement Alert Dialog from radix-ui
+
+# Output Summary:
+
+- Created an alert-dialog component that has two buttons with appropriate TailWindCSS styling
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that logic implemented for buttons works
+- Modified css styling to suit overall aesthetic of application
+- Modified component to make it reusable
+- Tested that alert dialog box works as intended
+
+---
+
+## Entry 52
+
+# Date/Time:
+
+2025-10-29 09:50
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Request on sample code on how to use redish hash to store session data
+
+# Output Summary:
+
+- Provided explanation on how redis hash works and sample code to create a redish hash from ydoc, hashset and number fields.
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Verified online on naming convention for redish hash key
+- Modified how timestamp fields are stored
+
+---
+
+## Entry 53
+
+# Date/Time:
+
+2025-10-31 10:44
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Singleton class to manage websocket connection for client frontend
+
+# Output Summary:
+
+- Provided boilerplate code for singleton class
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Verified that instance methods are appropriate
+- Modified instance methods to fit use case
+
+---
+
+## Entry 54
+
+# Date/Time:
+
 2025-10-29 06:15
 
 # Tool:
@@ -1960,6 +2045,7 @@ similar to adding a new question. However the question id remains the same"
 - [ ] Rejected
 
 # Author Notes:
+
 - Modified controller function incrementally to ensure more checks are done, as there were errors in testing
 - Modified functions added new topic during update, to only allow updates if the with preexisting topics and difficulties
 - Verified to ensure that all the endpoints work as intended after modifications

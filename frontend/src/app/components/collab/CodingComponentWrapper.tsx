@@ -10,8 +10,16 @@
 
 import dynamic from "next/dynamic";
 
-const CodingComponentWrapper = dynamic(() => import("./CodingComponent"), {
+const CodingComponent = dynamic(() => import("./CodingComponent"), {
   ssr: false,
 });
 
-export default CodingComponentWrapper;
+export default function CodingComponentWrapper({
+  isOpen,
+  closeDialog,
+}: {
+  isOpen: boolean;
+  closeDialog: () => void;
+}) {
+  return <CodingComponent isOpen={isOpen} closeDialog={closeDialog} />;
+}

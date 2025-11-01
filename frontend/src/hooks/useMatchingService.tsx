@@ -7,9 +7,9 @@ import {
 import { toast } from "sonner";
 
 export function useMatchingService(userId: string | undefined) {
-  const [status, setStatus] = useState<"idle" | "searching" | "matched">(
-    "idle",
-  );
+  const [status, setStatus] = useState<
+    "idle" | "searching" | "matched" | "active" | "connected"
+  >("idle");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -36,18 +36,28 @@ export function useMatchingService(userId: string | undefined) {
           const data = await getMatchStatus(uid);
           if (data.success) {
             if (data.status === "matched") {
-              clearPolling();
-              setSessionId(data.sessionId!);
-              setStatus("matched");
+              if (!sessionId) {
+                setSessionId(data.sessionId!);
+                setStatus("matched");
+                console.log("frontend sets status to matched");
+                setTimeRemaining(0);
+              }
             } else if (data.status === "searching") {
               if (data.remainingTime !== undefined) {
                 setTimeRemaining(Math.ceil(data.remainingTime / 1000));
               }
+            } else if (data.status === "active") {
+              setStatus("active");
+              //For question integration on front end
+              //Change the MatchStatusResponse interface accordingly for the question fields
+              const question = data.question;
+              console.log("frontend sets status to active");
+              clearPolling();
             } else if (data.status === "idle") {
               clearPolling();
               setStatus("idle");
               setErrorMessage(
-                "No match found within 5 minutes. Please try again with different criteria.",
+                "No match found within 5 minutes. Please try again with different criteria."
               );
             }
           }
@@ -59,7 +69,7 @@ export function useMatchingService(userId: string | undefined) {
         }
       }, 1000);
     },
-    [clearPolling],
+    [clearPolling]
   );
 
   const startMatching = useCallback(
@@ -78,12 +88,17 @@ export function useMatchingService(userId: string | undefined) {
 
       try {
         const data = await startMatch({ userId, username, difficulty, topics });
-        if (data.success && data.matchFound) {
+        if (
+          data.success &&
+          data.matchFound &&
+          data.matchData?.status == "matched"
+        ) {
           setSessionId(data.sessionId!);
           setStatus("matched");
-        } else {
-          pollStatus(userId);
         }
+
+        //Note that both users will poll matching service, user1 poll for matched and subsequently active status and user 2 for active status
+        pollStatus(userId);
       } catch (err: unknown) {
         console.error("Error starting match:", err);
         const errorMsg =
@@ -93,7 +108,7 @@ export function useMatchingService(userId: string | undefined) {
         setStatus("idle");
       }
     },
-    [userId, pollStatus],
+    [userId, pollStatus]
   );
 
   const handleCancelSearch = useCallback(async () => {
@@ -117,5 +132,7 @@ export function useMatchingService(userId: string | undefined) {
     startMatching,
     handleCancelSearch,
     clearPolling,
+    setStatus,
+    setSessionId,
   };
 }
