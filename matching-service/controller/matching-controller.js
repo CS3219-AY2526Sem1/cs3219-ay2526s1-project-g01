@@ -1,3 +1,10 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: GitHub Copilot (model: Claude Sonnet 4), date: 2025-10-29
+ * Purpose: To add JWT user ID validation in matching controller to ensure users can only access their own resources.
+ * Author Review: I validated correctness, security, and performance of the code.
+ */
+
 const matchingService = require("../services/matching-service");
 
 exports.startMatch = async (req, res) => {
@@ -8,6 +15,14 @@ exports.startMatch = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Missing required fields: userId, difficulty, topics",
+      });
+    }
+
+    // Verify userId matches authenticated user
+    if (userId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        error: "Forbidden: Cannot start match for another user",
       });
     }
 
@@ -50,6 +65,14 @@ exports.terminateMatch = async (req, res) => {
       });
     }
 
+    // Verify userId matches authenticated user
+    if (userId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        error: "Forbidden: Cannot terminate match for another user",
+      });
+    }
+
     const result = await matchingService.terminateUser(userId);
 
     res.status(200).json({
@@ -73,6 +96,14 @@ exports.checkStatus = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Missing userId parameter",
+      });
+    }
+
+    // Verify userId matches authenticated user
+    if (userId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        error: "Forbidden: Cannot check status for another user",
       });
     }
 
@@ -132,6 +163,14 @@ exports.endSession = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Missing userId parameter",
+      });
+    }
+
+    // Verify userId matches authenticated user
+    if (userId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        error: "Forbidden: Cannot end session for another user",
       });
     }
 
