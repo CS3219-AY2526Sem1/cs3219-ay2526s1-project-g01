@@ -14,7 +14,9 @@ interface QuestionComponentProps {
   question?: Question | null;
 }
 
-export default function QuestionComponent({ question }: QuestionComponentProps) {
+export default function QuestionComponent({
+  question,
+}: QuestionComponentProps) {
   // If no question data, show loading or placeholder
   if (!question) {
     return (
@@ -23,9 +25,7 @@ export default function QuestionComponent({ question }: QuestionComponentProps) 
           <CardTitle className="text-white text-4xl">Loading...</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col flex-1">
-          <div className="flex-1 text-white">
-            Fetching question details...
-          </div>
+          <div className="flex-1 text-white">Fetching question details...</div>
         </CardContent>
       </Card>
     );
@@ -47,7 +47,8 @@ export default function QuestionComponent({ question }: QuestionComponentProps) 
         <CardTitle className="text-white text-4xl">{question.title}</CardTitle>
         <div className="flex pt-5 items-start gap-2">
           <Badge className={getDifficultyBadge(question.difficulty)}>
-            {question.difficulty.charAt(0).toUpperCase() + question.difficulty.slice(1)}
+            {question.difficulty.charAt(0).toUpperCase() +
+              question.difficulty.slice(1)}
           </Badge>
           {question.topics.map((topic) => (
             <Badge key={topic.id} variant="outline" className="text-white">
@@ -68,7 +69,10 @@ export default function QuestionComponent({ question }: QuestionComponentProps) 
         <div className="flex-1 mb-5">
           <h3 className="font-semibold text-white mb-2">Examples</h3>
           {question.test_cases.map((testCase) => (
-            <div key={testCase.index} className="mb-3 p-3 bg-black text-white rounded-lg text-sm">
+            <div
+              key={testCase.index}
+              className="mb-3 p-3 bg-black text-white rounded-lg text-sm"
+            >
               <p className="mb-1">
                 <span className="font-semibold">Example {testCase.index}:</span>
               </p>
