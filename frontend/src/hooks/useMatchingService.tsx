@@ -68,22 +68,27 @@ export function useMatchingService(userId: string | undefined) {
             } else if (data.status === "failed") {
               // Session creation failed (e.g., no questions available)
               clearPolling();
-              
+
               // Show detailed error message
-              const errorMsg = data.errorMessage || "Failed to create session. Please try again.";
+              const errorMsg =
+                data.errorMessage ||
+                "Failed to create session. Please try again.";
               setErrorMessage(errorMsg);
               console.error("Session creation failed:", data.error);
-              
+
               // Clean up the failed session for this user
               if (userId) {
                 try {
                   await endSession(userId);
                   console.log("Cleaned up failed session");
                 } catch (cleanupErr) {
-                  console.error("Error cleaning up failed session:", cleanupErr);
+                  console.error(
+                    "Error cleaning up failed session:",
+                    cleanupErr,
+                  );
                 }
               }
-              
+
               // Reset state to idle after cleanup
               setStatus("idle");
               setSessionId(null);

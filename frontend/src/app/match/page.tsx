@@ -68,7 +68,10 @@ export default function MatchPage() {
     if (status === "connected" && sessionId) {
       // Store question data in sessionStorage for collab page
       if (question) {
-        sessionStorage.setItem(`question_${sessionId}`, JSON.stringify(question));
+        sessionStorage.setItem(
+          `question_${sessionId}`,
+          JSON.stringify(question),
+        );
       }
       router.push(`/collab?sessionId=${sessionId}`);
     } else if (status === "idle" && editorWebSocketManager.getSocket()) {

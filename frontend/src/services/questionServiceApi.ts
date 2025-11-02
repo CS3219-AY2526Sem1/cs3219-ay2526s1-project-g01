@@ -47,9 +47,13 @@ export const fetchTopics = async (): Promise<string[]> => {
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error("Failed to fetch topics:", error.response?.data || error.message);
+      console.error(
+        "Failed to fetch topics:",
+        error.response?.data || error.message,
+      );
       throw new Error(
-        error.response?.data?.message || "Failed to fetch topics from question service"
+        error.response?.data?.message ||
+          "Failed to fetch topics from question service",
       );
     }
     throw error;
