@@ -2116,9 +2116,9 @@ similar to adding a new question. However the question id remains the same"
 - Modified functions added new topic during update, to only allow updates if the with preexisting topics and difficulties
 - Verified to ensure that all the endpoints work as intended after modifications
 
+---
 
-
-## Entry 56
+## Entry 57
 
 # Date/Time:
 
@@ -2182,5 +2182,70 @@ pollStatus const question will then be updated with the question in task 1. Then
 - Designed the general approach to integration
 - Validated that a question is sent from question service's existing questions
 - Validated that the question sent matches the criteria specified by both users
+
+---
+
+## Entry 58
+
+# Date/Time:
+
+2025-11-03 03:00
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Give code to so that during the matching topic and difficulty selection, users can only see and select live topics available from the question-service. Help me to also capitalise the first letter of each word for the topics returned. Topics rendered should be of equal size, dynamic to changes in screen size.
+
+# Output Summary:
+
+- Added useEffect in TopicsComponent to fetch available topics from question service.
+- Added a capitlize function
+- Replaced flex flex-wrap with grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))]
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that matching page displays the actual topics available in question service
+- Validated that if a new topic is added to quesiton service, a refresh of the matching page will reflect the new topic
+
+---
+
+## Entry 59
+
+# Date/Time:
+
+2025-11-03 04:00
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+When user 1 clicks search for a specified difficulty and topic, and when user 2 clicks search for the same difficulty and topic after user 1, user 1 gets the correct error message that the topic + difficulty specified has no such question in question service. But user 2 gets a timedout message, which is wrong since 5 minutes has not passed. Help me to reflect the correct error message for both users.
+
+# Output Summary:
+
+- Modified checkStatus(), removed immediate cleanup when "failed" status is detected, and returns "failed" status without deleting session
+- Modified "failed" status handling: When user receives "failed" status, it shows error message to user, calls endSession(userId) to clean up their side of the session
+Resets to idle state, thereby cleaning up independently when they see the error
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that error message is the same for both users
 
 ---

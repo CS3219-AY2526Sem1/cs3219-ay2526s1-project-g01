@@ -48,8 +48,18 @@ export async function createSession(req, res) {
       
       if (!questionData.data || questionData.data.length === 0) {
         logger.error("No questions match the specified criteria");
+        
+        // Format the criteria for user-friendly display
+        const difficultyText = criteria.difficulty.join(", ");
+        const topicsText = criteria.topics.join(", ");
+        
         return res.status(404).json({
           error: "No questions match the specified criteria",
+          message: `No questions available for the selected criteria: Difficulty [${difficultyText}] and Topics [${topicsText}]`,
+          criteria: {
+            difficulty: criteria.difficulty,
+            topics: criteria.topics
+          }
         });
       }
 

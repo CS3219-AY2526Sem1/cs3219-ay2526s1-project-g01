@@ -6,7 +6,7 @@
  */
 /**
  * AI Assistance Disclosure:
- * Tool: Claude Sonnet 4.5, date: 2025-11-02
+ * Tool: Claude Sonnet 4.5, date: 2025-11-03
  * Purpose: To integrate question data retrieval and display in the collaboration page.
  * Author Review: Verified correctness and functionality of the code.
  */
@@ -63,7 +63,7 @@ export interface Question {
 
 export interface MatchStatusResponse {
   success: boolean;
-  status: "idle" | "searching" | "matched" | "active";
+  status: "idle" | "searching" | "matched" | "active" | "failed";
   sessionId?: string;
   elapsedTime?: number;
   remainingTime?: number;
@@ -72,6 +72,12 @@ export interface MatchStatusResponse {
     topics: string[];
   };
   question?: Question;
+  error?: string;
+  errorMessage?: string;
+  errorDetails?: {
+    difficulty: string[];
+    topics: string[];
+  };
 }
 
 export interface TerminateResponse {

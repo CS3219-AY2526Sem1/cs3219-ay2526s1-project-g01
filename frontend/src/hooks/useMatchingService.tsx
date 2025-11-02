@@ -1,6 +1,6 @@
 /**
  * AI Assistance Disclosure:
- * Tool: Claude Sonnet 4.5, date: 2025-11-02
+ * Tool: Claude Sonnet 4.5, date: 2025-11-03
  * Purpose: To integrate question data retrieval and display in the collaboration page.
  * Author Review: Verified correctness and functionality of the code.
  */
@@ -10,6 +10,7 @@ import {
   startMatch,
   getMatchStatus,
   terminateMatch,
+  endSession,
   Question,
 } from "@/services/matchingServiceApi";
 import { toast } from "sonner";
@@ -26,7 +27,7 @@ export function useMatchingService(userId: string | undefined) {
 
   useEffect(() => {
     if (errorMessage) {
-      toast.error(errorMessage);
+      toast.error(errorMessage, { duration: 6000 });
     }
     setErrorMessage(null);
   }, [errorMessage]);
@@ -64,6 +65,29 @@ export function useMatchingService(userId: string | undefined) {
               }
               console.log("frontend sets status to active");
               clearPolling();
+            } else if (data.status === "failed") {
+              // Session creation failed (e.g., no questions available)
+              clearPolling();
+              
+              // Show detailed error message
+              const errorMsg = data.errorMessage || "Failed to create session. Please try again.";
+              setErrorMessage(errorMsg);
+              console.error("Session creation failed:", data.error);
+              
+              // Clean up the failed session for this user
+              if (userId) {
+                try {
+                  await endSession(userId);
+                  console.log("Cleaned up failed session");
+                } catch (cleanupErr) {
+                  console.error("Error cleaning up failed session:", cleanupErr);
+                }
+              }
+              
+              // Reset state to idle after cleanup
+              setStatus("idle");
+              setSessionId(null);
+              setTimeRemaining(null);
             } else if (data.status === "idle") {
               clearPolling();
               setStatus("idle");

@@ -1,3 +1,10 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-03
+ * Purpose: To integrate question data retrieval and display in the collaboration page.
+ * Author Review: Verified correctness and functionality of the code.
+ */
+
 require("dotenv").config();
 
 const redisClient = require("../utils/redisClient");
@@ -265,12 +272,26 @@ class MatchingService {
           status: matchData.status,
           sessionId,
         };
+        
         if (matchData.status === "active") {
           response = {
             question: matchData.question,
             ...response,
           };
+        } else if (matchData.status === "failed") {
+          // Session creation failed, return error but keep session temporarily
+          // so both users can see the error before it's cleaned up
+          response = {
+            status: "failed",
+            error: matchData.error,
+            errorMessage: matchData.errorMessage,
+            errorDetails: matchData.errorDetails,
+          };
+          
+          // Don't clean up immediately - let Redis TTL expire it naturally
+          // This ensures both users see the error even if they poll at different times
         }
+        
         return response;
       }
 
@@ -353,6 +374,24 @@ class MatchingService {
     }
   }
 
+  // Clean up failed session for both users
+  async cleanupFailedSession(sessionId, matchData) {
+    try {
+      // Remove session and user mappings
+      await redisClient.del(`${this.SESSION_PREFIX}${sessionId}`);
+      await redisClient.del(
+        `${this.USER_SESSION_PREFIX}${matchData.user1.userId}`
+      );
+      await redisClient.del(
+        `${this.USER_SESSION_PREFIX}${matchData.user2.userId}`
+      );
+      
+      console.log(`[FAILED SESSION CLEANUP] ${sessionId} - Both users cleaned up`);
+    } catch (error) {
+      console.error("[CLEANUP FAILED SESSION ERROR]:", error);
+    }
+  }
+
   //create a session in collab service
   async triggerRoomCreation(matchData) {
     try {
@@ -383,13 +422,55 @@ class MatchingService {
           3600,
           JSON.stringify(updatedMatch)
         );
-        console.log("Created room successuflly");
+        console.log("Created room successfully");
       } else {
-        //TODO: handle failures from collab service
+        // Handle failures from collab service (e.g., no questions available)
         console.error(`Failed to create room for ${matchData.sessionId}`);
+        
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (e) {
+          errorData = { error: "Unknown error", message: "Failed to create session" };
+        }
+
+        // Store error in session data so both users can be notified
+        const errorMatch = {
+          ...matchData,
+          status: "failed",
+          error: errorData.error || "Failed to create session",
+          errorMessage: errorData.message || "Unable to create a collaboration session. Please try different criteria.",
+          errorDetails: errorData.criteria || null,
+        };
+        
+        await redisClient.setEx(
+          `${this.SESSION_PREFIX}${matchData.sessionId}`,
+          300, // 5 minutes expiry for error state
+          JSON.stringify(errorMatch)
+        );
+        
+        console.log(`[SESSION CREATION FAILED] ${matchData.sessionId} - Error: ${errorData.error}`);
       }
     } catch (err) {
       console.error("Error in creating session room", err);
+      
+      // Store error in session data
+      try {
+        const errorMatch = {
+          ...matchData,
+          status: "failed",
+          error: "Connection error",
+          errorMessage: "Unable to connect to collaboration service. Please try again.",
+        };
+        
+        await redisClient.setEx(
+          `${this.SESSION_PREFIX}${matchData.sessionId}`,
+          300,
+          JSON.stringify(errorMatch)
+        );
+      } catch (redisErr) {
+        console.error("Failed to store error state in Redis", redisErr);
+      }
     }
   }
 
