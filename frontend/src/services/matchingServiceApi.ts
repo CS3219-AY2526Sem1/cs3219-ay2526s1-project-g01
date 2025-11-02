@@ -36,13 +36,17 @@ export interface MatchResponse {
 
 export interface MatchStatusResponse {
   success: boolean;
-  status: "idle" | "searching" | "matched";
+  status: "idle" | "searching" | "matched" | "active";
   sessionId?: string;
   elapsedTime?: number;
   remainingTime?: number;
   criteria?: {
     difficulty: string[];
     topics: string[];
+  };
+  question?: {
+    id: string;
+    title: string;
   };
 }
 
