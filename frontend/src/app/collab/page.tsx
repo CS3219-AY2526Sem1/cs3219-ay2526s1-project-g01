@@ -44,7 +44,7 @@ export default function CollabPage() {
       return;
     }
     const navEntries = performance.getEntriesByType(
-      "navigation"
+      "navigation",
     ) as PerformanceNavigationTiming[];
     if (navEntries.length > 0 && navEntries[0].type === "reload") {
       hasReloaded = true;
