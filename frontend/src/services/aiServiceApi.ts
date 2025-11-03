@@ -7,11 +7,11 @@
 
 /**
  * AI Service API Client
- * Handles communication with the AI service backend
+ * Handles communication with the AI service backend through API Gateway
  */
 
-const AI_SERVICE_URL =
-  process.env.NEXT_PUBLIC_AI_SERVICE_URL || "http://localhost:8086";
+const API_GATEWAY_URL =
+  process.env.NEXT_PUBLIC_API_GATEWAY_BASE_URL || "http://localhost";
 
 export interface ChatMessage {
   role: "user" | "assistant";
@@ -44,7 +44,7 @@ export async function sendAiChatMessage(
   request: ChatRequest,
 ): Promise<ChatResponse> {
   try {
-    const response = await fetch(`${AI_SERVICE_URL}/api/ai/chat`, {
+    const response = await fetch(`${API_GATEWAY_URL}/api/ai/chat`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
