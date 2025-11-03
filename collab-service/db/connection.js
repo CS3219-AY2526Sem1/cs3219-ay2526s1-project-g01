@@ -2,16 +2,20 @@ import { createClient } from "redis";
 import "dotenv/config";
 import logger from "../utils/logger.js";
 
-const REDIS_HOST = process.env.REDIS_HOST;
-const REDIS_DB = process.env.REDIS_DB;
-const REDIS_PORT = process.env.REDIS_PORT;
-
 const dbClient = createClient({
+  url: process.env.REDIS_HOST || "redis://redis-collab-service:6379",
   socket: {
-    host: REDIS_HOST,
-    port: REDIS_PORT,
+    reconnectStrategy: (retries) => {
+      if (retries > 10) {
+        console.error("[REDIS] Max reconnection attempts reached");
+        return new Error("Max reconnection attempts reached");
+      }
+      const delay = Math.min(retries * 100, 3000);
+      console.log(`[REDIS] Reconnecting in ${delay}ms... (attempt ${retries})`);
+      return delay;
+    },
+    connectTimeout: 10000,
   },
-  database: REDIS_DB,
 });
 
 dbClient.on("error", (err) => console.log("Redis Client Error", err));
