@@ -33,8 +33,8 @@ export default function NotAuthorizedDialog({
   buttonName,
 }: NotAuthorizedDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md rounded-2xl shadow-lg">
+    <Dialog open={open}>
+      <DialogContent className="sm:max-w-md rounded-2xl shadow-lg [&>button]:hidden">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-red-600">
             {title}
