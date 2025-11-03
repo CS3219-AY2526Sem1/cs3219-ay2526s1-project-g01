@@ -47,11 +47,10 @@ export default function ChatComponent() {
 
     const initializeConnection = async () => {
       try {
-
         const res = await fetch("/api/turn");
         const iceServers = await res.json();
-        console.log("ICE SERVERS FETCHED")
-        
+        console.log("ICE SERVERS FETCHED");
+
         // Create peer connection
         const pc = new RTCPeerConnection({ iceServers });
         connectionRef.current = pc;

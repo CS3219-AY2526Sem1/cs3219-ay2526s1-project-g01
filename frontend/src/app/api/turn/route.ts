@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
   try {
     const response = await fetch(
-      `https://peerprep-communication.metered.live/api/v1/turn/credentials?apiKey=${process.env.METERED_API_KEY}`
+      `https://peerprep-communication.metered.live/api/v1/turn/credentials?apiKey=${process.env.METERED_API_KEY}`,
     );
 
     const iceServers = await response.json();
@@ -18,6 +18,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(iceServers);
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
