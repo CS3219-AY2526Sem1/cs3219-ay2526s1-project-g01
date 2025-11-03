@@ -31,9 +31,11 @@ import {
 export default function CodingComponent({
   isOpen,
   closeDialog,
+  onLeave,
 }: {
   isOpen: boolean;
   closeDialog: () => void;
+  onLeave: () => void;
 }) {
   const [codeContent, setCodeContent] = useState<string>("");
   const [showDisconnectAlert, setshowDisconnectAlert] =
@@ -178,7 +180,7 @@ export default function CodingComponent({
         <DisconnectAlertDialog
           open={showDisconnectAlert}
           onAccept={() => setshowDisconnectAlert(false)}
-          onReject={() => router.replace("/match")}
+          onReject={() => onLeave()}
           buttonOneTitle="Continue"
           buttonTwoTitle="Leave"
           title="Your partner has disconnected"
