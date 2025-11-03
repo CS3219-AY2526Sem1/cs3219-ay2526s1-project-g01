@@ -24,14 +24,6 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED=1
 
-# Accept build arguments for Next.js public environment variables
-ARG NEXT_PUBLIC_API_GATEWAY_BASE_URL
-ARG NEXT_PUBLIC_USER_SERVICE_URL
-
-# Set them as environment variables during build
-ENV NEXT_PUBLIC_API_GATEWAY_BASE_URL=$NEXT_PUBLIC_API_GATEWAY_BASE_URL
-ENV NEXT_PUBLIC_USER_SERVICE_URL=$NEXT_PUBLIC_USER_SERVICE_URL
-
 ENV NEXT_PRIVATE_STANDALONE=true
 RUN npm run build
 
