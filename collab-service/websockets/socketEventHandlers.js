@@ -35,13 +35,16 @@ import logger from "../utils/logger.js";
 // }
 
 //Handles syncing of code editor with most updated changes by sending the difference to client
-function handleInitialDocSync(message, ws, ydoc) {
+function handleInitialDocSync(message, ws, ydoc, wss, sessionId) {
   const text = message.toString();
   if (text.startsWith("{")) {
     const data = JSON.parse(text);
     if (data.type === "sync") {
       const initialState = Buffer.from(data.ydocState, "base64");
       const update = Y.encodeStateAsUpdate(ydoc, initialState);
+      Y.applyUpdate(ydoc, update);
+
+      broadcastToRoom(wss, ws, sessionId, update);
       const updateAsString = Buffer.from(update).toString("base64");
       const payload = {
         type: "sync",

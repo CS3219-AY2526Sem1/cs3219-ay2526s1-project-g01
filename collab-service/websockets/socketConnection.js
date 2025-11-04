@@ -52,7 +52,7 @@ async function initialiseWebSocket(wss, ws, request, redisDb, roomToDataMap) {
       return;
     }
 
-    if (handleInitialDocSync(update, ws, doc)) {
+    if (handleInitialDocSync(update, ws, doc, wss, sessionId)) {
       return;
     }
 
