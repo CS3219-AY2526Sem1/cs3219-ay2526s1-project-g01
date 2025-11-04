@@ -1798,3 +1798,259 @@ GitHub Copilot (Claude Sonnet 4.5)
 - Reviewed the current UI code and provided actionable improvements.
 - Compiled a list of free stock image sources that do not require attribution.
 - Recommended best practices for interactive and visually readable UI.
+
+---
+
+## Entry 48
+
+# Date/Time:
+
+2025-10-28 11:00
+
+# Tool:
+
+ChatGPT (model: ChatGPT 5 thinking)
+
+# Prompt/Command:
+
+Request to create a utility script for generating public/private key pairs in JWK format for JWT signing and verification.
+
+# Output Summary:
+
+- Created generate-key.mjs utility script using jose library for JWK generation
+- Implemented RS256 algorithm with 2048-bit modulus length for RSA key pairs
+- Generated keys with extractable option enabled for export capabilities
+- Added unique kid (key ID) using crypto.randomUUID() for key identification
+- Set alg (algorithm) and use (signature) fields in JWK output
+- Exported both public and private keys in JWK format ready for .env configuration
+- Script outputs PUBLIC_JWK and PRIVATE_JWK as JSON strings for easy environment variable usage
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated correctness of JWK format and RS256 algorithm selection
+- Confirmed security: 2048-bit RSA key provides adequate security for JWT signing
+- Performance: Script generates keys quickly for development workflow
+- Keys can be directly copied to environment variables for JWT configuration
+
+---
+
+## Entry 49
+
+# Date/Time:
+
+2025-10-28 23:55
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4)
+
+# Prompt/Command:
+
+"check through my middleware an controller and make it use the private and public jwt instead of the og one"
+
+# Output Summary:
+
+- Updated auth-controller.js handleLogin to sign JWT tokens using PRIVATE_JWK instead of JWT_SECRET
+- Added jose library imports: importJWK and exportPKCS8 for JWK to PEM conversion
+- Implemented private key import from environment variable with extractable flag
+- Converted imported JWK to PEM format using exportPKCS8 for jsonwebtoken compatibility
+- Updated basic-access-control.js middleware to verify tokens using PUBLIC_JWK
+- Added exportSPKI import for public key PEM conversion
+- Implemented public key import and PEM conversion in verifyAccessToken middleware
+- Maintained RS256 algorithm specification in both signing and verification
+- Preserved existing token payload structure (id only) and 1-day expiration
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated asymmetric JWT flow: signing with PRIVATE_JWK, verification with PUBLIC_JWK
+- Confirmed jsonwebtoken library requires PEM format, not raw CryptoKey objects
+- Security: Separation of signing and verification keys allows services to verify without signing capability
+- Troubleshooting: Resolved "secretOrPrivateKey is not valid" and "CryptoKey is not extractable" errors
+- Performance: importJWK and PEM conversion add minimal overhead to JWT operations
+- Architecture: Enables distributed authentication where each service can verify tokens independently
+- Tested end-to-end: Token generation at login → Token verification in middleware → User authentication successful
+
+---
+
+## Entry 50
+
+# Date/Time:
+
+2025-10-29 16:30
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4)
+
+# Prompt/Command:
+
+"add middleware pasring on matching service all u need to do is to parse the jwt token and update the req.user and if not valid throw error put it in all th path" and "update matching controller so user it checks query params match the jwt parsed user id"
+
+# Output Summary:
+
+- Created middleware/auth.js in matching-service with verifyAccessToken function
+- Implemented JWT verification using PUBLIC_JWK from environment variables
+- Added jose library imports (importJWK, exportSPKI) for JWK to PEM conversion
+- Applied verifyAccessToken middleware to all routes in matching-routes.js
+- Added jsonwebtoken and jose dependencies to matching-service package.json
+- Updated matching-controller.js to validate userId in params/body matches authenticated user ID
+- Added authorization checks in startMatch, terminateMatch, checkStatus, and endSession endpoints
+- Returns 403 Forbidden error when users attempt to access other users' resources
+- Extracts user ID from JWT token and stores in req.user for controller access
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated JWT verification middleware follows same pattern as user-service
+- Security: Prevents users from starting matches, terminating, or checking status for other users
+- Confirmed PUBLIC_JWK is already configured in matching-service .env files
+- Tested middleware integration: All routes now require valid JWT tokens
+- Authorization layer ensures userId from JWT matches userId in request parameters
+- Maintains consistency across microservices for authentication architecture
+- Successfully installed jose and jsonwebtoken packages via npm install
+
+---
+
+## Entry 51
+
+# Date/Time:
+
+2025-10-24 22:45
+
+# Tool:
+
+ChatGPT (model: GPT-5)
+
+# Prompt/Command:
+
+Request to review WebRTC signaling code and verify the correctness of the flow, including whether the exchange of SDP offers and answers between users works properly, and how ICE candidates are handled before the remote description is set.
+
+# Output Summary:
+- Reviewed the code handling offer-made, offer-accepted, and ice-candidate socket events.
+- Confirmed that the logic correctly ensures both peers can exchange SDP offers and answers through the signaling server.
+- Explained the proper WebRTC flow:
+ 1. User A creates an SDP offer and sends it through the signaling server.
+ 2. User B receives the offer, sets it as a remote description, creates an SDP answer, and returns it.
+ 3. User A then sets the received answer as a remote description.
+ 4. Both sides exchange ICE candidates
+
+# Action Taken:
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+Author Notes:
+- The signaling logic and peer connection setup were tested in a live environment with two users joining the same session room.
+- Connection established successfully with audio/video exchange.
+- Fix bugs where the server emits to the wrong user (eg to the current user instead of the other user)
+- WebRTC connection is working but bugs are encountered, such as the connection not being made if one user refreshes his/her browser or leaves and rejoins the same room
+
+---
+
+## Entry 52
+
+# Date/Time:
+
+2025-10-26 19:30
+
+# Tool:
+
+Claude Sonnet 4.5
+
+# Prompt/Command:
+
+Request to fix bug where remote description was null, resulting in an error where 
+ice candidates cannot be added for the RTC Connection.
+
+# Output Summary:
+- Implemented a queue where ice candidates are stored in a queue and then added once 
+remote description is set
+- Added checks for remoteDescription before ice candidates are added
+- Added a delay to allow both users to set up their socket listeners
+
+# Action Taken:
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+- Validated that the updated code is working by deploying the service and testing it with
+another teammate
+- No bugs were observed during the test
+- Remove unnessecary loggings and refactor some code into a separate function (eg answerCall())
+
+---
+
+## Entry 53
+
+# Date/Time:
+2025-10-28 20:00
+
+# Tool:
+Claude Sonnet 4.5
+
+# Prompt/Command:
+Request to route Socket.IO frontend connection through API Gateway (Nginx) instead of connecting directly to Express server at localhost:8080
+
+# Output Summary:
+- Provided solution to route Socket.IO through Nginx API Gateway
+- Added `communication-service` to docker-compose.yaml with live reload capability
+- Changed service port from 8080 to 6000 to resolve port conflict
+- Configured Nginx location block for WebSocket proxying with `/communication-socket/` custom path
+- Updated frontend Socket.IO client to use custom path option: `{ path: '/communication-socket/' }`
+- Explained Nginx `proxy_pass` path rewriting mechanism (how `/communication-socket/` rewrites to `/socket.io/` on backend)
+- Added proper WebSocket headers: `Upgrade`, `Connection`, `proxy_http_version 1.1`
+- Configured CORS headers for Socket.IO through API Gateway
+- Updated docker-compose dependencies and environment variables for `COMMUNICATION_SERVICE_URL`
+
+# Action Taken:
+- [X] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+- Validated that the updated code is working by testing with 2 users and verifying that both users are using the api-gateway to connect to the Socket.IO server 
+- Validated that the server is able to exchange offers/calls, allowing both users to communicate with each other
+
+---
+
+## Entry 54
+
+# Date/Time:
+2025-10-29 11:00
+
+# Tool:
+Claude Sonnet 4.5
+
+# Prompt/Command:
+Request to change the Socket.IO route in nginx config from /socket.io/ to /communication-socket/ for better readability and clarity
+
+# Output Summary:
+- Updated nginx location block from `location /socket.io/` to `location /communication-socket/`
+- Added `path: '/communication-socket/'` for the frontend Socket.IO client configuration
+
+# Action Taken:
+- [X] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+- Similar to entry 50, validated that the updated code is working by testing with 2 users and verifying that both users are using the api-gateway to connect to the Socket.IO server 
+- Validated that the server is able to exchange offers/calls, allowing both users to communicate with each other
