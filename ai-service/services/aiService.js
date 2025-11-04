@@ -58,9 +58,14 @@ exports.generateResponse = async ({
     // Build conversation context
     let fullPrompt = systemPrompt + "\n\n";
 
-    // Add code context from the code editor if any (by default)
+    // Add language context if available
+    if (language) {
+      fullPrompt += `Context: User is working in ${language}\n\n`;
+    }
+
+    // Add code context from the code editor if any
     if (code && code.trim() !== "") {
-      fullPrompt += `Current Code (${language || "Unknown"}):\n\`\`\`${language?.toLowerCase() || ""}\n${code}\n\`\`\`\n\n`;
+      fullPrompt += `Current Code:\n\`\`\`${language?.toLowerCase() || ""}\n${code}\n\`\`\`\n\n`;
     }
 
     // Add conversation history (last 5 messages to stay within context)

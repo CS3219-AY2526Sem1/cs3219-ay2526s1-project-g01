@@ -25,12 +25,17 @@ export default function AiAssistPanel({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
   }, [messages]);
 
   const handleSendMessage = async () => {
@@ -97,10 +102,10 @@ export default function AiAssistPanel({
     }
   };
 
-  const copyToClipboard = async (text: string, index: number) => {
+  const copyToClipboard = async (text: string, id: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      setCopiedIndex(index);
+      setCopiedIndex(id);
       setTimeout(() => setCopiedIndex(null), 2000);
     } catch (err) {
       console.error("Failed to copy:", err);
@@ -108,7 +113,7 @@ export default function AiAssistPanel({
   };
 
   return (
-    <div className="h-full flex flex-col bg-stone-900">
+    <div className="h-full min-h-0 flex flex-col bg-stone-900 overflow-hidden">
       {/* Header */}
       <div className="p-4 border-b border-stone-700 flex items-center gap-2 flex-shrink-0">
         <Sparkles className="w-5 h-5 text-purple-400" />
@@ -116,7 +121,10 @@ export default function AiAssistPanel({
       </div>
 
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+      <div
+        ref={messagesContainerRef}
+        className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 min-h-0"
+      >
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-stone-400 text-center px-4">
             <Sparkles className="w-12 h-12 mb-4 text-purple-400" />
@@ -154,14 +162,32 @@ export default function AiAssistPanel({
                             const match = /language-(\w+)/.exec(
                               className || "",
                             );
+                            const codeContent = String(children).replace(/\n$/, "");
+                            const codeId = `code-${index}-${codeContent.slice(0, 20)}`;
+
                             return match ? (
-                              <code
-                                className="block bg-stone-900 p-2 rounded overflow-x-auto"
-                                {...rest}
-                              >
-                                {children}
-                              </code>
+                              // Multi-line code block with copy button
+                              <div className="relative group/code">
+                                <code
+                                  className="block bg-stone-900 p-2 rounded overflow-x-auto"
+                                  {...rest}
+                                >
+                                  {children}
+                                </code>
+                                <button
+                                  onClick={() => copyToClipboard(codeContent, codeId)}
+                                  className="absolute top-1 right-1 p-1 rounded bg-stone-700 hover:bg-stone-600 opacity-0 group-hover/code:opacity-100 transition-opacity"
+                                  title="Copy code"
+                                >
+                                  {copiedIndex === codeId ? (
+                                    <Check className="w-3 h-3 text-green-400" />
+                                  ) : (
+                                    <Copy className="w-3 h-3 text-stone-300" />
+                                  )}
+                                </button>
+                              </div>
                             ) : (
+                              // Inline code (no copy button)
                               <code
                                 className="bg-stone-900 px-1 py-0.5 rounded text-purple-300"
                                 {...rest}
@@ -176,11 +202,11 @@ export default function AiAssistPanel({
                       </ReactMarkdown>
                     </div>
                     <button
-                      onClick={() => copyToClipboard(msg.content, index)}
+                      onClick={() => copyToClipboard(msg.content, `msg-${index}`)}
                       className="absolute top-1 right-1 p-1 rounded bg-stone-700 hover:bg-stone-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                      title="Copy response"
+                      title="Copy entire response"
                     >
-                      {copiedIndex === index ? (
+                      {copiedIndex === `msg-${index}` ? (
                         <Check className="w-3 h-3 text-green-400" />
                       ) : (
                         <Copy className="w-3 h-3 text-stone-300" />
@@ -204,7 +230,6 @@ export default function AiAssistPanel({
             </div>
           </div>
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input Area */}
