@@ -97,6 +97,16 @@ io.on("connection", (socket) => {
         }
     })
 
+    // Inform other peer that current user has left
+    socket.on("leave-session", ({ sessionID, username }) => {
+        for (const user in sessions[sessionID]) {
+            if (user !== username) {
+                io.to(sessions[sessionID][user]).emit("peer-left");
+            }
+        }
+    })
+
+
     // Disconnect
     socket.on("disconnect", () => {
         for (const sessionID in sessions) {

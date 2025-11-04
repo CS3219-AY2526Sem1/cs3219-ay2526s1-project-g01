@@ -36,6 +36,10 @@ export default function ChatComponent() {
   // Remote user's audio
   const [remoteAudioStatus, setRemoteAudioStatus] = useState<boolean>(true);
 
+  // Remote user's connection status
+  const [remoteConnectionStatus, setRemoteConnectionStatus] =
+    useState<boolean>(false);
+
   // Hardcode session id
   const sessionID = "98r4389r43r894389";
 
@@ -100,9 +104,11 @@ export default function ChatComponent() {
             path: "/communication-socket/",
           },
         );
+
         console.log("Conncected to Signalling server successfully");
         socketRef.current = socket;
 
+        // Upon offer made by remote peer, answer the call
         socket.on("offer-made", async (offer) => {
           try {
             if (pc.signalingState === "stable") {
@@ -113,6 +119,7 @@ export default function ChatComponent() {
           }
         });
 
+        // Upon answer made by remote peer, set remote description
         socket.on("offer-accepted", async (answer) => {
           try {
             if (pc.signalingState === "have-local-offer") {
@@ -132,6 +139,7 @@ export default function ChatComponent() {
           }
         });
 
+        // Upon receiving ICE candidate from remote peer
         socket.on("ice-candidate", async (candidate) => {
           try {
             if (pc.remoteDescription && pc.remoteDescription.type) {
@@ -144,6 +152,7 @@ export default function ChatComponent() {
           }
         });
 
+        // When the session has both users ready, notify both users and assign caller/callee roles
         socket.on("peer-ready", (data) => {
           const username = typeof data === "string" ? data : data.username;
           console.log("Peer ready:", username);
@@ -154,11 +163,17 @@ export default function ChatComponent() {
           const isCaller = ownUserName < username;
           isCallerRef.current = isCaller;
 
+          setRemoteConnectionStatus(true);
+
           if (isCaller) {
             setTimeout(() => {
               offerCall();
             }, 500);
           }
+        });
+
+        socket.on("peer-left", () => {
+          setRemoteConnectionStatus(false);
         });
 
         // Join session after all listeners are set up
@@ -174,6 +189,11 @@ export default function ChatComponent() {
     initializeConnection();
 
     return () => {
+      socketRef.current?.emit("leave-session", {
+        sessionID,
+        username: user?.username,
+      });
+
       if (currentStreamRef.current) {
         currentStreamRef.current.getTracks().forEach((track) => track.stop());
       }
@@ -289,7 +309,14 @@ export default function ChatComponent() {
           muted
           className="w-[50%]"
         />
-        <video ref={remoteVideoRef} autoPlay playsInline className="w-[50%]" />
+        {remoteConnectionStatus && (
+          <video
+            ref={remoteVideoRef}
+            autoPlay
+            playsInline
+            className="w-[50%]"
+          />
+        )}
       </div>
 
       <div className="flex w-full">
