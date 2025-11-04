@@ -13,14 +13,11 @@ import { endSession } from "@/services/matchingServiceApi";
 import { editorWebSocketManager } from "@/services/editorSocketManager";
 import { deleteSession } from "@/services/collabServiceApi";
 
-let hasReloaded = false;
 export default function CollabPage() {
   const [showConfirmationAlert, setshowConfirmationAlert] =
     useState<boolean>(false);
   const [showLoadingDialog, setShowLoadingDialog] = useState<boolean>(true);
   const [blockUser, setblockUser] = useState<boolean>(true);
-  const [isUserRefresh, setIsUserRefresh] = useState<boolean>(true);
-  const [hasEffect1Ran, setHasEffect1Ran] = useState<boolean>(false);
   const router = useRouter();
   const { user, setUser } = useUser();
 
@@ -37,51 +34,27 @@ export default function CollabPage() {
     router.replace("/match");
   }
 
-  //Prevents unauthorised navigation to the collab page if there is no socket connection
   useEffect(() => {
-    if (hasReloaded) {
-      setHasEffect1Ran(true);
-      return;
-    }
-    const navEntries = performance.getEntriesByType(
-      "navigation",
-    ) as PerformanceNavigationTiming[];
-    if (navEntries.length > 0 && navEntries[0].type === "reload") {
-      hasReloaded = true;
-      router.replace("/match");
-    } else {
-      setHasEffect1Ran(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!hasEffect1Ran) {
-      return;
-    }
     if (editorWebSocketManager.getSocket()) {
       setblockUser(false);
-    } else {
-      setIsUserRefresh(false);
     }
-  }, [hasEffect1Ran]);
+  }, []);
 
   if (blockUser) {
     return (
       <>
         <div className="bg-stone-900 h-screen" />;
-        {!isUserRefresh && (
-          <NotAuthorizedDialog
-            open={blockUser}
-            onClose={() => {
-              router.replace("/match");
-            }}
-            title={"Unauthorised Access"}
-            description={
-              "You can only access the code editor after you are matched with a partner through our system"
-            }
-            buttonName={"Back"}
-          />
-        )}
+        <NotAuthorizedDialog
+          open={blockUser}
+          onClose={() => {
+            router.replace("/match");
+          }}
+          title={"Unauthorised Access"}
+          description={
+            "You can only access the code editor after you are matched with a partner through our system"
+          }
+          buttonName={"Back"}
+        />
       </>
     );
   }
