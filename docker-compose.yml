@@ -70,12 +70,14 @@ services:
       - user-service
       - matching-service
       - collab-service
+      - communication-service
     environment:
       - USER_SERVICE_URL=http://user-service:4000
       - MATCHING_SERVICE_URL=http://matching-service:3002
       - COLLAB_SERVICE_URL=http://collab-service:8000
       - FRONTEND_BASE_URL=http://localhost:3000
       - QUESTION_SERVICE_URL=http://question-service:7000
+      - COMMUNICATION_SERVICE_URL=http://communication-service:6000
       - PORT=80 # Override Dockerfile default for local development
 
     # Frontend Next.js Application
@@ -159,6 +161,24 @@ services:
     environment:
       - NODE_ENV=development # Development mode
     command: ["/bin/sh", "-c", "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js"] # Install deps and run with polling for Windows/WSL2
+
+  communication-service:
+    image: honeydews/communication-service  # Replace with your image name
+    pull_policy: never
+    build:
+      context: ./communication-service
+      dockerfile: Dockerfile
+    ports:
+      - "6000:6000" 
+    volumes:
+      - ./communication-service:/app:cached
+      - /app/node_modules
+    working_dir: /app
+    env_file:
+      - ./communication-service/.env
+    environment:
+      - NODE_ENV=development
+    command: ["/bin/sh", "-c", "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js"]
 
   # MongoDB Database for User Services
   mongodb-user-services:

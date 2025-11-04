@@ -1927,3 +1927,130 @@ GitHub Copilot (model: Claude Sonnet 4)
 - Successfully installed jose and jsonwebtoken packages via npm install
 
 ---
+
+## Entry 51
+
+# Date/Time:
+
+2025-10-24 22:45
+
+# Tool:
+
+ChatGPT (model: GPT-5)
+
+# Prompt/Command:
+
+Request to review WebRTC signaling code and verify the correctness of the flow, including whether the exchange of SDP offers and answers between users works properly, and how ICE candidates are handled before the remote description is set.
+
+# Output Summary:
+- Reviewed the code handling offer-made, offer-accepted, and ice-candidate socket events.
+- Confirmed that the logic correctly ensures both peers can exchange SDP offers and answers through the signaling server.
+- Explained the proper WebRTC flow:
+ 1. User A creates an SDP offer and sends it through the signaling server.
+ 2. User B receives the offer, sets it as a remote description, creates an SDP answer, and returns it.
+ 3. User A then sets the received answer as a remote description.
+ 4. Both sides exchange ICE candidates
+
+# Action Taken:
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+Author Notes:
+- The signaling logic and peer connection setup were tested in a live environment with two users joining the same session room.
+- Connection established successfully with audio/video exchange.
+- Fix bugs where the server emits to the wrong user (eg to the current user instead of the other user)
+- WebRTC connection is working but bugs are encountered, such as the connection not being made if one user refreshes his/her browser or leaves and rejoins the same room
+
+---
+
+## Entry 52
+
+# Date/Time:
+
+2025-10-26 19:30
+
+# Tool:
+
+Claude Sonnet 4.5
+
+# Prompt/Command:
+
+Request to fix bug where remote description was null, resulting in an error where 
+ice candidates cannot be added for the RTC Connection.
+
+# Output Summary:
+- Implemented a queue where ice candidates are stored in a queue and then added once 
+remote description is set
+- Added checks for remoteDescription before ice candidates are added
+- Added a delay to allow both users to set up their socket listeners
+
+# Action Taken:
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+- Validated that the updated code is working by deploying the service and testing it with
+another teammate
+- No bugs were observed during the test
+- Remove unnessecary loggings and refactor some code into a separate function (eg answerCall())
+
+---
+
+## Entry 53
+
+# Date/Time:
+2025-10-28 20:00
+
+# Tool:
+Claude Sonnet 4.5
+
+# Prompt/Command:
+Request to route Socket.IO frontend connection through API Gateway (Nginx) instead of connecting directly to Express server at localhost:8080
+
+# Output Summary:
+- Provided solution to route Socket.IO through Nginx API Gateway
+- Added `communication-service` to docker-compose.yaml with live reload capability
+- Changed service port from 8080 to 6000 to resolve port conflict
+- Configured Nginx location block for WebSocket proxying with `/communication-socket/` custom path
+- Updated frontend Socket.IO client to use custom path option: `{ path: '/communication-socket/' }`
+- Explained Nginx `proxy_pass` path rewriting mechanism (how `/communication-socket/` rewrites to `/socket.io/` on backend)
+- Added proper WebSocket headers: `Upgrade`, `Connection`, `proxy_http_version 1.1`
+- Configured CORS headers for Socket.IO through API Gateway
+- Updated docker-compose dependencies and environment variables for `COMMUNICATION_SERVICE_URL`
+
+# Action Taken:
+- [X] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+- Validated that the updated code is working by testing with 2 users and verifying that both users are using the api-gateway to connect to the Socket.IO server 
+- Validated that the server is able to exchange offers/calls, allowing both users to communicate with each other
+
+---
+
+## Entry 54
+
+# Date/Time:
+2025-10-29 11:00
+
+# Tool:
+Claude Sonnet 4.5
+
+# Prompt/Command:
+Request to change the Socket.IO route in nginx config from /socket.io/ to /communication-socket/ for better readability and clarity
+
+# Output Summary:
+- Updated nginx location block from `location /socket.io/` to `location /communication-socket/`
+- Added `path: '/communication-socket/'` for the frontend Socket.IO client configuration
+
+# Action Taken:
+- [X] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+- Similar to entry 50, validated that the updated code is working by testing with 2 users and verifying that both users are using the api-gateway to connect to the Socket.IO server 
+- Validated that the server is able to exchange offers/calls, allowing both users to communicate with each other
