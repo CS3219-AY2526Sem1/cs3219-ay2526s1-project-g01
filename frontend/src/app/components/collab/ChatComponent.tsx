@@ -43,6 +43,20 @@ export default function ChatComponent() {
   // Hardcode session id
   const sessionID = "98r4389r43r894389";
 
+  // Code for cleaning up variables
+  const handleCleaning = () => {
+    if (currentStreamRef.current) {
+      currentStreamRef.current.getTracks().forEach((track) => track.stop());
+      currentStreamRef.current = null;
+    }
+    if (connectionRef.current) {
+      connectionRef.current.close();
+    }
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+    }
+  };
+
   useEffect(() => {
     // Prevent the same user from entering the session twice if its username is undefined
     if (!user || !user.username) {
@@ -188,21 +202,19 @@ export default function ChatComponent() {
 
     initializeConnection();
 
+    window.addEventListener("beforeunload", handleCleaning);
+    window.addEventListener("pagehide", handleCleaning);
+
     return () => {
       socketRef.current?.emit("leave-session", {
         sessionID,
         username: user?.username,
       });
 
-      if (currentStreamRef.current) {
-        currentStreamRef.current.getTracks().forEach((track) => track.stop());
-      }
-      if (connectionRef.current) {
-        connectionRef.current.close();
-      }
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
+      handleCleaning();
+      window.removeEventListener("beforeunload", handleCleaning);
+      window.removeEventListener("pagehide", handleCleaning);
+
       // Clear pending candidates
       pendingCandidatesRef.current = [];
     };
