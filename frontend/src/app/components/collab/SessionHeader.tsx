@@ -3,14 +3,12 @@ import { Button } from "@/components/ui/button";
 import { CircleUser, Mic } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 
-
 export default function SessionHeader({
   showConfirmationAlert,
 }: {
   showConfirmationAlert: () => void;
 }) {
   const { user } = useUser();
-
 
   return (
     <header

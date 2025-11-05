@@ -67,7 +67,6 @@ function CollabPageContent() {
     }
   }, [sessionId]);
 
-
   if (blockUser) {
     return (
       <>
@@ -86,9 +85,6 @@ function CollabPageContent() {
       </>
     );
   }
-
-  
-
 
   return (
     <main className="bg-stone-900 h-screen flex flex-col items-center">
