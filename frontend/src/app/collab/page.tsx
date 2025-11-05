@@ -51,6 +51,22 @@ function CollabPageContent() {
     }
   }, []);
 
+  // Retrieve question data from sessionStorage
+  useEffect(() => {
+    if (sessionId) {
+      const questionData = sessionStorage.getItem(`question_${sessionId}`);
+      if (questionData) {
+        try {
+          const parsedQuestion = JSON.parse(questionData);
+          setQuestion(parsedQuestion);
+          console.log("Question data loaded:", parsedQuestion);
+        } catch (error) {
+          console.error("Error parsing question data:", error);
+        }
+      }
+    }
+  }, [sessionId]);
+
 
   if (blockUser) {
     return (
@@ -71,21 +87,7 @@ function CollabPageContent() {
     );
   }
 
-  // Retrieve question data from sessionStorage
-  useEffect(() => {
-    if (sessionId) {
-      const questionData = sessionStorage.getItem(`question_${sessionId}`);
-      if (questionData) {
-        try {
-          const parsedQuestion = JSON.parse(questionData);
-          setQuestion(parsedQuestion);
-          console.log("Question data loaded:", parsedQuestion);
-        } catch (error) {
-          console.error("Error parsing question data:", error);
-        }
-      }
-    }
-  }, [sessionId]);
+  
 
 
   return (
