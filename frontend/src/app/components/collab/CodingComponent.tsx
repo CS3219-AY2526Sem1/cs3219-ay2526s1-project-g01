@@ -61,7 +61,6 @@ export default function CodingComponent({
   const user_id: string = user?.id || "0";
   const user_name: string = user?.username || "Unknown";
 
-
   // Notify parent when language changes
   useEffect(() => {
     if (onLanguageChange) {

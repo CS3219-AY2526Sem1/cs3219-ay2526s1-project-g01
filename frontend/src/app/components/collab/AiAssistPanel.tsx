@@ -162,7 +162,10 @@ export default function AiAssistPanel({
                             const match = /language-(\w+)/.exec(
                               className || "",
                             );
-                            const codeContent = String(children).replace(/\n$/, "");
+                            const codeContent = String(children).replace(
+                              /\n$/,
+                              "",
+                            );
                             const codeId = `code-${index}-${codeContent.slice(0, 20)}`;
 
                             return match ? (
@@ -175,7 +178,9 @@ export default function AiAssistPanel({
                                   {children}
                                 </code>
                                 <button
-                                  onClick={() => copyToClipboard(codeContent, codeId)}
+                                  onClick={() =>
+                                    copyToClipboard(codeContent, codeId)
+                                  }
                                   className="absolute top-1 right-1 p-1 rounded bg-stone-700 hover:bg-stone-600 opacity-0 group-hover/code:opacity-100 transition-opacity"
                                   title="Copy code"
                                 >
@@ -202,7 +207,9 @@ export default function AiAssistPanel({
                       </ReactMarkdown>
                     </div>
                     <button
-                      onClick={() => copyToClipboard(msg.content, `msg-${index}`)}
+                      onClick={() =>
+                        copyToClipboard(msg.content, `msg-${index}`)
+                      }
                       className="absolute top-1 right-1 p-1 rounded bg-stone-700 hover:bg-stone-600 opacity-0 group-hover:opacity-100 transition-opacity"
                       title="Copy entire response"
                     >

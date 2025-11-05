@@ -118,7 +118,6 @@ function CollabPageContent() {
           <CodingComponentWrapper
             onEditorMount={setEditorInstance}
             onLanguageChange={setLanguage}
-         
             isOpen={showLoadingDialog}
             closeDialog={() => setShowLoadingDialog(false)}
             onLeave={() => directToMatch()}
