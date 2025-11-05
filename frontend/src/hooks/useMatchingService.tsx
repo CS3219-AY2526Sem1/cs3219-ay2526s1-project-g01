@@ -80,9 +80,9 @@ export function useMatchingService(userId: string | undefined) {
               console.error("Session creation failed:", data.error);
 
               // Clean up the failed session for this user
-              if (userId) {
+              if (uid) {
                 try {
-                  await endSession(userId);
+                  await endSession(uid);
                   console.log("Cleaned up failed session");
                 } catch (cleanupErr) {
                   console.error(
