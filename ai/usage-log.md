@@ -922,7 +922,7 @@ Request information on how to create custom cursors and send cursor information 
 - Researched on deltaDecorations suggested by model and decided that it was not appropriate as its a legacy api, searched online for more suitable modules and implemented cursor binding using IEditorDecorationsCollection instead.
 - Implemented communication logic using websockets myself, only using model for debugging.
 
---- 
+---
 
 ## Entry 26
 
@@ -1012,7 +1012,6 @@ Github Copilot (GPT-5 mini)
 
 "Help me to generate the routes, controller and model for my existing question-service"
 
-
 # Output Summary:
 
 - Generated a rough folder structure and some boilerplate code
@@ -1022,12 +1021,6 @@ Github Copilot (GPT-5 mini)
 - [ ] Accepted as-is
 - [x] Modified
 - [ ] Rejected
-
-# Author Notes:
-
-# Output Summary:
-
-- Generated a rough folder structure and some boilerplate code
 
 # Author Notes:
 
@@ -1089,35 +1082,35 @@ Start the question id from 31 onwards, as I already have questions before that i
 
 -- Questions table (one difficulty per question)
 CREATE TABLE questions (
-    id SERIAL,
-    title TEXT NOT NULL UNIQUE,
-    difficulty TEXT CHECK (difficulty IN ('easy', 'medium', 'hard')) NOT NULL,
-    description TEXT NOT NULL,
-    constraints TEXT,
-	PRIMARY KEY (id)
+id SERIAL,
+title TEXT NOT NULL UNIQUE,
+difficulty TEXT CHECK (difficulty IN ('easy', 'medium', 'hard')) NOT NULL,
+description TEXT NOT NULL,
+constraints TEXT,
+PRIMARY KEY (id)
 );
 
 -- Topics table (many topics per question)
 CREATE TABLE topics (
-    id SERIAL,
-    name TEXT NOT NULL UNIQUE,
-	PRIMARY KEY (id)
+id SERIAL,
+name TEXT NOT NULL UNIQUE,
+PRIMARY KEY (id)
 );
 
 -- Link table: question ↔ topic (many-to-many)
 CREATE TABLE question_topics (
-    question_id INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
-    topic_id INT NOT NULL REFERENCES topics(id) ON DELETE CASCADE,
-    PRIMARY KEY (question_id, topic_id)
+question_id INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+topic_id INT NOT NULL REFERENCES topics(id) ON DELETE CASCADE,
+PRIMARY KEY (question_id, topic_id)
 );
 
 -- Test cases table
 CREATE TABLE test_cases (
-    question_id INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
-    index INTEGER NOT NULL,
-    input TEXT NOT NULL,
-    output TEXT NOT NULL,
-    PRIMARY KEY (question_id, index)
+question_id INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+index INTEGER NOT NULL,
+input TEXT NOT NULL,
+output TEXT NOT NULL,
+PRIMARY KEY (question_id, index)
 );
 "
 
@@ -1143,7 +1136,6 @@ CREATE TABLE test_cases (
 
 # Date/Time:
 
-
 2025-10-21 01:30
 
 # Tool:
@@ -1158,7 +1150,6 @@ ChatGPT (model: ChatGPT 5 thinking)
 - Implemented proper error handling and timeout management
 - Added support for STARTTLS upgrade and multiple MX host attempts
 - Included detailed JSDoc documentation for all functions
-
 
 # Action Taken:
 
@@ -1274,7 +1265,6 @@ To create a password reset model similar to user verification model with proper 
 - Validated schema structure follows MongoDB best practices with proper indexing
 - Ensured token expiration prevents stale reset links
 - Maintained consistency with existing verification model patterns
-
 
 ---
 
@@ -1943,20 +1933,24 @@ ChatGPT (model: GPT-5)
 Request to review WebRTC signaling code and verify the correctness of the flow, including whether the exchange of SDP offers and answers between users works properly, and how ICE candidates are handled before the remote description is set.
 
 # Output Summary:
+
 - Reviewed the code handling offer-made, offer-accepted, and ice-candidate socket events.
 - Confirmed that the logic correctly ensures both peers can exchange SDP offers and answers through the signaling server.
 - Explained the proper WebRTC flow:
- 1. User A creates an SDP offer and sends it through the signaling server.
- 2. User B receives the offer, sets it as a remote description, creates an SDP answer, and returns it.
- 3. User A then sets the received answer as a remote description.
- 4. Both sides exchange ICE candidates
+
+1.  User A creates an SDP offer and sends it through the signaling server.
+2.  User B receives the offer, sets it as a remote description, creates an SDP answer, and returns it.
+3.  User A then sets the received answer as a remote description.
+4.  Both sides exchange ICE candidates
 
 # Action Taken:
+
 - [ ] Accepted as-is
 - [x] Modified
 - [ ] Rejected
 
 Author Notes:
+
 - The signaling logic and peer connection setup were tested in a live environment with two users joining the same session room.
 - Connection established successfully with audio/video exchange.
 - Fix bugs where the server emits to the wrong user (eg to the current user instead of the other user)
@@ -1976,23 +1970,26 @@ Claude Sonnet 4.5
 
 # Prompt/Command:
 
-Request to fix bug where remote description was null, resulting in an error where 
+Request to fix bug where remote description was null, resulting in an error where
 ice candidates cannot be added for the RTC Connection.
 
 # Output Summary:
-- Implemented a queue where ice candidates are stored in a queue and then added once 
-remote description is set
+
+- Implemented a queue where ice candidates are stored in a queue and then added once
+  remote description is set
 - Added checks for remoteDescription before ice candidates are added
 - Added a delay to allow both users to set up their socket listeners
 
 # Action Taken:
+
 - [x] Accepted as-is
 - [ ] Modified
 - [ ] Rejected
 
 # Author Notes:
+
 - Validated that the updated code is working by deploying the service and testing it with
-another teammate
+  another teammate
 - No bugs were observed during the test
 - Remove unnessecary loggings and refactor some code into a separate function (eg answerCall())
 
@@ -2001,15 +1998,19 @@ another teammate
 ## Entry 53
 
 # Date/Time:
+
 2025-10-28 20:00
 
 # Tool:
+
 Claude Sonnet 4.5
 
 # Prompt/Command:
+
 Request to route Socket.IO frontend connection through API Gateway (Nginx) instead of connecting directly to Express server at localhost:8080
 
 # Output Summary:
+
 - Provided solution to route Socket.IO through Nginx API Gateway
 - Added `communication-service` to docker-compose.yaml with live reload capability
 - Changed service port from 8080 to 6000 to resolve port conflict
@@ -2021,12 +2022,14 @@ Request to route Socket.IO frontend connection through API Gateway (Nginx) inste
 - Updated docker-compose dependencies and environment variables for `COMMUNICATION_SERVICE_URL`
 
 # Action Taken:
-- [X] Accepted as-is
+
+- [x] Accepted as-is
 - [ ] Modified
 - [ ] Rejected
 
 # Author Notes:
-- Validated that the updated code is working by testing with 2 users and verifying that both users are using the api-gateway to connect to the Socket.IO server 
+
+- Validated that the updated code is working by testing with 2 users and verifying that both users are using the api-gateway to connect to the Socket.IO server
 - Validated that the server is able to exchange offers/calls, allowing both users to communicate with each other
 
 ---
@@ -2034,23 +2037,190 @@ Request to route Socket.IO frontend connection through API Gateway (Nginx) inste
 ## Entry 54
 
 # Date/Time:
+
 2025-10-29 11:00
 
 # Tool:
+
 Claude Sonnet 4.5
 
 # Prompt/Command:
+
 Request to change the Socket.IO route in nginx config from /socket.io/ to /communication-socket/ for better readability and clarity
 
 # Output Summary:
+
 - Updated nginx location block from `location /socket.io/` to `location /communication-socket/`
 - Added `path: '/communication-socket/'` for the frontend Socket.IO client configuration
 
 # Action Taken:
-- [X] Accepted as-is
+
+- [x] Accepted as-is
 - [ ] Modified
 - [ ] Rejected
 
 # Author Notes:
-- Similar to entry 50, validated that the updated code is working by testing with 2 users and verifying that both users are using the api-gateway to connect to the Socket.IO server 
+
+- Similar to entry 50, validated that the updated code is working by testing with 2 users and verifying that both users are using the api-gateway to connect to the Socket.IO server
 - Validated that the server is able to exchange offers/calls, allowing both users to communicate with each other
+
+---
+
+## Entry 55
+
+# Date/Time:
+
+2025-10-22 17:40
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Request to implement Alert Dialog from radix-ui
+
+# Output Summary:
+
+- Created an alert-dialog component that has two buttons with appropriate TailWindCSS styling
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that logic implemented for buttons works
+- Modified css styling to suit overall aesthetic of application
+- Modified component to make it reusable
+- Tested that alert dialog box works as intended
+
+---
+
+## Entry 56
+
+# Date/Time:
+
+2025-10-29 09:50
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Request on sample code on how to use redish hash to store session data
+
+# Output Summary:
+
+- Provided explanation on how redis hash works and sample code to create a redish hash from ydoc, hashset and number fields.
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Verified online on naming convention for redish hash key
+- Modified how timestamp fields are stored
+
+---
+
+## Entry 57
+
+# Date/Time:
+
+2025-10-29 10:50
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Create a loading dialog box with spinner in radix
+
+# Output Summary:
+
+- Provided sample code to create a dialog box
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that logic implemented for buttons works
+- Modified css styling to suit overall aesthetic of application
+- Modified component to make it reusable
+- Tested that loading dialog box works as intended
+
+---
+
+## Entry 58
+
+# Date/Time:
+
+2025-10-31 10:44
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Singleton class to manage websocket connection for client frontend
+
+# Output Summary:
+
+- Provided boilerplate code for singleton class
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Verified that instance methods are appropriate
+- Modified instance methods to fit use case
+
+---
+
+## Entry 59
+
+# Date/Time:
+
+2025-11-01 16:10
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Creaet a not authorised dialog box in radix to notify user that they are not allowed to access the room
+
+# Output Summary:
+
+- Provided sample code to create a dialog box in radix
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that logic implemented for button works
+- Modified css styling to suit overall aesthetic of application
+- Modified component to make it reusable
+- Tested that notification dialog box works as intended
