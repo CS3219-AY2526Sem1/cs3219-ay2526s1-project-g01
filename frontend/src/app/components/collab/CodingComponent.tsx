@@ -38,8 +38,6 @@ export default function CodingComponent({
   onLeave: () => void;
 }) {
   const [codeContent, setCodeContent] = useState<string>("");
-  const [showDisconnectAlert, setshowDisconnectAlert] =
-    useState<boolean>(false);
   const [selectedLanguage, setSeletedLanguage] = useState<string>("JavaScript");
   const router = useRouter();
   const [editorInstance, setEditorInstance] =
@@ -63,7 +61,7 @@ export default function CodingComponent({
     cursorCollections: Record<
       string,
       monaco.editor.IEditorDecorationsCollection
-    >,
+    >
   ) {
     const cursorDecorator: monaco.editor.IEditorDecorationsCollection =
       cursorCollections[userId];
@@ -83,7 +81,7 @@ export default function CodingComponent({
     const binding: MonacoBinding = new MonacoBinding(
       yText,
       editorInstance.getModel()!,
-      new Set([editorInstance]),
+      new Set([editorInstance])
     );
 
     const cursorCollections: Record<
@@ -101,8 +99,7 @@ export default function CodingComponent({
       clientWS,
       () => {
         router.replace("/match");
-      },
-      () => setshowDisconnectAlert(true),
+      }
     );
 
     registerCursorUpdateHandler(
@@ -110,7 +107,7 @@ export default function CodingComponent({
       editorInstance,
       cursorCollections,
       clientWS,
-      user_name,
+      user_name
     );
 
     registerEditorUpdateHandler(ydoc, clientWS);
@@ -128,8 +125,7 @@ export default function CodingComponent({
     return () => {
       console.log("remove client binding and ydoc");
       handleEditorUnmount(user_id, cursorCollections);
-      // editorWebSocketManager.close();
-      // clientWS.close();
+
       ydoc.destroy();
       binding.destroy();
     };
@@ -177,15 +173,6 @@ export default function CodingComponent({
           options={{ scrollBeyondLastLine: false }}
           onMount={handleEditorMount}
         ></Editor>
-        <DisconnectAlertDialog
-          open={showDisconnectAlert}
-          onAccept={() => setshowDisconnectAlert(false)}
-          onReject={() => onLeave()}
-          buttonOneTitle="Continue"
-          buttonTwoTitle="Leave"
-          title="Your partner has disconnected"
-          description="Do you want to continue working alone or exit the session? Note that if you disconnect or refresh the page, you will not be able to join back the session."
-        />
       </div>
       <LoadingDialog
         open={isOpen}
