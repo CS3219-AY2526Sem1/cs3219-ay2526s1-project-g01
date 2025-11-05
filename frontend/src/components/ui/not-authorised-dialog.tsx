@@ -23,6 +23,7 @@ interface NotAuthorizedDialogProps {
   title: string;
   description: string;
   buttonName: string;
+  showButton: boolean;
 }
 
 export default function NotAuthorizedDialog({
@@ -31,6 +32,7 @@ export default function NotAuthorizedDialog({
   title,
   description,
   buttonName,
+  showButton,
 }: NotAuthorizedDialogProps) {
   return (
     <Dialog open={open}>
@@ -45,9 +47,11 @@ export default function NotAuthorizedDialog({
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
-            <Button onClick={onClose} variant="default">
-              {buttonName}
-            </Button>
+            {showButton && (
+              <Button onClick={onClose} variant="default">
+                {buttonName}
+              </Button>
+            )}
           </DialogClose>
         </DialogFooter>
       </DialogContent>

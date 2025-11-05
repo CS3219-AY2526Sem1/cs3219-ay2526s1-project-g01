@@ -34,6 +34,8 @@ export default function CollabPage() {
     router.replace("/match");
   }
 
+  //Prevents user from navigating to collab page unless they came from matching system or rejoin room prompt
+  //Also prevents user from opening multiple code editor tabs
   useEffect(() => {
     if (editorWebSocketManager.getSocket()) {
       setblockUser(false);
@@ -54,11 +56,11 @@ export default function CollabPage() {
             "You can only access the code editor after you are matched with a partner through our system"
           }
           buttonName={"Back"}
+          showButton={true}
         />
       </>
     );
   }
-
   return (
     <main className="bg-stone-900 h-screen flex flex-col items-center">
       <SessionHeader

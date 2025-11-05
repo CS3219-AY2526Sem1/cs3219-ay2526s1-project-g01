@@ -11,6 +11,7 @@ import { Toaster } from "sonner";
 import { UserProvider } from "@/contexts/UserContext";
 import NavbarWrapper from "./components/layout/NavbarWrapper";
 import AuthGuard from "./components/layout/AuthGuard";
+import TabGuard from "./components/layout/TabGuard";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -41,7 +42,7 @@ export default function RootLayout({
         <UserProvider>
           <AuthGuard />
           <NavbarWrapper />
-          {children}
+          <TabGuard>{children}</TabGuard>
         </UserProvider>
         <Toaster
           position="top-center"

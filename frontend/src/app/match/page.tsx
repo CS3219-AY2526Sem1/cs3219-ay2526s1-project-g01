@@ -79,7 +79,7 @@ export default function MatchPage() {
       getUserSessionStatus(
         user.id,
         (sid) => setSessionId(sid),
-        () => setshowRejoinRoomDialog(true),
+        () => setshowRejoinRoomDialog(true)
       );
     }
   }, [user?.id]);
@@ -137,6 +137,7 @@ export default function MatchPage() {
         title={"Unauthorized Access"}
         description={"You don’t have permission to join this room."}
         buttonName={"Back"}
+        showButton={true}
       />
     </div>
   );
