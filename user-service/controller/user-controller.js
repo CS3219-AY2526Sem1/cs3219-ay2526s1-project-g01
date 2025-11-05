@@ -292,6 +292,12 @@ export async function updateUserPassword(req, res) {
       });
     }
 
+    // Delete any pending email-change verification records when pasword changes
+    // This ensures that old email change requests are cleared when user updates their password
+    // this is needed as the security notice email asked user to change password immediately
+    // if they did not initiate the change themselves
+    await _deleteUserVerifyRecordByUserId(userId);
+
     // Hash new password
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(newPassword, salt);
