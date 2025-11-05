@@ -9,6 +9,7 @@ import logger from "../utils/logger.js";
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+//Add data to local in memory storage map objects and store sessionData in redis
 export async function createSession(req, res) {
   try {
     SessionModel.parse(req.body);

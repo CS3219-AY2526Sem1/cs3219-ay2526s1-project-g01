@@ -31,9 +31,11 @@ import {
 export default function CodingComponent({
   isOpen,
   closeDialog,
+  onLeave,
 }: {
   isOpen: boolean;
   closeDialog: () => void;
+  onLeave: () => void;
 }) {
   const [codeContent, setCodeContent] = useState<string>("");
   const [showDisconnectAlert, setshowDisconnectAlert] =
@@ -71,6 +73,7 @@ export default function CodingComponent({
     delete cursorCollections[userId];
   }
 
+  //Sets up local editor state, socket event listenr and syncrhonise editor state with backend ydoc version
   useEffect(() => {
     if (!editorInstance) {
       return;
@@ -112,7 +115,7 @@ export default function CodingComponent({
 
     registerEditorUpdateHandler(ydoc, clientWS);
 
-    //add icursor decorator
+    //add cursor decorator
     initEditor(user_id, cursorCollections, editorInstance);
 
     //send initial editor state
@@ -177,11 +180,11 @@ export default function CodingComponent({
         <DisconnectAlertDialog
           open={showDisconnectAlert}
           onAccept={() => setshowDisconnectAlert(false)}
-          onReject={() => router.replace("/match")}
+          onReject={() => onLeave()}
           buttonOneTitle="Continue"
           buttonTwoTitle="Leave"
           title="Your partner has disconnected"
-          description="Do you want to continue working alone or exit the session?"
+          description="Do you want to continue working alone or exit the session? Note that if you disconnect or refresh the page, you will not be able to join back the session."
         />
       </div>
       <LoadingDialog

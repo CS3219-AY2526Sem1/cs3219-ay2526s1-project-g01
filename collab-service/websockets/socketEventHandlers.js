@@ -2,46 +2,17 @@ import WebSocket from "ws";
 import * as Y from "yjs";
 import logger from "../utils/logger.js";
 
-//Store session to sessionData on hashmap on WebSocketServer for each room and save data in redis
-// async function handleSocketConnection(
-//   redisDb,
-//   userId,
-//   sessionId,
-//   roomToDataMap
-// ) {
-//   const key = `session:${sessionId}`;
-
-//   let sessionData = roomToDataMap.get(sessionId);
-//   if (!sessionData) {
-//     const redisData = await redisDb.hGetAll(key);
-//     // Case where session crated but server crashed so sessionData only exists in redis so form local sesionData from redis
-//     if (Object.keys(redisData).length > 0) {
-//       sessionData = convertDataFromDB(redisData);
-//       // Case where its a brand new session
-//     } else {
-//       sessionData = {
-//         doc: new Y.Doc(),
-//         users: new Set(),
-//         lastEmptyAt: null,
-//         lastSavedAt: Date.now(),
-//       };
-//     }
-//     roomToDataMap.set(sessionId, sessionData);
-//   }
-
-//   sessionData.users.add(userId);
-//   sessionData.lastEmptyAt = null;
-//   await saveLocalState(key, redisDb, sessionData);
-// }
-
 //Handles syncing of code editor with most updated changes by sending the difference to client
-function handleInitialDocSync(message, ws, ydoc) {
+function handleInitialDocSync(message, ws, ydoc, wss, sessionId) {
   const text = message.toString();
   if (text.startsWith("{")) {
     const data = JSON.parse(text);
     if (data.type === "sync") {
       const initialState = Buffer.from(data.ydocState, "base64");
       const update = Y.encodeStateAsUpdate(ydoc, initialState);
+      Y.applyUpdate(ydoc, update);
+
+      broadcastToRoom(wss, ws, sessionId, update);
       const updateAsString = Buffer.from(update).toString("base64");
       const payload = {
         type: "sync",

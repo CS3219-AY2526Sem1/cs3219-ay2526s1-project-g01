@@ -63,7 +63,7 @@ server.on("upgrade", async (request, socket, head) => {
 
           return;
         }
-
+        //Update http to websocket connection if jwt verified
         webSocketServer.handleUpgrade(request, socket, head, (ws) => {
           ws.userId = decoded.id;
           const sessionData = roomToData.get(sessionId);

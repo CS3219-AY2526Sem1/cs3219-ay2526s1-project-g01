@@ -17,9 +17,17 @@ const CodingComponent = dynamic(() => import("./CodingComponent"), {
 export default function CodingComponentWrapper({
   isOpen,
   closeDialog,
+  onLeave,
 }: {
   isOpen: boolean;
   closeDialog: () => void;
+  onLeave: () => void;
 }) {
-  return <CodingComponent isOpen={isOpen} closeDialog={closeDialog} />;
+  return (
+    <CodingComponent
+      isOpen={isOpen}
+      closeDialog={closeDialog}
+      onLeave={onLeave}
+    />
+  );
 }

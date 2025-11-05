@@ -396,7 +396,7 @@ class MatchingService {
   async triggerRoomCreation(matchData) {
     try {
       const response = await fetch(
-        `${process.env.COLLAB_SERVICE_URL}/sessions`,
+        `${process.env.COLLAB_SERVICE_URL}/api/sessions`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

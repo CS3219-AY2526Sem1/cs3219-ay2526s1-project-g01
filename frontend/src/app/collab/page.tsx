@@ -14,6 +14,7 @@ import QuestionComponent from "../components/collab/QuestionComponent";
 import SessionHeader from "../components/collab/SessionHeader";
 import { useSearchParams, useRouter } from "next/navigation";
 import DisconnectAlertDialog from "@/components/ui/alert-dialog";
+import NotAuthorizedDialog from "@/components/ui/not-authorised-dialog";
 import { useUser } from "@/contexts/UserContext";
 import { endSession } from "@/services/matchingServiceApi";
 import { editorWebSocketManager } from "@/services/editorSocketManager";
@@ -24,13 +25,14 @@ function CollabPageContent() {
   const [showConfirmationAlert, setshowConfirmationAlert] =
     useState<boolean>(false);
   const [showLoadingDialog, setShowLoadingDialog] = useState<boolean>(true);
-  const [checkingConnection, setCheckingConnection] = useState<boolean>(true);
-  const [question, setQuestion] = useState<Question | null>(null);
+  const [blockUser, setblockUser] = useState<boolean>(true);
   const router = useRouter();
   const { user, setUser } = useUser();
+  const [question, setQuestion] = useState<Question | null>(null);
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("sessionId");
 
+  //Delete userId to {sessionId, parternId} mapping in backend server
   async function directToMatch() {
     if (user?.id) {
       try {
@@ -44,12 +46,30 @@ function CollabPageContent() {
   }
 
   useEffect(() => {
-    if (!editorWebSocketManager.getSocket()) {
-      router.replace("/match");
-    } else {
-      setCheckingConnection(false);
+    if (editorWebSocketManager.getSocket()) {
+      setblockUser(false);
     }
   }, []);
+
+
+  if (blockUser) {
+    return (
+      <>
+        <div className="bg-stone-900 h-screen" />;
+        <NotAuthorizedDialog
+          open={blockUser}
+          onClose={() => {
+            router.replace("/match");
+          }}
+          title={"Unauthorised Access"}
+          description={
+            "You can only access the code editor after you are matched with a partner through our system"
+          }
+          buttonName={"Back"}
+        />
+      </>
+    );
+  }
 
   // Retrieve question data from sessionStorage
   useEffect(() => {
@@ -67,9 +87,6 @@ function CollabPageContent() {
     }
   }, [sessionId]);
 
-  if (checkingConnection) {
-    return <div className="bg-stone-900 h-screen" />;
-  }
 
   return (
     <main className="bg-stone-900 h-screen flex flex-col items-center">
@@ -88,6 +105,7 @@ function CollabPageContent() {
           <CodingComponentWrapper
             isOpen={showLoadingDialog}
             closeDialog={() => setShowLoadingDialog(false)}
+            onLeave={() => directToMatch()}
           />
         </div>
 

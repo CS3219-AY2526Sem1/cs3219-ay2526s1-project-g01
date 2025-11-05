@@ -63,6 +63,7 @@ async function saveLocalState(key, redisDb, sessionData) {
 }
 saveLocalState;
 
+//Populate local memory with redis data
 async function loadAllSessionsFromRedis(redisDb, roomToData) {
   logger.info("Loading session states from Redis into memory");
 

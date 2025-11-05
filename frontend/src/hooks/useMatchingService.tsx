@@ -16,6 +16,9 @@ import {
 import { toast } from "sonner";
 
 export function useMatchingService(userId: string | undefined) {
+  //matched status === found a partner
+  //active status === room created in backend server
+  //connected status === socket connection established and ready for navigation to collab page
   const [status, setStatus] = useState<
     "idle" | "searching" | "matched" | "active" | "connected"
   >("idle");
