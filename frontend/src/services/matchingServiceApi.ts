@@ -36,7 +36,7 @@ export interface MatchResponse {
 
 export interface MatchStatusResponse {
   success: boolean;
-  status: "idle" | "searching" | "matched" | "active";
+  status: "idle" | "searching" | "matched" | "active" | "failed";
   sessionId?: string;
   elapsedTime?: number;
   remainingTime?: number;
@@ -48,6 +48,9 @@ export interface MatchStatusResponse {
     id: string;
     title: string;
   };
+  canDelete?: boolean;
+  errorMessage?: string;
+  error?: string;
 }
 
 export interface TerminateResponse {
@@ -84,13 +87,13 @@ const API_ENDPOINTS = {
  * Start matching process
  */
 export const startMatch = async (
-  request: MatchRequest,
+  request: MatchRequest
 ): Promise<MatchResponse> => {
   try {
     const apiClient = createApiClient();
     const response = await apiClient.post<MatchResponse>(
       API_ENDPOINTS.MATCH,
-      request,
+      request
     );
     return response.data;
   } catch (error) {
@@ -103,12 +106,12 @@ export const startMatch = async (
  * Get matching status
  */
 export const getMatchStatus = async (
-  userId: string,
+  userId: string
 ): Promise<MatchStatusResponse> => {
   try {
     const apiClient = createApiClient();
     const response = await apiClient.get<MatchStatusResponse>(
-      `${API_ENDPOINTS.STATUS}/${userId}`,
+      `${API_ENDPOINTS.STATUS}/${userId}`
     );
     return response.data;
   } catch (error) {
@@ -121,12 +124,12 @@ export const getMatchStatus = async (
  * Terminate matching process
  */
 export const terminateMatch = async (
-  userId: string,
+  userId: string
 ): Promise<TerminateResponse> => {
   try {
     const apiClient = createApiClient();
     const response = await apiClient.delete<TerminateResponse>(
-      `${API_ENDPOINTS.TERMINATE}/${userId}`,
+      `${API_ENDPOINTS.TERMINATE}/${userId}`
     );
     return response.data;
   } catch (error) {
@@ -142,7 +145,7 @@ export const getSession = async (sessionId: string) => {
   try {
     const apiClient = createApiClient();
     const response = await apiClient.get(
-      `${API_ENDPOINTS.SESSION}/${sessionId}`,
+      `${API_ENDPOINTS.SESSION}/${sessionId}`
     );
     return response.data;
   } catch (error) {
@@ -158,7 +161,7 @@ export const endSession = async (userId: string) => {
   try {
     const apiClient = createApiClient();
     const response = await apiClient.delete(
-      `${API_ENDPOINTS.SESSION}/${userId}`,
+      `${API_ENDPOINTS.SESSION}/${userId}`
     );
     return response.data;
   } catch (error) {

@@ -130,7 +130,8 @@ class MatchingService {
               topics: newUser.topics,
             },
             matchedAt: new Date().toISOString(),
-            status: "matched", //CHANGE HERE
+            status: "matched",
+            polled_users: [],
           };
 
           // store session (1 hour expiry - change in future iteration if necessary)
@@ -265,9 +266,20 @@ class MatchingService {
           status: matchData.status,
           sessionId,
         };
-        if (matchData.status === "active") {
+
+        if (matchData.status === "active" || matchData.status === "failed") {
+          if (!matchData.polled_users.includes(userId)) {
+            matchData.polled_users.push(userId);
+            await redisClient.setEx(
+              `${this.SESSION_PREFIX}${matchData.sessionId}`,
+              3600,
+              JSON.stringify(matchData)
+            );
+          }
+
           response = {
             question: matchData.question,
+            canDelete: matchData.polled_users.length === 2,
             ...response,
           };
         }
@@ -325,7 +337,6 @@ class MatchingService {
       if (!sessionId) {
         return { ended: false, message: "No active session found" };
       }
-
       const sessionData = await redisClient.get(
         `${this.SESSION_PREFIX}${sessionId}`
       );
@@ -340,7 +351,9 @@ class MatchingService {
           `${this.USER_SESSION_PREFIX}${session.user2.userId}`
         );
 
-        console.log(`[SESSION ENDED] ${sessionId} - Both users removed`);
+        console.log(
+          `[SESSION in redis deleted] ${sessionId} - Both users removed`
+        );
       }
 
       return {
@@ -385,11 +398,24 @@ class MatchingService {
         );
         console.log("Created room successuflly");
       } else {
-        //TODO: handle failures from collab service
-        console.error(`Failed to create room for ${matchData.sessionId}`);
+        throw new Error(`Collab service returned ${response.status}`);
       }
     } catch (err) {
       console.error("Error in creating session room", err);
+      const updatedMatch = {
+        ...matchData,
+        status: "failed",
+      };
+      try {
+        await redisClient.setEx(
+          `${this.SESSION_PREFIX}${updatedMatch.sessionId}`,
+          3600,
+          JSON.stringify(updatedMatch)
+        );
+        console.error(`Failed to create room for ${matchData.sessionId}`);
+      } catch (redisErr) {
+        console.error("Failed to store session state in Redis", redisErr);
+      }
     }
   }
 

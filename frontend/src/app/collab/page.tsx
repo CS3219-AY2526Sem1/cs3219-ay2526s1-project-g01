@@ -12,6 +12,7 @@ import { useUser } from "@/contexts/UserContext";
 import { endSession } from "@/services/matchingServiceApi";
 import { editorWebSocketManager } from "@/services/editorSocketManager";
 import { deleteSession } from "@/services/collabServiceApi";
+import { Toaster } from "sonner";
 
 export default function CollabPage() {
   const [showConfirmationAlert, setshowConfirmationAlert] =
@@ -25,7 +26,6 @@ export default function CollabPage() {
   async function directToMatch() {
     if (user?.id) {
       try {
-        await endSession(user.id);
         await deleteSession(user.id);
       } catch (error) {
         console.error("Failed to end session:", error);

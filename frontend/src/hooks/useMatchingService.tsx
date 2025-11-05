@@ -3,6 +3,7 @@ import {
   startMatch,
   getMatchStatus,
   terminateMatch,
+  endSession,
 } from "@/services/matchingServiceApi";
 import { toast } from "sonner";
 
@@ -51,16 +52,46 @@ export function useMatchingService(userId: string | undefined) {
               }
             } else if (data.status === "active") {
               setStatus("active");
-              //For question integration on front end
-              //Change the MatchStatusResponse interface accordingly for the question fields
               const question = data.question;
               console.log("frontend sets status to active");
               clearPolling();
+              //Delete sessionData in matching service redis if both users already polled status active
+              if (data.canDelete) {
+                await endSession(uid);
+              }
+            } else if (data.status === "failed") {
+              // Session creation failed (e.g., no questions available)
+              clearPolling();
+
+              // Show detailed error message
+              const errorMsg =
+                data.errorMessage ||
+                "Failed to create session. Please try again.";
+              setErrorMessage(errorMsg);
+              console.error("Session creation failed:", data.error);
+
+              // Clean up the failed session for both users
+              if (data.canDelete && uid) {
+                try {
+                  await endSession(uid);
+                  console.log("Cleaned up failed session");
+                } catch (cleanupErr) {
+                  console.error(
+                    "Error cleaning up failed session:",
+                    cleanupErr
+                  );
+                }
+              }
+
+              // Reset state to idle after cleanup
+              setStatus("idle");
+              setSessionId(null);
+              setTimeRemaining(null);
             } else if (data.status === "idle") {
               clearPolling();
               setStatus("idle");
               setErrorMessage(
-                "No match found within 5 minutes. Please try again with different criteria.",
+                "No match found within 5 minutes. Please try again with different criteria."
               );
             }
           }
@@ -72,7 +103,7 @@ export function useMatchingService(userId: string | undefined) {
         }
       }, 1000);
     },
-    [clearPolling],
+    [clearPolling]
   );
 
   const startMatching = useCallback(
@@ -111,7 +142,7 @@ export function useMatchingService(userId: string | undefined) {
         setStatus("idle");
       }
     },
-    [userId, pollStatus],
+    [userId, pollStatus]
   );
 
   const handleCancelSearch = useCallback(async () => {
