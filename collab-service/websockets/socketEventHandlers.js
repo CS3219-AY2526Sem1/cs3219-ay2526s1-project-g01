@@ -3,6 +3,7 @@ import * as Y from "yjs";
 import logger from "../utils/logger.js";
 
 //Handles syncing of code editor with most updated changes by sending the difference to client
+//Inform partner that user joined the room
 function handleInitialDocSync(message, ws, ydoc, wss, sessionId) {
   const text = message.toString();
   if (text.startsWith("{")) {
@@ -13,6 +14,11 @@ function handleInitialDocSync(message, ws, ydoc, wss, sessionId) {
       Y.applyUpdate(ydoc, update);
 
       broadcastToRoom(wss, ws, sessionId, update);
+      const payloadToPartner = {
+        type: "partner_join",
+      };
+      broadcastToRoom(wss, ws, sessionId, JSON.stringify(payloadToPartner));
+
       const updateAsString = Buffer.from(update).toString("base64");
       const payload = {
         type: "sync",
