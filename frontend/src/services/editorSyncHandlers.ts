@@ -53,6 +53,7 @@ function registerEditorUpdateHandler(
   ydoc: Y.Doc,
   clientWS: ReconnectingWebSocket
 ) {
+  console.log("registerEditorUpdateHandler called at least");
   ydoc.on("update", (update: Uint8Array, origin: string) =>
     onEditorChangeHandler(update, origin, clientWS)
   );
@@ -161,7 +162,7 @@ function configureCollabWebsocket(
       );
       toast.warning("You are now offline. Please reconnect to the wifi");
       for (const [id, decorator] of Object.entries(cursorCollections)) {
-        if (id !== userId && decorator) {
+        if (decorator) {
           decorator.clear();
           delete cursorCollections[id];
         }
@@ -233,6 +234,8 @@ function onEditorChangeHandler(
   origin: string,
   clientWS: ReconnectingWebSocket
 ) {
+  console.log("onEditorChangeHandler called");
+  console.log(clientWS.readyState === WebSocket.OPEN);
   if (origin != "remote" && clientWS.readyState === WebSocket.OPEN) {
     console.log("client sends ydoc update to server");
     clientWS.send(update);

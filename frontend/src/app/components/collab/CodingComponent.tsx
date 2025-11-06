@@ -47,11 +47,13 @@ export default function CodingComponent({
     useState<boolean>(false);
   const [selectedLanguage, setSeletedLanguage] = useState<string>("JavaScript");
   const router = useRouter();
-  const [editorInstance, setEditorInstance] =
-    useState<monaco.editor.IStandaloneCodeEditor>();
+  // const [editorInstance, setEditorInstance] =
+  //   useState<monaco.editor.IStandaloneCodeEditor>();
   const { user } = useUser();
   const user_id: string = user?.id || "0";
   const user_name: string = user?.username || "Unknown";
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [editorReady, setEditorReady] = useState(false);
 
   const ydocRef = useRef<Y.Doc | null>(null);
   const yTextRef = useRef<Y.Text | null>(null);
@@ -63,7 +65,9 @@ export default function CodingComponent({
   }
 
   function handleEditorMount(editor: monaco.editor.IStandaloneCodeEditor) {
-    setEditorInstance(editor);
+    editorRef.current = editor;
+    setEditorReady(true);
+    console.log("test");
   }
 
   function handleEditorUnmount(
@@ -83,9 +87,11 @@ export default function CodingComponent({
 
   //Sets up local editor state, socket event listenr and syncrhonise editor state with backend ydoc version
   useEffect(() => {
-    if (!editorInstance || !isConnected) {
+    if (!editorReady || !isConnected || !editorRef.current) {
       return;
     }
+    const editorInstance = editorRef.current;
+
     openDialog();
     if (!ydocRef.current) {
       console.log("my ydoc is being resetted even without navigating away");
@@ -152,7 +158,7 @@ export default function CodingComponent({
       ydoc.destroy();
       binding.destroy();
     };
-  }, [editorInstance, isConnected]);
+  }, [editorReady, isConnected]);
 
   return (
     <>
