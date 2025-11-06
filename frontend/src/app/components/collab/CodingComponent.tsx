@@ -32,10 +32,12 @@ import { useWebSocketContext } from "@/contexts/WebSocketContext";
 export default function CodingComponent({
   isOpen,
   closeDialog,
+  openDialog,
   onLeave,
 }: {
   isOpen: boolean;
   closeDialog: () => void;
+  openDialog: () => void;
   onLeave: () => void;
 }) {
   const { isConnected, setIsConnected } = useWebSocketContext();
@@ -84,6 +86,7 @@ export default function CodingComponent({
     if (!editorInstance || !isConnected) {
       return;
     }
+    openDialog();
     if (!ydoc) {
       ydoc = new Y.Doc();
       yText = ydoc.getText("monaco");

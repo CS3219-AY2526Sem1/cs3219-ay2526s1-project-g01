@@ -76,6 +76,7 @@ export default function CollabPage() {
           <CodingComponentWrapper
             isOpen={showLoadingDialog}
             closeDialog={() => setShowLoadingDialog(false)}
+            openDialog={() => setShowLoadingDialog(true)}
             onLeave={() => directToMatch()}
           />
         </div>

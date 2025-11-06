@@ -13,6 +13,7 @@ import * as monaco from "monaco-editor";
 import ReconnectingWebSocket from "reconnecting-websocket";
 import { createInlineStyle } from "@/lib/utils";
 import { editorWebSocketManager } from "./editorSocketManager";
+import { toast } from "sonner";
 
 interface BasePayload {
   type: string;
@@ -93,7 +94,6 @@ function configureCollabWebsocket(
       const payloadObject = JSON.parse(messageEvent.data);
       if (payloadObject.type === "ping") {
         editorWebSocketManager.setTime();
-        console.log("update time in socket");
         return;
       }
       if (payloadObject.type === "cursor" && payloadObject.userId !== userId) {
@@ -157,10 +157,11 @@ function configureCollabWebsocket(
   const heartBeat = setInterval(() => {
     if (Date.now() - editorWebSocketManager.getTime() > 20000) {
       console.warn(
-        "frontend socket not receiving ping from server, closing socket"
+        "frontend socket not receiving ping from server, reconnecting socket"
       );
-      // onCloseConnection();
-      // clientWS.reconnect();
+      toast.warning("You are now offline. Please reconnect to the wifi");
+      onCloseConnection();
+      clientWS.reconnect();
       console.log("set isConnect to false by heartBEAT, reconnect called");
     } else {
       console.log("frontend socket still alive");
