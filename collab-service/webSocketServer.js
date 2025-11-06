@@ -34,6 +34,7 @@ export function initWebSocketServer() {
       ws.isAlive = false;
       ws.send(JSON.stringify({ type: "ping" }));
       ws.ping();
+      logger.info("ping sent");
     });
   }, 10000);
 

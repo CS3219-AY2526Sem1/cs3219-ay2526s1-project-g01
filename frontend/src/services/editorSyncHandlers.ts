@@ -155,13 +155,17 @@ function configureCollabWebsocket(
   };
 
   const heartBeat = setInterval(() => {
-    if (Date.now() - editorWebSocketManager.getTime() > 15000) {
+    if (Date.now() - editorWebSocketManager.getTime() > 20000) {
       console.warn(
         "frontend socket not receiving ping from server, closing socket"
       );
-      clientWS.dispatchEvent(new CloseEvent("close"));
+      onCloseConnection();
+      clientWS.reconnect();
+      console.log("set isConnect to false by heartBEAT, reconnect called");
+    } else {
+      console.log("frontend socket still alive");
     }
-  }, 5000);
+  }, 10000);
   clientWS.onclose = () => {
     // const cursorDecorator: monaco.editor.IEditorDecorationsCollection =
     //   cursorCollections[userId];
@@ -285,7 +289,6 @@ function onPartnerCursorChangeHandler(
     }
     const { startLineNumber, startColumn, endLineNumber, endColumn } =
       data.selection;
-    console.log("does error occur before this ");
     cursorCollections[data.userId].set([
       {
         range: new monaco.Range(
