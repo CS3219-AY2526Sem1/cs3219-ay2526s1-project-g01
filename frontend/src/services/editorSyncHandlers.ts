@@ -97,6 +97,7 @@ function configureCollabWebsocket(
           "base64"
         );
         Y.applyUpdate(ydoc, yUpdate, "remote");
+        console.log("applied update from remote for sync packet");
         return;
       } else if (payloadObject.type === "disconnect") {
         const disconnectedUser: string = payloadObject.disconnectedUserId;
@@ -128,7 +129,7 @@ function configureCollabWebsocket(
     if (cursorDecorator) {
       cursorDecorator.clear();
     }
-    delete cursorCollections[userId];
+    // delete cursorCollections[userId];
     onCloseConnection();
     console.log("set isConnect to false");
   };
