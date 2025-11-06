@@ -2233,68 +2233,133 @@ Creaet a not authorised dialog box in radix to notify user that they are not all
 - Modified component to make it reusable
 - Tested that notification dialog box works as intended
 
-
 ---
 
 ## Entry 60
 
 # Date/Time:
 
-2024-10-28 14:00
+2025-10-29 06:15
 
 # Tool:
 
-Claude Code (model: Claude Sonnet 4.5)
+GitHub Copilot (model: Claude Sonnet 3.5)
 
 # Prompt/Command:
 
-Request to implement a complete AI-powered code assistant feature for the collaboration page where users can interact with AI to explain code, debug issues, and get programming help using the code from the Monaco editor as context.
+"Give code for /api/question/add endpoint that adds a question. It should pass a JSON req.body that specifies all the data required to insert 1 question, as demonstrated in my init.sql file"
+"Give code for api/question/delete endpoint that deletes a question by the question id. It should get the question id from the req query.
+All the tables related to that 1 question should be deleted, as shown by the data inserted to insert 1 question in the init.sql file."
+"Give me code for the api/question/update-question that will update an existing question. An updated question is sent, with all the details 
+similar to adding a new question. However the question id remains the same"
+"Give me code for the api/question/{id} to get question by id. It should return the full JSON that is similar to the JSON body added"
+"give me code for the api/question/topic/add that will add a new topic specified in the query param to the topics tables in init.sql"
 
 # Output Summary:
 
-**Backend AI Service (ai-service/):**
-- Created complete Express.js microservice architecture with routes, controllers, and services
-- Implemented Google Gemini API integration for AI responses
-- Built aiService.js with conversation history support and code context injection
-- Created aiController.js with comprehensive error handling and validation
-- Implemented aiRoutes.js with POST /api/ai/chat endpoint
-- Added server.js with CORS, JSON parsing, and health check endpoint
-- Created package.json with @google/generative-ai, express, cors, and dotenv dependencies
-- Built Dockerfile with multi-stage builds for development and production
-- Generated comprehensive README.md with setup instructions, API documentation, and troubleshooting
+- Created the some routers, controllers and functions part by part based on the existing database and code structure
 
-**Frontend Integration:**
-- Created aiServiceApi.ts TypeScript client with ChatMessage and ChatRequest interfaces
-- Implemented sendAiChatMessage function with error handling and type safety
-- Built AiAssistPanel.tsx React component with:
-  - Chat message display with user/assistant distinction
-  - Markdown rendering for AI responses with syntax highlighting
-  - Copy-to-clipboard functionality for AI responses
-  - Loading states with spinner animations
-  - Auto-scroll to latest messages
-  - Conversation history management
-  - Welcome screen with feature highlights
-- Modified CodingComponent.tsx to accept onEditorMount and onLanguageChange props
-- Updated CodingComponentWrapper.tsx to forward editor instance and language state
-- Enhanced collab/page.tsx with toggle between Chat and AI Assist panels
-- Added toggle buttons with icons (MessageSquare for Chat, Sparkles for AI Assist)
+# Action Taken:
 
-**Configuration:**
-- Added NEXT_PUBLIC_AI_SERVICE_URL to frontend/.env.local
-- Created ai-service/.env.sample with PORT and GEMINI_API_KEY variables
-- Updated docker-compose.yml with ai-service configuration (later simplified)
-- Modified dockerfile with base and production stages for Docker deployment
-- Created AI_ASSIST_SETUP.md comprehensive quick start guide
-- Generated detailed ai-service/README.md with API specs and troubleshooting
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
 
-**Architecture Decisions:**
-- Used Google Gemini API (free tier) instead of paid OpenAI API for cost-effectiveness
-- Implemented microservice pattern for AI service separation
-- Automatic code context injection from Monaco editor
-- Conversation history maintained client-side for simplicity
-- RESTful API with JSON payloads
-- React component state management for UI updates
-- Markdown rendering for formatted AI responses
+# Author Notes:
+
+- Modified endpoints and added a few endpoints afterwards to make it more intuitive
+- Modified controller function incrementally to ensure more checks are done, as there were errors in testing
+- Modified functions added new topic during update, to only allow updates if the with preexisting topics and difficulties
+- Verified to ensure that all the endpoints work as intended after modifications
+
+---
+
+## Entry 61
+
+# Date/Time:
+
+2025-11-02 05:00
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+I want to propagate the question data that matching received as a response from calling collab. I think I need to do a few things:
+
+Update the matchingServiceApi MatchStatusResponse question field to accomodate for JSON of the similar form to:
+question: {
+"id": 11,
+"title": "Sort by Frequency and Value",
+"difficulty": "medium",
+"description": "Given an array of integers, sort them by frequency in descending order. If two numbers have the same frequency, sort them by value in ascending order.",
+"question_constraints": "Array length: 1 ≤ n ≤ 1000; Array elements: -10^6 ≤ arr[i] ≤ 10^6",
+"topics": [
+{
+"id": 1,
+"topic": "sorting"
+}
+],
+"test_cases": [
+{
+"index": 1,
+"input": "[1, 1, 2, 2, 2, 3]",
+"output": "[2, 2, 2, 1, 1, 3]"
+},
+{
+"index": 2,
+"input": "[4, 5, 6, 5, 4, 3]",
+"output": "[4, 4, 5, 5, 3, 6]"
+}
+]
+}
+
+Doing this should extract the data correctly. Might need to log to verify. Then getMatchStatus's data return should include the question data now
+
+pollStatus const question will then be updated with the question in task 1. Then I want to propagate this change to reflect on the frontend, specifically using this data to replace the hardcoded data in QuestionComponent.tsx
+
+
+# Output Summary:
+
+- Updated MatchStatusResponse question field
+- Updated getMatchStatus to be able to return the full question
+- Updated pollStatus to also return question now
+- QuestionComponent.tsx hard coded data is replaced with the newly retrieved data
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Designed the general approach to integration
+- Validated that a question is sent from question service's existing questions
+- Validated that the question sent matches the criteria specified by both users
+
+---
+
+## Entry 62
+
+# Date/Time:
+
+2025-11-03 03:00
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Give code to so that during the matching topic and difficulty selection, users can only see and select live topics available from the question-service. Help me to also capitalise the first letter of each word for the topics returned. Topics rendered should be of equal size, dynamic to changes in screen size.
+
+# Output Summary:
+
+- Added useEffect in TopicsComponent to fetch available topics from question service.
+- Added a capitlize function
+- Replaced flex flex-wrap with grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))]
 
 # Action Taken:
 
@@ -2323,6 +2388,7 @@ Request to implement a complete AI-powered code assistant feature for the collab
 
 # Date/Time:
 
+<<<<<<< HEAD
 2025-10-29 06:15
 
 # Tool:
@@ -2489,3 +2555,45 @@ Resets to idle state, thereby cleaning up independently when they see the error
 - Validated that error message is the same for both users
 
 ---
+
+## Entry 65
+
+# Date/Time:
+
+2025-11-06
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Request to separate voice/video chat and text chat components to fix issue where switching to AI Assist tab unmounts the WebRTC connection and stops video streaming.
+
+# Output Summary:
+
+- Created VoiceChatComponent.tsx - Standalone component for WebRTC video/audio functionality
+- Created ChatPanelWrapper.tsx - Wrapper component for Chat and AI Assist toggle functionality
+- Updated ChatComponent.tsx - Simplified to only handle text chat (removed WebRTC logic)
+- Updated page.tsx - Restructured layout so VoiceChatComponent stays mounted while Chat/AI panels toggle
+- Fixed /api/turn/route.ts - Corrected ICE servers array format for RTCPeerConnection compatibility
+- Component separation ensures video chat persists when switching between Chat and AI Assist tabs
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated WebRTC lifecycle management - connection now persists across tab switches
+- Confirmed component isolation - VoiceChatComponent and ChatPanelWrapper are independently mounted
+- Fixed RTCPeerConnection initialization error by ensuring iceServers is returned as array
+- Tested layout with flex properties to ensure proper space distribution between components
+- Security considerations: WebRTC signaling still uses communication service, no security changes
+- Performance: Eliminates unnecessary connection teardown/rebuild when switching tabs
+- UX improvement: Users can access AI assistance without disrupting video call
+- Troubleshooting: Addressed CORS issues (port 3000 vs 3001), Docker frontend conflicts, and TURN API response format
+- Maintainability: Clear separation of concerns - voice chat, text chat, and AI assist are now independent
+- Architecture: Follows React best practices with proper component composition and state management

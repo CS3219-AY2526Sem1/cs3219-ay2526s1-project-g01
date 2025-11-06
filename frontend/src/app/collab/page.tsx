@@ -12,10 +12,18 @@
  * Author Review: Verified correctness and functionality of the code.
  */
 
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2025-11-06
+ * Purpose: Refactored to separate voice chat from chat panels to fix video unmounting issue
+ * Author Review: Component structure and WebRTC persistence validated
+ */
+
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import ChatComponent from "../components/collab/ChatComponent";
+import VoiceChatComponent from "../components/collab/VoiceChatComponent";
+import ChatPanelWrapper from "../components/collab/ChatPanelWrapper";
 import CodingComponentWrapper from "../components/collab/CodingComponentWrapper";
 import QuestionComponent from "../components/collab/QuestionComponent";
 import SessionHeader from "../components/collab/SessionHeader";
@@ -26,10 +34,7 @@ import { useUser } from "@/contexts/UserContext";
 import { endSession } from "@/services/matchingServiceApi";
 import { editorWebSocketManager } from "@/services/editorSocketManager";
 import { deleteSession } from "@/services/collabServiceApi";
-import AiAssistPanel from "../components/collab/AiAssistPanel";
 import * as monaco from "monaco-editor";
-import { Button } from "@/components/ui/button";
-import { MessageSquare, Sparkles } from "lucide-react";
 import { Question } from "@/services/matchingServiceApi";
 
 function CollabPageContent() {
@@ -37,12 +42,11 @@ function CollabPageContent() {
     useState<boolean>(false);
   const [showLoadingDialog, setShowLoadingDialog] = useState<boolean>(true);
   const [blockUser, setblockUser] = useState<boolean>(true);
-  const [showAiAssist, setShowAiAssist] = useState(false);
   const [editorInstance, setEditorInstance] =
     useState<monaco.editor.IStandaloneCodeEditor>();
   const [language, setLanguage] = useState<string>("javascript");
   const router = useRouter();
-  const { user, setUser } = useUser();
+  const { user } = useUser();
   const [question, setQuestion] = useState<Question | null>(null);
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("sessionId");
@@ -124,47 +128,15 @@ function CollabPageContent() {
           />
         </div>
 
-        <div className="flex-1 p-5 min-h-0 overflow-hidden">
-          {/* Toggle between Chat and AI Assist */}
-          <div className="h-full min-h-0 flex flex-col">
-            {/* Toggle Buttons */}
-            <div className="flex gap-2 mb-4">
-              <Button
-                onClick={() => setShowAiAssist(false)}
-                className={`flex-1 ${
-                  !showAiAssist
-                    ? "bg-purple-600 text-white"
-                    : "bg-stone-800 text-stone-300 hover:bg-stone-700"
-                }`}
-              >
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Chat
-              </Button>
-              <Button
-                onClick={() => setShowAiAssist(true)}
-                className={`flex-1 ${
-                  showAiAssist
-                    ? "bg-purple-600 text-white"
-                    : "bg-stone-800 text-stone-300 hover:bg-stone-700"
-                }`}
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                AI Assist
-              </Button>
-            </div>
+        <div className="flex-1 p-5 min-h-0 overflow-hidden flex flex-col gap-4">
+          {/* Voice/Video Chat - stays mounted */}
+          <VoiceChatComponent />
 
-            {/* Content */}
-            <div className="flex-1 overflow-hidden min-h-0">
-              {showAiAssist ? (
-                <AiAssistPanel
-                  editorInstance={editorInstance}
-                  language={language}
-                />
-              ) : (
-                <ChatComponent />
-              )}
-            </div>
-          </div>
+          {/* Chat and AI Assist Toggle Panel */}
+          <ChatPanelWrapper
+            editorInstance={editorInstance}
+            language={language}
+          />
         </div>
         <DisconnectAlertDialog
           open={showConfirmationAlert}
