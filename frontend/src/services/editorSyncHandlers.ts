@@ -161,7 +161,9 @@ function sendEditorState(
   ws: ReconnectingWebSocket
 ) {
   console.log("sent editor state");
-  const initialState: Uint8Array = Y.encodeStateVector(ydoc);
+  // const initialState: Uint8Array = Y.encodeStateVector(ydoc);
+  const initialState: Uint8Array = Y.encodeStateAsUpdate(ydoc);
+
   const stateAsString: string = Buffer.from(initialState).toString("base64");
 
   const payload: editorSyncPayload = {

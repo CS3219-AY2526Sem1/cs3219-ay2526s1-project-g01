@@ -8,12 +8,12 @@ function handleInitialDocSync(message, ws, ydoc, wss, sessionId) {
   if (text.startsWith("{")) {
     const data = JSON.parse(text);
     if (data.type === "sync") {
-      const initialState = Buffer.from(data.ydocState, "base64");
-      const update = Y.encodeStateAsUpdate(ydoc, initialState);
-      Y.applyUpdate(ydoc, update);
+      const initialUpdate = Buffer.from(data.ydocState, "base64");
+      Y.applyUpdate(ydoc, initialUpdate);
+      const serverYDocState = Y.encodeStateAsUpdate(ydoc);
+      broadcastToRoom(wss, ws, sessionId, serverYDocState);
 
-      broadcastToRoom(wss, ws, sessionId, update);
-      const updateAsString = Buffer.from(update).toString("base64");
+      const updateAsString = Buffer.from(serverYDocState).toString("base64");
       const payload = {
         type: "sync",
         ydocUpdate: updateAsString,
