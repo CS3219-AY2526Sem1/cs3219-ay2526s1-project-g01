@@ -16,6 +16,7 @@ import {
   handleInitialDocSync,
   broadcastToRoom,
   handleSocketDisconnection,
+  handleClientDocSync,
 } from "./socketEventHandlers.js";
 import logger from "../utils/logger.js";
 import { saveLocalState } from "../utils/sessionDataHandler.js";
@@ -51,6 +52,9 @@ async function initialiseWebSocket(wss, ws, request, redisDb, roomToDataMap) {
       return;
     }
 
+    if (handleClientDocSync(update, ws, doc, wss, sessionId)) {
+      return;
+    }
     const yUpdate = new Uint8Array(update);
     Y.applyUpdate(doc, yUpdate);
     broadcastToRoom(wss, ws, sessionId, yUpdate);

@@ -103,8 +103,27 @@ function configureCollabWebsocket(
           payloadObject.ydocUpdate,
           "base64"
         );
+
         Y.applyUpdate(ydoc, yUpdate, "remote");
         console.log("applied update from remote for sync packet");
+        return;
+      } else if (payloadObject.type === "sync_client") {
+        const initialServerState = Buffer.from(
+          payloadObject.ydocState,
+          "base64"
+        );
+        const serverMissingDiff = Y.encodeStateAsUpdate(
+          ydoc,
+          initialServerState
+        );
+
+        const updateAsString =
+          Buffer.from(serverMissingDiff).toString("base64");
+        const update_payload = {
+          type: "sync_client",
+          ydocUpdate: updateAsString,
+        };
+        clientWS.send(JSON.stringify(update_payload));
         return;
       } else if (payloadObject.type === "disconnect") {
         const disconnectedUser: string = payloadObject.disconnectedUserId;
@@ -170,7 +189,7 @@ function sendEditorState(
 ) {
   console.log("sent editor state");
   // const initialState: Uint8Array = Y.encodeStateVector(ydoc);
-  const initialState: Uint8Array = Y.encodeStateAsUpdate(ydoc);
+  const initialState: Uint8Array = Y.encodeStateVector(ydoc);
 
   const stateAsString: string = Buffer.from(initialState).toString("base64");
 
