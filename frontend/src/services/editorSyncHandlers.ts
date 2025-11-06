@@ -65,8 +65,7 @@ function registerCursorUpdateHandler(
   editorInstance: monaco.editor.IStandaloneCodeEditor,
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
   clientWS: ReconnectingWebSocket,
-  userName: string,
-  isConnected: boolean
+  userName: string
 ) {
   editorInstance.onDidChangeCursorSelection((event) =>
     onCursorChangeHandler(
@@ -75,8 +74,7 @@ function registerCursorUpdateHandler(
       clientWS,
       userId,
       userName,
-      editorInstance,
-      isConnected
+      editorInstance
     )
   );
 }
@@ -252,12 +250,8 @@ function onCursorChangeHandler(
   clientWS: ReconnectingWebSocket,
   userId: string,
   userName: string,
-  editorInstance: monaco.editor.IStandaloneCodeEditor,
-  isConnected: boolean
+  editorInstance: monaco.editor.IStandaloneCodeEditor
 ) {
-  if (!isConnected) {
-    return;
-  }
   const { startLineNumber, startColumn, endLineNumber, endColumn } =
     event.selection;
   if (clientWS.readyState === WebSocket.OPEN) {

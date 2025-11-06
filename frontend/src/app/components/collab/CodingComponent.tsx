@@ -59,6 +59,10 @@ export default function CodingComponent({
   const ydocRef = useRef<Y.Doc | null>(null);
   const yTextRef = useRef<Y.Text | null>(null);
   const bindingRef = useRef<MonacoBinding | null>(null);
+  const cursorCollectionsRef = useRef<Record<
+    string,
+    monaco.editor.IEditorDecorationsCollection
+  > | null>(null);
   function setInitialContent(value: string | undefined) {
     if (value != undefined) {
       setCodeContent(value);
@@ -97,7 +101,7 @@ export default function CodingComponent({
     const clientWS: ReconnectingWebSocket = editorWebSocketManager.getSocket()!;
     let isOnline = true;
     openDialog();
-    if (!ydocRef.current) {
+    if (!ydocRef.current || !cursorCollectionsRef.current) {
       console.log("my ydoc is being resetted even without navigating away");
       const ydoc = new Y.Doc();
       const yText = ydoc.getText("monaco");
@@ -106,9 +110,14 @@ export default function CodingComponent({
         editorInstance.getModel()!,
         new Set([editorInstance])
       );
+      const cursorCollections: Record<
+        string,
+        monaco.editor.IEditorDecorationsCollection
+      > = {};
       ydocRef.current = ydoc;
       yTextRef.current = yText;
       bindingRef.current = binding;
+      cursorCollectionsRef.current = cursorCollections;
       isOnline = false;
     }
 
@@ -117,7 +126,8 @@ export default function CodingComponent({
     const cursorCollections: Record<
       string,
       monaco.editor.IEditorDecorationsCollection
-    > = {};
+    > = cursorCollectionsRef.current;
+    handleEditorUnmount(user_id, cursorCollections);
 
     //set up message event listener on socket
     configureCollabWebsocket(
@@ -138,8 +148,7 @@ export default function CodingComponent({
       editorInstance,
       cursorCollections,
       clientWS,
-      user_name,
-      isConnected
+      user_name
     );
     registerEditorUpdateHandler(ydoc, clientWS);
 
