@@ -65,7 +65,14 @@ function registerCursorUpdateHandler(
   userName: string
 ) {
   editorInstance.onDidChangeCursorSelection((event) =>
-    onCursorChangeHandler(cursorCollections, event, clientWS, userId, userName)
+    onCursorChangeHandler(
+      cursorCollections,
+      event,
+      clientWS,
+      userId,
+      userName,
+      editorInstance
+    )
   );
 }
 
@@ -193,7 +200,8 @@ function onCursorChangeHandler(
   event: monaco.editor.ICursorSelectionChangedEvent,
   clientWS: ReconnectingWebSocket,
   userId: string,
-  userName: string
+  userName: string,
+  editorInstance: monaco.editor.IStandaloneCodeEditor
 ) {
   const { startLineNumber, startColumn, endLineNumber, endColumn } =
     event.selection;
@@ -209,6 +217,9 @@ function onCursorChangeHandler(
       },
     };
     clientWS.send(JSON.stringify(cursorUpdate));
+  }
+  if (!cursorCollections[userId]) {
+    cursorCollections[userId] = editorInstance.createDecorationsCollection([]);
   }
   cursorCollections[userId].set([
     {
@@ -241,6 +252,7 @@ function onPartnerCursorChangeHandler(
     }
     const { startLineNumber, startColumn, endLineNumber, endColumn } =
       data.selection;
+    console.log("does error occur before this ");
     cursorCollections[data.userId].set([
       {
         range: new monaco.Range(
