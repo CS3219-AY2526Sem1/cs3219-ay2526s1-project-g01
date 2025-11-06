@@ -295,7 +295,12 @@ export default function VoiceChatComponent() {
           muted
           className="w-[50%] rounded aspect-video"
         />
-        <video ref={remoteVideoRef} autoPlay playsInline className="w-[50%] rounded aspect-video" />
+        <video
+          ref={remoteVideoRef}
+          autoPlay
+          playsInline
+          className="w-[50%] rounded aspect-video"
+        />
       </div>
 
       <div className="flex w-full gap-2">
