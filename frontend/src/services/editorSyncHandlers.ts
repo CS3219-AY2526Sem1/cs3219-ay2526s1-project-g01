@@ -163,6 +163,7 @@ function configureCollabWebsocket(
       toast.warning("You are now offline. Please reconnect to the wifi");
       for (const [id, decorator] of Object.entries(cursorCollections)) {
         if (decorator) {
+          console.log(`id deleted is ${id}`);
           decorator.clear();
           delete cursorCollections[id];
         }

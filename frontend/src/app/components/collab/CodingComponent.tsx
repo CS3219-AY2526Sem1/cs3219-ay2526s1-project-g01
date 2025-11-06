@@ -91,6 +91,7 @@ export default function CodingComponent({
       return;
     }
     const editorInstance = editorRef.current;
+    const clientWS: ReconnectingWebSocket = editorWebSocketManager.getSocket()!;
 
     openDialog();
     if (!ydocRef.current) {
@@ -105,6 +106,7 @@ export default function CodingComponent({
       ydocRef.current = ydoc;
       yTextRef.current = yText;
       bindingRef.current = binding;
+      registerEditorUpdateHandler(ydoc, clientWS);
     }
 
     const ydoc = ydocRef.current!;
@@ -114,7 +116,6 @@ export default function CodingComponent({
       string,
       monaco.editor.IEditorDecorationsCollection
     > = {};
-    const clientWS: ReconnectingWebSocket = editorWebSocketManager.getSocket()!;
 
     //set up message event listener on socket
     configureCollabWebsocket(
@@ -137,8 +138,6 @@ export default function CodingComponent({
       clientWS,
       user_name
     );
-
-    registerEditorUpdateHandler(ydoc, clientWS);
 
     //add cursor decorator
     initEditor(user_id, cursorCollections, editorInstance);
