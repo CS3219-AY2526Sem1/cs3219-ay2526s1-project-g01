@@ -26,6 +26,7 @@ export function initWebSocketServer() {
 
   //Heartbeat mechanism for persistent connection
   const ping_interval = setInterval(() => {
+    logger.info("does this even run");
     webSocketServer.clients.forEach((ws) => {
       if (!ws.isAlive) {
         logger.info(`${ws.userId} websocket disconnected`);
@@ -36,7 +37,11 @@ export function initWebSocketServer() {
       ws.ping();
       logger.info("ping sent");
     });
-  }, 10000);
+  }, 5000);
+
+  const test_interval = setInterval(() => {
+    logger.info("does this test interval run");
+  }, 5000);
 
   //For clearing of y doc state on server and redis if more than 2 minutes has passed since room is empty
   const state_interval = setInterval(async () => {
@@ -63,6 +68,7 @@ export function initWebSocketServer() {
     logger.info("websocketserver closed");
     clearInterval(ping_interval);
     clearInterval(state_interval);
+    clearInterval(test_interval);
   });
   return webSocketServer;
 }

@@ -159,8 +159,8 @@ function configureCollabWebsocket(
       console.warn(
         "frontend socket not receiving ping from server, closing socket"
       );
-      onCloseConnection();
-      clientWS.reconnect();
+      // onCloseConnection();
+      // clientWS.reconnect();
       console.log("set isConnect to false by heartBEAT, reconnect called");
     } else {
       console.log("frontend socket still alive");
