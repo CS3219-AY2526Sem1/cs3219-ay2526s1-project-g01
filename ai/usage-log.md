@@ -1918,7 +1918,7 @@ GitHub Copilot (model: Claude Sonnet 4)
 
 ---
 
-## Entry 51
+# Entry 51
 
 # Date/Time:
 
@@ -1933,6 +1933,15 @@ ChatGPT (model: GPT-5)
 Request to review WebRTC signaling code and verify the correctness of the flow, including whether the exchange of SDP offers and answers between users works properly, and how ICE candidates are handled before the remote description is set.
 
 # Output Summary:
+- Reviewed the code handling offer-made, offer-accepted, and ice-candidate socket events.
+- Confirmed that the logic correctly ensures both peers can exchange SDP offers and answers through the signaling server.
+- Explained the proper WebRTC flow:
+ 1. User A creates an SDP offer and sends it through the signaling server.
+ 2. User B receives the offer, sets it as a remote description, creates an SDP answer, and returns it.
+ 3. User A then sets the received answer as a remote description.
+ 4. Both sides exchange ICE candidates
+
+# Action Taken:
 
 - Reviewed the code handling offer-made, offer-accepted, and ice-candidate socket events.
 - Confirmed that the logic correctly ensures both peers can exchange SDP offers and answers through the signaling server.
@@ -2091,6 +2100,12 @@ Request to implement Alert Dialog from radix-ui
 - [ ] Rejected
 
 # Author Notes:
+- The signaling logic and peer connection setup were tested in a live environment with two users joining the same session room.
+- Connection established successfully with audio/video exchange.
+- Fix bugs where the server emits to the wrong user (eg to the current user instead of the other user)
+- WebRTC connection is working but bugs are encountered, such as the connection not being made if one user refreshes his/her browser or leaves and rejoins the same room
+
+# Author Notes:
 
 - Validated that logic implemented for buttons works
 - Modified css styling to suit overall aesthetic of application
@@ -2133,7 +2148,6 @@ Request on sample code on how to use redish hash to store session data
 ## Entry 57
 
 # Date/Time:
-
 2025-10-29 10:50
 
 # Tool:
@@ -2166,29 +2180,23 @@ Create a loading dialog box with spinner in radix
 ## Entry 58
 
 # Date/Time:
-
 2025-10-31 10:44
 
 # Tool:
-
 ChatGPT (model: GPT 5.0)
 
 # Prompt/Command:
-
 Singleton class to manage websocket connection for client frontend
 
 # Output Summary:
-
 - Provided boilerplate code for singleton class
 
 # Action Taken:
-
 - [ ] Accepted as-is
-- [x] Modified
+- [X] Modified
 - [ ] Rejected
 
 # Author Notes:
-
 - Verified that instance methods are appropriate
 - Modified instance methods to fit use case
 
@@ -2224,3 +2232,176 @@ Creaet a not authorised dialog box in radix to notify user that they are not all
 - Modified css styling to suit overall aesthetic of application
 - Modified component to make it reusable
 - Tested that notification dialog box works as intended
+
+---
+
+## Entry 60
+
+# Date/Time:
+
+2025-10-29 06:15
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 3.5)
+
+# Prompt/Command:
+
+"Give code for /api/question/add endpoint that adds a question. It should pass a JSON req.body that specifies all the data required to insert 1 question, as demonstrated in my init.sql file"
+"Give code for api/question/delete endpoint that deletes a question by the question id. It should get the question id from the req query.
+All the tables related to that 1 question should be deleted, as shown by the data inserted to insert 1 question in the init.sql file."
+"Give me code for the api/question/update-question that will update an existing question. An updated question is sent, with all the details 
+similar to adding a new question. However the question id remains the same"
+"Give me code for the api/question/{id} to get question by id. It should return the full JSON that is similar to the JSON body added"
+"give me code for the api/question/topic/add that will add a new topic specified in the query param to the topics tables in init.sql"
+
+# Output Summary:
+
+- Created the some routers, controllers and functions part by part based on the existing database and code structure
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Modified endpoints and added a few endpoints afterwards to make it more intuitive
+- Modified controller function incrementally to ensure more checks are done, as there were errors in testing
+- Modified functions added new topic during update, to only allow updates if the with preexisting topics and difficulties
+- Verified to ensure that all the endpoints work as intended after modifications
+
+---
+
+## Entry 61
+
+# Date/Time:
+
+2025-11-02 05:00
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+I want to propagate the question data that matching received as a response from calling collab. I think I need to do a few things:
+
+Update the matchingServiceApi MatchStatusResponse question field to accomodate for JSON of the similar form to:
+question: {
+"id": 11,
+"title": "Sort by Frequency and Value",
+"difficulty": "medium",
+"description": "Given an array of integers, sort them by frequency in descending order. If two numbers have the same frequency, sort them by value in ascending order.",
+"question_constraints": "Array length: 1 ≤ n ≤ 1000; Array elements: -10^6 ≤ arr[i] ≤ 10^6",
+"topics": [
+{
+"id": 1,
+"topic": "sorting"
+}
+],
+"test_cases": [
+{
+"index": 1,
+"input": "[1, 1, 2, 2, 2, 3]",
+"output": "[2, 2, 2, 1, 1, 3]"
+},
+{
+"index": 2,
+"input": "[4, 5, 6, 5, 4, 3]",
+"output": "[4, 4, 5, 5, 3, 6]"
+}
+]
+}
+
+Doing this should extract the data correctly. Might need to log to verify. Then getMatchStatus's data return should include the question data now
+
+pollStatus const question will then be updated with the question in task 1. Then I want to propagate this change to reflect on the frontend, specifically using this data to replace the hardcoded data in QuestionComponent.tsx
+
+
+# Output Summary:
+
+- Updated MatchStatusResponse question field
+- Updated getMatchStatus to be able to return the full question
+- Updated pollStatus to also return question now
+- QuestionComponent.tsx hard coded data is replaced with the newly retrieved data
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Designed the general approach to integration
+- Validated that a question is sent from question service's existing questions
+- Validated that the question sent matches the criteria specified by both users
+
+---
+
+## Entry 62
+
+# Date/Time:
+
+2025-11-03 03:00
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Give code to so that during the matching topic and difficulty selection, users can only see and select live topics available from the question-service. Help me to also capitalise the first letter of each word for the topics returned. Topics rendered should be of equal size, dynamic to changes in screen size.
+
+# Output Summary:
+
+- Added useEffect in TopicsComponent to fetch available topics from question service.
+- Added a capitlize function
+- Replaced flex flex-wrap with grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))]
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that matching page displays the actual topics available in question service
+- Validated that if a new topic is added to quesiton service, a refresh of the matching page will reflect the new topic
+
+---
+
+## Entry 63
+
+# Date/Time:
+
+2025-11-03 04:00
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+When user 1 clicks search for a specified difficulty and topic, and when user 2 clicks search for the same difficulty and topic after user 1, user 1 gets the correct error message that the topic + difficulty specified has no such question in question service. But user 2 gets a timedout message, which is wrong since 5 minutes has not passed. Help me to reflect the correct error message for both users.
+
+# Output Summary:
+
+- Modified checkStatus(), removed immediate cleanup when "failed" status is detected, and returns "failed" status without deleting session
+- Modified "failed" status handling: When user receives "failed" status, it shows error message to user, calls endSession(userId) to clean up their side of the session
+Resets to idle state, thereby cleaning up independently when they see the error
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that error message is the same for both users
+
+---

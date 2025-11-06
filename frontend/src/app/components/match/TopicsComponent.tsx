@@ -1,3 +1,10 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-03
+ * Purpose: For frontend to display live data from question-service
+ * Author Review: I validated correctness, security, and performance of the code.
+ */
+
 "use client";
 import { IoIosSettings } from "react-icons/io";
 import { IoCheckmark } from "react-icons/io5";
@@ -9,8 +16,9 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ALL_TOPICS } from "@/types/topics";
+import { fetchTopics } from "@/services/questionServiceApi";
 
 type TopicsProps = {
   setTopics: React.Dispatch<React.SetStateAction<string[]>>;
@@ -18,6 +26,35 @@ type TopicsProps = {
 
 export default function TopicsComponent({ setTopics }: TopicsProps) {
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+  const [availableTopics, setAvailableTopics] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const capitalizeWords = (str: string): string => {
+    return str
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  };
+
+  // Fetch available topics from question-service on component mount
+  useEffect(() => {
+    const loadTopics = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const topics = await fetchTopics();
+        setAvailableTopics(topics);
+      } catch (err) {
+        console.error("Error fetching topics:", err);
+        setError("Failed to load topics. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTopics();
+  }, []);
 
   const handleTopicSelect = (topic: string) => {
     const newSelection = selectedTopics.includes(topic)
@@ -39,36 +76,65 @@ export default function TopicsComponent({ setTopics }: TopicsProps) {
           </CardDescription>
         </CardHeader>
       </div>
-      <CardContent className="flex flex-wrap justify-evenly h-full items-center gap-3">
-        {ALL_TOPICS.map((topic) => {
-          const Icon = topic.icon;
-          return (
-            <Button
-              key={topic.name}
-              onClick={() => handleTopicSelect(topic.name)}
-              className={`flex-1 min-w-[150px] min-h-[50px] py-2 relative 
+      <CardContent className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 p-6">
+        {isLoading && (
+          <div className="col-span-full text-white text-center py-8">
+            Loading topics...
+          </div>
+        )}
+
+        {error && (
+          <div className="col-span-full text-red-400 text-center py-8">
+            {error}
+          </div>
+        )}
+
+        {!isLoading && !error && availableTopics.length === 0 && (
+          <div className="col-span-full text-white text-center py-8">
+            No topics available
+          </div>
+        )}
+
+        {!isLoading &&
+          !error &&
+          availableTopics.map((topicName) => {
+            // Find the matching topic config from ALL_TOPICS for icon and color
+            const topicConfig = ALL_TOPICS.find(
+              (t) => t.name.toLowerCase() === topicName.toLowerCase(),
+            );
+            const Icon = topicConfig?.icon;
+            const color = topicConfig?.color || "text-gray-500";
+            const displayName = capitalizeWords(topicName);
+
+            return (
+              <Button
+                key={topicName}
+                onClick={() => handleTopicSelect(topicName)}
+                className={`h-[60px] relative 
               ${
-                selectedTopics.includes(topic.name)
+                selectedTopics.includes(topicName)
                   ? "bg-gradient-to-r from-indigo-600 to-purple-700 text-white"
                   : "bg-zinc-800 text-white hover:bg-zinc-700"
               }
-              flex items-center justify-center pr-10 rounded-xl transition-all duration-200`}
-            >
-              <Icon className={topic.color} />
-              <span className="px-4 whitespace-normal break-words text-center leading-snug">
-                {topic.name}
-              </span>
-              <IoCheckmark
-                strokeWidth={3}
-                className={`absolute right-3 top-1/2 -translate-y-1/2 text-black text-4xl flex-shrink-0 ${
-                  selectedTopics.includes(topic.name)
-                    ? "opacity-100"
-                    : "opacity-0"
-                }`}
-              />
-            </Button>
-          );
-        })}
+              flex items-center justify-center rounded-xl transition-all duration-200`}
+              >
+                <div className="flex items-center gap-2">
+                  {Icon && <Icon className={color} size={20} />}
+                  <span className="whitespace-normal break-words text-center leading-snug">
+                    {displayName}
+                  </span>
+                </div>
+                <IoCheckmark
+                  strokeWidth={3}
+                  className={`absolute right-3 top-1/2 -translate-y-1/2 text-black text-4xl flex-shrink-0 ${
+                    selectedTopics.includes(topicName)
+                      ? "opacity-100"
+                      : "opacity-0"
+                  }`}
+                />
+              </Button>
+            );
+          })}
       </CardContent>
     </Card>
   );

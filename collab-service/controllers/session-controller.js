@@ -15,15 +15,63 @@ export async function createSession(req, res) {
     SessionModel.parse(req.body);
     const { sessionId, user1, user2, criteria } = req.body;
     const redisKey = `session:${sessionId}`;
+    let question;
+    
+    try {
+      const questionServiceUrl = process.env.QUESTION_SERVICE_URL;
 
-    //CALL QUESTION SERVICE ENDPOINT based on criteria  TO GET QUESTION
-    //store questionId retrieve in redis and local map object to reduce memory usage
-    //Dummy question object with some fields
-    const question = {
-      Title: "two sum",
-      description: "adasdasdkadjakdaskldajsdlkasdlkakdasd",
-      id: "123",
-    };
+      const requestBody = {
+        difficulty: criteria.difficulty,
+        topic: criteria.topics,
+        limit: 1,
+        random: true,
+      };
+
+      const questionResponse = await fetch(
+        `${questionServiceUrl}/questions/search`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody),
+        }
+      );
+
+      if (!questionResponse.ok) {
+        const errorMessage = await questionResponse.text();
+        logger.error(
+          `Failed to fetch question: ${questionResponse.status} - ${errorMessage}`
+        );
+        throw new Error("Failed to fetch question");
+      }
+
+      const questionData = await questionResponse.json();
+      logger.info(`Question fetched successfully: ${JSON.stringify(questionData)}`);
+      
+      if (!questionData.data || questionData.data.length === 0) {
+        logger.error("No questions match the specified criteria");
+        
+        // Format the criteria for user-friendly display
+        const difficultyText = criteria.difficulty.join(", ");
+        const topicsText = criteria.topics.join(", ");
+        
+        return res.status(404).json({
+          error: "No questions match the specified criteria",
+          message: `No questions available for the selected criteria: Difficulty [${difficultyText}] and Topics [${topicsText}]`,
+          criteria: {
+            difficulty: criteria.difficulty,
+            topics: criteria.topics
+          }
+        });
+      }
+
+      question = questionData.data[0];
+    } catch (err) {
+      logger.error("Error in retrieving question for session:", err.message);
+      return res.status(500).json({
+        error: "Error in retrieving question for session",
+        details: err.message,
+      });
+    }
 
     const sessionData = {
       doc: new Y.Doc(),

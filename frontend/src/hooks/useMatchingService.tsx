@@ -1,8 +1,17 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-03
+ * Purpose: To integrate question data retrieval and display in the collaboration page.
+ * Author Review: Verified correctness and functionality of the code.
+ */
+
 import { useState, useRef, useCallback, useEffect } from "react";
 import {
   startMatch,
   getMatchStatus,
   terminateMatch,
+  endSession,
+  Question,
 } from "@/services/matchingServiceApi";
 import { toast } from "sonner";
 
@@ -16,11 +25,12 @@ export function useMatchingService(userId: string | undefined) {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [question, setQuestion] = useState<Question | null>(null);
   const pollingInterval = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (errorMessage) {
-      toast.error(errorMessage);
+      toast.error(errorMessage, { duration: 6000 });
     }
     setErrorMessage(null);
   }, [errorMessage]);
@@ -51,11 +61,41 @@ export function useMatchingService(userId: string | undefined) {
               }
             } else if (data.status === "active") {
               setStatus("active");
-              //For question integration on front end
-              //Change the MatchStatusResponse interface accordingly for the question fields
-              const question = data.question;
+              // Store the question data from the response
+              if (data.question) {
+                setQuestion(data.question);
+                console.log("Question data received:", data.question);
+              }
               console.log("frontend sets status to active");
               clearPolling();
+            } else if (data.status === "failed") {
+              // Session creation failed (e.g., no questions available)
+              clearPolling();
+
+              // Show detailed error message
+              const errorMsg =
+                data.errorMessage ||
+                "Failed to create session. Please try again.";
+              setErrorMessage(errorMsg);
+              console.error("Session creation failed:", data.error);
+
+              // Clean up the failed session for this user
+              if (uid) {
+                try {
+                  await endSession(uid);
+                  console.log("Cleaned up failed session");
+                } catch (cleanupErr) {
+                  console.error(
+                    "Error cleaning up failed session:",
+                    cleanupErr,
+                  );
+                }
+              }
+
+              // Reset state to idle after cleanup
+              setStatus("idle");
+              setSessionId(null);
+              setTimeRemaining(null);
             } else if (data.status === "idle") {
               clearPolling();
               setStatus("idle");
@@ -72,7 +112,7 @@ export function useMatchingService(userId: string | undefined) {
         }
       }, 1000);
     },
-    [clearPolling],
+    [clearPolling, sessionId],
   );
 
   const startMatching = useCallback(
@@ -132,6 +172,7 @@ export function useMatchingService(userId: string | undefined) {
     status,
     sessionId,
     timeRemaining,
+    question,
     startMatching,
     handleCancelSearch,
     clearPolling,
