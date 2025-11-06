@@ -12,6 +12,7 @@ import * as Y from "yjs";
 import * as monaco from "monaco-editor";
 import ReconnectingWebSocket from "reconnecting-websocket";
 import { createInlineStyle } from "@/lib/utils";
+import { editorWebSocketManager } from "./editorSocketManager";
 
 interface BasePayload {
   type: string;
@@ -90,7 +91,11 @@ function configureCollabWebsocket(
   clientWS.onmessage = (messageEvent) => {
     if (typeof messageEvent.data === "string") {
       const payloadObject = JSON.parse(messageEvent.data);
-
+      if (payloadObject.type === "ping") {
+        editorWebSocketManager.setTime();
+        console.log("update time in socket");
+        return;
+      }
       if (payloadObject.type === "cursor" && payloadObject.userId !== userId) {
         onPartnerCursorChangeHandler(
           messageEvent,
@@ -149,6 +154,14 @@ function configureCollabWebsocket(
     console.log(error);
   };
 
+  const heartBeat = setInterval(() => {
+    if (Date.now() - editorWebSocketManager.getTime() > 15000) {
+      console.warn(
+        "frontend socket not receiving ping from server, closing socket"
+      );
+      clientWS.dispatchEvent(new CloseEvent("close"));
+    }
+  }, 5000);
   clientWS.onclose = () => {
     // const cursorDecorator: monaco.editor.IEditorDecorationsCollection =
     //   cursorCollections[userId];
@@ -158,6 +171,7 @@ function configureCollabWebsocket(
     // // delete cursorCollections[userId];
     onCloseConnection();
     console.log("set isConnect to false");
+    clearInterval(heartBeat);
   };
 }
 

@@ -32,9 +32,10 @@ export function initWebSocketServer() {
         return ws.terminate();
       }
       ws.isAlive = false;
+      ws.send(JSON.stringify({ type: "ping" }));
       ws.ping();
     });
-  }, 30000);
+  }, 10000);
 
   //For clearing of y doc state on server and redis if more than 2 minutes has passed since room is empty
   const state_interval = setInterval(async () => {
