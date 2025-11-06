@@ -131,12 +131,12 @@ function configureCollabWebsocket(
   };
 
   clientWS.onclose = () => {
-    const cursorDecorator: monaco.editor.IEditorDecorationsCollection =
-      cursorCollections[userId];
-    if (cursorDecorator) {
-      cursorDecorator.clear();
-    }
-    // delete cursorCollections[userId];
+    // const cursorDecorator: monaco.editor.IEditorDecorationsCollection =
+    //   cursorCollections[userId];
+    // if (cursorDecorator) {
+    //   cursorDecorator.clear();
+    // }
+    // // delete cursorCollections[userId];
     onCloseConnection();
     console.log("set isConnect to false");
   };
