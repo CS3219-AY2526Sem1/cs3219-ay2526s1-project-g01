@@ -31,7 +31,7 @@ async function initialiseWebSocket(wss, ws, request, redisDb, roomToDataMap) {
   //validate the connection here
   ws.isAlive = true;
   ws.sessionId = sessionId;
-
+  logger.info(`sessionid set in ws ${ws.sessionId}`);
   ws.on("pong", () => {
     ws.isAlive = true;
   });
@@ -58,6 +58,9 @@ async function initialiseWebSocket(wss, ws, request, redisDb, roomToDataMap) {
     const yUpdate = new Uint8Array(update);
     Y.applyUpdate(doc, yUpdate);
     broadcastToRoom(wss, ws, sessionId, yUpdate);
+    logger.info(
+      "is this seen after reconnection, if seen means server recevied ydoc update and broadcasted it"
+    );
 
     //Save local state to redis if last saved more than 30 seconds ago
     if (Date.now() - Number(localSessionData.lastSavedAt) >= 30000) {

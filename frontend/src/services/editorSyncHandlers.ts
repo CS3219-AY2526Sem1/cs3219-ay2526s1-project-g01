@@ -234,6 +234,7 @@ function onEditorChangeHandler(
   clientWS: ReconnectingWebSocket
 ) {
   if (origin != "remote" && clientWS.readyState === WebSocket.OPEN) {
+    console.log("client sends ydoc update to server");
     clientWS.send(update);
   }
 }
