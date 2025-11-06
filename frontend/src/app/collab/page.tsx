@@ -1,5 +1,12 @@
 /**
  * AI Assistance Disclosure:
+ * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2024-10-28
+ * Purpose: Enhanced collab page with toggle between peer chat and AI assistant panel
+ * Author Review: State management and component integration validated
+ */
+
+/**
+ * AI Assistance Disclosure:
  * Tool: Claude Sonnet 4.5, date: 2025-11-02
  * Purpose: To integrate question data retrieval and display in the collaboration page.
  * Author Review: Verified correctness and functionality of the code.
@@ -19,6 +26,10 @@ import { useUser } from "@/contexts/UserContext";
 import { endSession } from "@/services/matchingServiceApi";
 import { editorWebSocketManager } from "@/services/editorSocketManager";
 import { deleteSession } from "@/services/collabServiceApi";
+import AiAssistPanel from "../components/collab/AiAssistPanel";
+import * as monaco from "monaco-editor";
+import { Button } from "@/components/ui/button";
+import { MessageSquare, Sparkles } from "lucide-react";
 import { Question } from "@/services/matchingServiceApi";
 
 function CollabPageContent() {
@@ -26,6 +37,10 @@ function CollabPageContent() {
     useState<boolean>(false);
   const [showLoadingDialog, setShowLoadingDialog] = useState<boolean>(true);
   const [blockUser, setblockUser] = useState<boolean>(true);
+  const [showAiAssist, setShowAiAssist] = useState(false);
+  const [editorInstance, setEditorInstance] =
+    useState<monaco.editor.IStandaloneCodeEditor>();
+  const [language, setLanguage] = useState<string>("javascript");
   const router = useRouter();
   const { user, setUser } = useUser();
   const [question, setQuestion] = useState<Question | null>(null);
@@ -101,6 +116,9 @@ function CollabPageContent() {
 
         <div className="flex-[2]">
           <CodingComponentWrapper
+            onEditorMount={setEditorInstance}
+            onLanguageChange={setLanguage}
+         
             isOpen={showLoadingDialog}
             closeDialog={() => setShowLoadingDialog(false)}
             onLeave={() => directToMatch()}
@@ -108,7 +126,46 @@ function CollabPageContent() {
         </div>
 
         <div className="flex-1 p-5">
-          <ChatComponent />
+          {/* Toggle between Chat and AI Assist */}
+          <div className="h-full flex flex-col">
+            {/* Toggle Buttons */}
+            <div className="flex gap-2 mb-4">
+              <Button
+                onClick={() => setShowAiAssist(false)}
+                className={`flex-1 ${
+                  !showAiAssist
+                    ? "bg-purple-600 text-white"
+                    : "bg-stone-800 text-stone-300 hover:bg-stone-700"
+                }`}
+              >
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Chat
+              </Button>
+              <Button
+                onClick={() => setShowAiAssist(true)}
+                className={`flex-1 ${
+                  showAiAssist
+                    ? "bg-purple-600 text-white"
+                    : "bg-stone-800 text-stone-300 hover:bg-stone-700"
+                }`}
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                AI Assist
+              </Button>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-hidden min-h-0">
+              {showAiAssist ? (
+                <AiAssistPanel
+                  editorInstance={editorInstance}
+                  language={language}
+                />
+              ) : (
+                <ChatComponent />
+              )}
+            </div>
+          </div>
         </div>
         <DisconnectAlertDialog
           open={showConfirmationAlert}
