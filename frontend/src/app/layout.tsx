@@ -9,6 +9,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { UserProvider } from "@/contexts/UserContext";
+import { WebSocketProvider } from "@/contexts/WebSocketContext";
 import NavbarWrapper from "./components/layout/NavbarWrapper";
 import AuthGuard from "./components/layout/AuthGuard";
 import "./globals.css";
@@ -39,9 +40,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <UserProvider>
-          <AuthGuard />
-          <NavbarWrapper />
-          {children}
+          <WebSocketProvider>
+            <AuthGuard />
+            <NavbarWrapper />
+            {children}
+          </WebSocketProvider>
         </UserProvider>
         <Toaster
           position="top-center"

@@ -38,21 +38,21 @@ interface editorSyncPayload extends BasePayload {
 //Partner's cursor CSS
 createInlineStyle(
   "remote-cursor",
-  "border-left: 2px solid rgba(255, 64, 11, 1);",
+  "border-left: 2px solid rgba(255, 64, 11, 1);"
 );
 //Current user's cursor CSS
 createInlineStyle(
   "local-cursor",
-  "border-left: 2px solid rgba(46, 216, 246, 1)",
+  "border-left: 2px solid rgba(46, 216, 246, 1)"
 );
 
 //Handle updates made to monaco editor by current user
 function registerEditorUpdateHandler(
   ydoc: Y.Doc,
-  clientWS: ReconnectingWebSocket,
+  clientWS: ReconnectingWebSocket
 ) {
   ydoc.on("update", (update: Uint8Array, origin: string) =>
-    onEditorChangeHandler(update, origin, clientWS),
+    onEditorChangeHandler(update, origin, clientWS)
   );
 }
 
@@ -62,10 +62,10 @@ function registerCursorUpdateHandler(
   editorInstance: monaco.editor.IStandaloneCodeEditor,
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
   clientWS: ReconnectingWebSocket,
-  userName: string,
+  userName: string
 ) {
   editorInstance.onDidChangeCursorSelection((event) =>
-    onCursorChangeHandler(cursorCollections, event, clientWS, userId, userName),
+    onCursorChangeHandler(cursorCollections, event, clientWS, userId, userName)
   );
 }
 
@@ -78,6 +78,7 @@ function configureCollabWebsocket(
   clientWS: ReconnectingWebSocket,
   onLeaveSession: () => void,
   onPartnerLeaveSession: () => void,
+  onCloseConnection: () => void
 ) {
   clientWS.onmessage = (messageEvent) => {
     if (typeof messageEvent.data === "string") {
@@ -87,13 +88,13 @@ function configureCollabWebsocket(
         onPartnerCursorChangeHandler(
           messageEvent,
           editorInstance,
-          cursorCollections,
+          cursorCollections
         );
         return;
       } else if (payloadObject.type === "sync") {
         const yUpdate: Uint8Array = Buffer.from(
           payloadObject.ydocUpdate,
-          "base64",
+          "base64"
         );
         Y.applyUpdate(ydoc, yUpdate, "remote");
         return;
@@ -128,6 +129,8 @@ function configureCollabWebsocket(
       cursorDecorator.clear();
     }
     delete cursorCollections[userId];
+    onCloseConnection();
+    console.log("set isConnect to false");
   };
 }
 
@@ -135,7 +138,7 @@ function configureCollabWebsocket(
 function initEditor(
   userId: string,
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
-  editorInstance: monaco.editor.IStandaloneCodeEditor,
+  editorInstance: monaco.editor.IStandaloneCodeEditor
 ) {
   cursorCollections[userId] = editorInstance.createDecorationsCollection([]);
 
@@ -155,7 +158,7 @@ function initEditor(
 function sendEditorState(
   userId: string,
   ydoc: Y.Doc,
-  ws: ReconnectingWebSocket,
+  ws: ReconnectingWebSocket
 ) {
   console.log("sent editor state");
   const initialState: Uint8Array = Y.encodeStateVector(ydoc);
@@ -174,7 +177,7 @@ function sendEditorState(
 function onEditorChangeHandler(
   update: Uint8Array,
   origin: string,
-  clientWS: ReconnectingWebSocket,
+  clientWS: ReconnectingWebSocket
 ) {
   if (origin != "remote" && clientWS.readyState === WebSocket.OPEN) {
     clientWS.send(update);
@@ -187,7 +190,7 @@ function onCursorChangeHandler(
   event: monaco.editor.ICursorSelectionChangedEvent,
   clientWS: ReconnectingWebSocket,
   userId: string,
-  userName: string,
+  userName: string
 ) {
   const { startLineNumber, startColumn, endLineNumber, endColumn } =
     event.selection;
@@ -210,7 +213,7 @@ function onCursorChangeHandler(
         startLineNumber,
         startColumn,
         endLineNumber,
-        endColumn,
+        endColumn
       ),
       options: {
         className: "local-cursor",
@@ -224,7 +227,7 @@ function onCursorChangeHandler(
 function onPartnerCursorChangeHandler(
   messageEvent: MessageEvent,
   editorInstance: monaco.editor.IStandaloneCodeEditor,
-  cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
+  cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>
 ) {
   const data: CursorUpdatePayload = JSON.parse(messageEvent.data);
 
@@ -241,7 +244,7 @@ function onPartnerCursorChangeHandler(
           startLineNumber,
           startColumn,
           endLineNumber,
-          endColumn,
+          endColumn
         ),
         options: {
           className: "remote-cursor",

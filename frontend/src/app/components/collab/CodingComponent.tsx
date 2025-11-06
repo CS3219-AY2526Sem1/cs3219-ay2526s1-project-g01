@@ -27,6 +27,7 @@ import {
   registerCursorUpdateHandler,
   registerEditorUpdateHandler,
 } from "@/services/editorSyncHandlers";
+import { useWebSocketContext } from "@/contexts/WebSocketContext";
 
 export default function CodingComponent({
   isOpen,
@@ -37,6 +38,8 @@ export default function CodingComponent({
   closeDialog: () => void;
   onLeave: () => void;
 }) {
+  const { isConnected, setIsConnected } = useWebSocketContext();
+
   const [codeContent, setCodeContent] = useState<string>("");
   const [showDisconnectAlert, setshowDisconnectAlert] =
     useState<boolean>(false);
@@ -48,6 +51,9 @@ export default function CodingComponent({
   const user_id: string = user?.id || "0";
   const user_name: string = user?.username || "Unknown";
 
+  let ydoc: Y.Doc;
+  let yText: Y.Text;
+  let binding: MonacoBinding;
   function setInitialContent(value: string | undefined) {
     if (value != undefined) {
       setCodeContent(value);
@@ -63,7 +69,7 @@ export default function CodingComponent({
     cursorCollections: Record<
       string,
       monaco.editor.IEditorDecorationsCollection
-    >,
+    >
   ) {
     const cursorDecorator: monaco.editor.IEditorDecorationsCollection =
       cursorCollections[userId];
@@ -75,16 +81,18 @@ export default function CodingComponent({
 
   //Sets up local editor state, socket event listenr and syncrhonise editor state with backend ydoc version
   useEffect(() => {
-    if (!editorInstance) {
+    if (!editorInstance || !isConnected) {
       return;
     }
-    const ydoc: Y.Doc = new Y.Doc();
-    const yText: Y.Text = ydoc.getText("monaco");
-    const binding: MonacoBinding = new MonacoBinding(
-      yText,
-      editorInstance.getModel()!,
-      new Set([editorInstance]),
-    );
+    if (!ydoc) {
+      ydoc = new Y.Doc();
+      yText = ydoc.getText("monaco");
+      binding = new MonacoBinding(
+        yText,
+        editorInstance.getModel()!,
+        new Set([editorInstance])
+      );
+    }
 
     const cursorCollections: Record<
       string,
@@ -103,6 +111,7 @@ export default function CodingComponent({
         router.replace("/match");
       },
       () => setshowDisconnectAlert(true),
+      () => setIsConnected(false)
     );
 
     registerCursorUpdateHandler(
@@ -110,7 +119,7 @@ export default function CodingComponent({
       editorInstance,
       cursorCollections,
       clientWS,
-      user_name,
+      user_name
     );
 
     registerEditorUpdateHandler(ydoc, clientWS);
@@ -133,7 +142,7 @@ export default function CodingComponent({
       ydoc.destroy();
       binding.destroy();
     };
-  }, [editorInstance]);
+  }, [editorInstance, isConnected]);
 
   return (
     <>

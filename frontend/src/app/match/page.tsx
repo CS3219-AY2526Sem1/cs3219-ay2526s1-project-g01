@@ -11,6 +11,7 @@ import { getToken } from "@/services/userServiceCookies";
 import DisconnectAlertDialog from "@/components/ui/alert-dialog";
 import { getUserSessionStatus } from "@/services/collabServiceApi";
 import NotAuthorizedDialog from "@/components/ui/not-authorised-dialog";
+import { useWebSocketContext } from "@/contexts/WebSocketContext";
 export default function MatchPage() {
   const [difficulty, setDifficulty] = useState<string[]>([]);
   const [topics, setTopics] = useState<string[]>([]);
@@ -39,6 +40,8 @@ export default function MatchPage() {
     startMatching(difficulty, topics, user?.username || user?.id || "");
   };
 
+  const { setIsConnected } = useWebSocketContext();
+
   //Handles every socket connection to server and closes the creating room dialog box
   useEffect(() => {
     if (status === "active" && sessionId) {
@@ -49,6 +52,8 @@ export default function MatchPage() {
       socket.onopen = () => {
         console.log("Socket connection established");
         setStatus("connected");
+        setIsConnected(true);
+        console.log("isConnected set to true");
       };
 
       socket.onclose = () => {
@@ -79,7 +84,7 @@ export default function MatchPage() {
       getUserSessionStatus(
         user.id,
         (sid) => setSessionId(sid),
-        () => setshowRejoinRoomDialog(true),
+        () => setshowRejoinRoomDialog(true)
       );
     }
   }, [user?.id]);
