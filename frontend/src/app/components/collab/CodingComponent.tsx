@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, CircleUser } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
@@ -53,9 +53,9 @@ export default function CodingComponent({
   const user_id: string = user?.id || "0";
   const user_name: string = user?.username || "Unknown";
 
-  let ydoc: Y.Doc;
-  let yText: Y.Text;
-  let binding: MonacoBinding;
+  const ydocRef = useRef<Y.Doc | null>(null);
+  const yTextRef = useRef<Y.Text | null>(null);
+  const bindingRef = useRef<MonacoBinding | null>(null);
   function setInitialContent(value: string | undefined) {
     if (value != undefined) {
       setCodeContent(value);
@@ -87,16 +87,22 @@ export default function CodingComponent({
       return;
     }
     openDialog();
-    if (!ydoc) {
+    if (!ydocRef.current) {
       console.log("my ydoc is being resetted even without navigating away");
-      ydoc = new Y.Doc();
-      yText = ydoc.getText("monaco");
-      binding = new MonacoBinding(
+      const ydoc = new Y.Doc();
+      const yText = ydoc.getText("monaco");
+      const binding = new MonacoBinding(
         yText,
         editorInstance.getModel()!,
         new Set([editorInstance])
       );
+      ydocRef.current = ydoc;
+      yTextRef.current = yText;
+      bindingRef.current = binding;
     }
+
+    const ydoc = ydocRef.current!;
+    const binding = bindingRef.current!;
 
     const cursorCollections: Record<
       string,

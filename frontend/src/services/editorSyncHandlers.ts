@@ -166,7 +166,7 @@ function configureCollabWebsocket(
     } else {
       console.log("frontend socket still alive");
     }
-  }, 10000);
+  }, 5000);
   clientWS.onclose = () => {
     // const cursorDecorator: monaco.editor.IEditorDecorationsCollection =
     //   cursorCollections[userId];
