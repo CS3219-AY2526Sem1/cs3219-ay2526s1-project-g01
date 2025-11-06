@@ -28,6 +28,7 @@ import {
   registerEditorUpdateHandler,
 } from "@/services/editorSyncHandlers";
 import { useWebSocketContext } from "@/contexts/WebSocketContext";
+import { toast } from "sonner";
 
 export default function CodingComponent({
   isOpen,
@@ -94,7 +95,7 @@ export default function CodingComponent({
     }
     const editorInstance = editorRef.current;
     const clientWS: ReconnectingWebSocket = editorWebSocketManager.getSocket()!;
-
+    let isOnline = true;
     openDialog();
     if (!ydocRef.current) {
       console.log("my ydoc is being resetted even without navigating away");
@@ -108,7 +109,7 @@ export default function CodingComponent({
       ydocRef.current = ydoc;
       yTextRef.current = yText;
       bindingRef.current = binding;
-      registerEditorUpdateHandler(ydoc, clientWS);
+      isOnline = false;
     }
 
     const ydoc = ydocRef.current!;
@@ -137,8 +138,10 @@ export default function CodingComponent({
       editorInstance,
       cursorCollections,
       clientWS,
-      user_name
+      user_name,
+      isConnected
     );
+    registerEditorUpdateHandler(ydoc, clientWS);
 
     //add cursor decorator
     initEditor(user_id, cursorCollections, editorInstance);
@@ -148,6 +151,9 @@ export default function CodingComponent({
 
     setTimeout(() => {
       closeDialog();
+      if (isOnline) {
+        toast.success("You are back online!!!");
+      }
     }, 2000);
 
     return () => {
