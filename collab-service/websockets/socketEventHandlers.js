@@ -37,12 +37,14 @@ function handleInitialDocSync(message, ws, ydoc, wss, sessionId) {
   return false;
 }
 
+//Handles syncing of server ydoc and partner ydoc with offline changes made by client
 function handleClientDocSync(message, ws, ydoc, wss, sessionId) {
   const text = message.toString();
   if (text.startsWith("{")) {
     const data = JSON.parse(text);
     if (data.type === "sync_client") {
       const yUpdate = Buffer.from(data.ydocUpdate, "base64");
+      logger.info(yUpdate.length);
       Y.applyUpdate(ydoc, yUpdate);
       broadcastToRoom(wss, ws, sessionId, yUpdate);
       logger.info(

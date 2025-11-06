@@ -160,6 +160,12 @@ function configureCollabWebsocket(
         "frontend socket not receiving ping from server, reconnecting socket"
       );
       toast.warning("You are now offline. Please reconnect to the wifi");
+      for (const [id, decorator] of Object.entries(cursorCollections)) {
+        if (id !== userId && decorator) {
+          decorator.clear();
+          delete cursorCollections[id];
+        }
+      }
       onCloseConnection();
       clientWS.reconnect();
       console.log("set isConnect to false by heartBEAT, reconnect called");
