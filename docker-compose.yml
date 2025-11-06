@@ -12,7 +12,7 @@
 # =============================================================================
 #
 # 🔥 LIVE RELOAD ENABLED FOR MICROSERVICES ONLY
-# 
+#
 # ARCHITECTURE:
 # ├── 🌐 Frontend (Next.js) - Runs via NPM DEV (host machine)
 # ├── 🚀 Microservices - Run via DOCKER with live reload
@@ -111,7 +111,11 @@ services:
     environment:
       - DB_LOCAL_URI=mongodb://root:example@mongodb-user-services:27017 # Override for container
       - NODE_ENV=development # Development mode for better error messages
-    command: ["/bin/sh", "-c", "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js"] # Install deps and run with polling for Windows/WSL2
+    command: [
+        "/bin/sh",
+        "-c",
+        "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js",
+      ] # Install deps and run with polling for Windows/WSL2
 
   # Matching Service - DEVELOPMENT MODE WITH LIVE RELOAD
   matching-service:
@@ -133,7 +137,11 @@ services:
       - ./matching-service/.env
     environment:
       - NODE_ENV=development # Development mode
-    command: ["/bin/sh", "-c", "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js"] # Install deps and run with polling for Windows/WSL2
+    command: [
+        "/bin/sh",
+        "-c",
+        "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js",
+      ] # Install deps and run with polling for Windows/WSL2
 
   # Collaboration Service - DEVELOPMENT MODE WITH LIVE RELOAD
   collab-service:
@@ -144,7 +152,7 @@ services:
       dockerfile: Dockerfile
       # No target specified - uses default single-stage build
     ports:
-      - "8000:8000" # Expose for direct access during development  
+      - "8000:8000" # Expose for direct access during development
     volumes:
       # Mount source code for live reload (adjust paths based on actual structure)
       - ./collab-service:/app:cached
@@ -155,7 +163,11 @@ services:
       - ./collab-service/.env
     environment:
       - NODE_ENV=development # Development mode
-    command: ["/bin/sh", "-c", "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js"] # Install deps and run with polling for Windows/WSL2
+    command: [
+        "/bin/sh",
+        "-c",
+        "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js",
+      ] # Install deps and run with polling for Windows/WSL2
 
   communication-service:
     image: honeydews/communication-service  # Replace with your image name
@@ -204,44 +216,12 @@ services:
   redis-collab-service:
     image: redis:latest
     container_name: collab-redis
-    command:
-      [
-        "redis-server",
-        "--requirepass",
-        "${REDIS_PASSWORD}",
-        "--appendonly",
-        "yes",
-      ]
+    command: ["redis-server", "--appendonly", "yes"]
     env_file:
       - ./collab-service/.env
     volumes:
       - redis-data-collab-service:/data
 
-  ## postgres-question-service:
-  ##   image: postgres:16
-  ##   container_name: question-service-postgres-gateway
-  ##   environment:
-  ##     POSTGRES_USER: ${QUESTION_SERVICE_USER}
-  ##     POSTGRES_PASSWORD: ${QUESTION_SERVICE_PASSWORD}
-  ##     POSTGRES_DB: ${QUESTION_SERVICE_DB}
-  ##   ports:
-  ##     - "7001:5432"
-  ##   env_file:
-  ##     - ./.env
-  ##   volumes:
-  ##     - postgres-question-data:/var/lib/postgresql/data
-
-  # postgres-db:
-  #   image: postgres:16
-  #   ports: 
-  #     -  5432:5432
-  #   environment:
-  #     POSTGRES_USER: ${QUESTION_SERVICE_USER}
-  #     POSTGRES_PASSWORD: ${QUESTION_SERVICE_PASSWORD}
-  #     POSTGRES_DB: ${QUESTION_SERVICE_DB}
-  #   volumes:
-  #     - postgres-data-question-service:/var/lib/postgresql/data
-  #     - ./question-service/db-init2.sql:/docker-entrypoint-initdb.d/db-init2.sql:ro
   
   pg-question-service:
     image: postgres:16

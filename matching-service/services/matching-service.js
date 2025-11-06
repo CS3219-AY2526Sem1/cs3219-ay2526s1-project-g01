@@ -1,3 +1,12 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-03
+ * Purpose: To integrate question data retrieval and display in the collaboration page.
+ * Author Review: Verified correctness and functionality of the code.
+ */
+
+require("dotenv").config();
+
 const redisClient = require("../utils/redisClient");
 const { v4: uuidv4 } = require("uuid");
 
@@ -27,7 +36,7 @@ class MatchingService {
     try {
       // check if user is already searching
       const existingSearch = await redisClient.get(
-        `${this.ACTIVE_SEARCH_PREFIX}${userId}`,
+        `${this.ACTIVE_SEARCH_PREFIX}${userId}`
       );
       if (existingSearch) {
         throw new Error("User is already in a matching queue");
@@ -40,7 +49,7 @@ class MatchingService {
       // try to find a match immediately
       const match = await this.findMatch(
         { userId, username, difficulty, topics },
-        queueKey,
+        queueKey
       );
 
       if (match) {
@@ -66,7 +75,7 @@ class MatchingService {
       await redisClient.setEx(
         `${this.ACTIVE_SEARCH_PREFIX}${userId}`,
         this.MATCH_TIMEOUT / 1000,
-        JSON.stringify({ queueKey, ...userQueueData }),
+        JSON.stringify({ queueKey, ...userQueueData })
       );
 
       // schedule auto-termination - deletes from queue after timeout
@@ -98,13 +107,13 @@ class MatchingService {
         // same exact difficulty (can change to subsets in future iterations)
         const difficultyMatch = this.arraysEqual(
           waitingUser.difficulty,
-          newUser.difficulty,
+          newUser.difficulty
         );
 
         // same exact topics (can change to subsets in future iterations)
         const topicsMatch = this.arraysEqual(
           waitingUser.topics,
-          newUser.topics,
+          newUser.topics
         );
 
         if (difficultyMatch && topicsMatch) {
@@ -128,34 +137,34 @@ class MatchingService {
               topics: newUser.topics,
             },
             matchedAt: new Date().toISOString(),
-            status: "active",
+            status: "matched", //CHANGE HERE
           };
 
           // store session (1 hour expiry - change in future iteration if necessary)
           await redisClient.setEx(
             `${this.SESSION_PREFIX}${sessionId}`,
             3600,
-            JSON.stringify(matchData),
+            JSON.stringify(matchData)
           );
 
           // map users to session
           await redisClient.setEx(
             `${this.USER_SESSION_PREFIX}${waitingUser.userId}`,
             3600,
-            sessionId,
+            sessionId
           );
           await redisClient.setEx(
             `${this.USER_SESSION_PREFIX}${newUser.userId}`,
             3600,
-            sessionId,
+            sessionId
           );
 
           // clean up active searches
           await redisClient.del(
-            `${this.ACTIVE_SEARCH_PREFIX}${waitingUser.userId}`,
+            `${this.ACTIVE_SEARCH_PREFIX}${waitingUser.userId}`
           );
           await redisClient.del(
-            `${this.ACTIVE_SEARCH_PREFIX}${newUser.userId}`,
+            `${this.ACTIVE_SEARCH_PREFIX}${newUser.userId}`
           );
 
           // cancel timeouts
@@ -163,9 +172,12 @@ class MatchingService {
           this.cancelTimeout(newUser.userId);
 
           console.log(
-            `[MATCH FOUND] ${waitingUser.userId} ↔ ${newUser.userId} | Session: ${sessionId}`,
+            `[MATCH FOUND] ${waitingUser.userId} ↔ ${newUser.userId} | Session: ${sessionId}`
           );
 
+          // Second user will call collab service endpoint to create a room, function runs in the background so there
+          // wont be delay in returning a response to user2's matching request
+          this.triggerRoomCreation(matchData);
           return matchData;
         }
       }
@@ -181,12 +193,12 @@ class MatchingService {
     const timeoutId = setTimeout(async () => {
       try {
         const activeSearch = await redisClient.get(
-          `${this.ACTIVE_SEARCH_PREFIX}${userId}`,
+          `${this.ACTIVE_SEARCH_PREFIX}${userId}`
         );
 
         if (activeSearch) {
           console.log(
-            `[TIMEOUT] Auto-terminating user ${userId} after 5 minutes`,
+            `[TIMEOUT] Auto-terminating user ${userId} after 5 minutes`
           );
           await this.terminateUser(userId);
         }
@@ -212,7 +224,7 @@ class MatchingService {
   async terminateUser(userId) {
     try {
       const activeSearchData = await redisClient.get(
-        `${this.ACTIVE_SEARCH_PREFIX}${userId}`,
+        `${this.ACTIVE_SEARCH_PREFIX}${userId}`
       );
 
       if (!activeSearchData) {
@@ -252,18 +264,40 @@ class MatchingService {
     try {
       // check if user has a session (matched)
       const sessionId = await redisClient.get(
-        `${this.USER_SESSION_PREFIX}${userId}`,
+        `${this.USER_SESSION_PREFIX}${userId}`
       );
       if (sessionId) {
-        return {
-          status: "matched",
+        const matchData = await this.getSession(sessionId);
+        let response = {
+          status: matchData.status,
           sessionId,
         };
+        
+        if (matchData.status === "active") {
+          response = {
+            question: matchData.question,
+            ...response,
+          };
+        } else if (matchData.status === "failed") {
+          // Session creation failed, return error but keep session temporarily
+          // so both users can see the error before it's cleaned up
+          response = {
+            status: "failed",
+            error: matchData.error,
+            errorMessage: matchData.errorMessage,
+            errorDetails: matchData.errorDetails,
+          };
+          
+          // Don't clean up immediately - let Redis TTL expire it naturally
+          // This ensures both users see the error even if they poll at different times
+        }
+        
+        return response;
       }
 
       // check if user is searching
       const activeSearch = await redisClient.get(
-        `${this.ACTIVE_SEARCH_PREFIX}${userId}`,
+        `${this.ACTIVE_SEARCH_PREFIX}${userId}`
       );
 
       if (activeSearch) {
@@ -294,7 +328,7 @@ class MatchingService {
   async getSession(sessionId) {
     try {
       const sessionData = await redisClient.get(
-        `${this.SESSION_PREFIX}${sessionId}`,
+        `${this.SESSION_PREFIX}${sessionId}`
       );
       return sessionData ? JSON.parse(sessionData) : null;
     } catch (error) {
@@ -306,7 +340,7 @@ class MatchingService {
   async endSession(userId) {
     try {
       const sessionId = await redisClient.get(
-        `${this.USER_SESSION_PREFIX}${userId}`,
+        `${this.USER_SESSION_PREFIX}${userId}`
       );
 
       if (!sessionId) {
@@ -314,17 +348,17 @@ class MatchingService {
       }
 
       const sessionData = await redisClient.get(
-        `${this.SESSION_PREFIX}${sessionId}`,
+        `${this.SESSION_PREFIX}${sessionId}`
       );
       if (sessionData) {
         const session = JSON.parse(sessionData);
 
         await redisClient.del(`${this.SESSION_PREFIX}${sessionId}`);
         await redisClient.del(
-          `${this.USER_SESSION_PREFIX}${session.user1.userId}`,
+          `${this.USER_SESSION_PREFIX}${session.user1.userId}`
         );
         await redisClient.del(
-          `${this.USER_SESSION_PREFIX}${session.user2.userId}`,
+          `${this.USER_SESSION_PREFIX}${session.user2.userId}`
         );
 
         console.log(`[SESSION ENDED] ${sessionId} - Both users removed`);
@@ -337,6 +371,106 @@ class MatchingService {
     } catch (error) {
       console.error("[END SESSION ERROR]:", error);
       throw error;
+    }
+  }
+
+  // Clean up failed session for both users
+  async cleanupFailedSession(sessionId, matchData) {
+    try {
+      // Remove session and user mappings
+      await redisClient.del(`${this.SESSION_PREFIX}${sessionId}`);
+      await redisClient.del(
+        `${this.USER_SESSION_PREFIX}${matchData.user1.userId}`
+      );
+      await redisClient.del(
+        `${this.USER_SESSION_PREFIX}${matchData.user2.userId}`
+      );
+      
+      console.log(`[FAILED SESSION CLEANUP] ${sessionId} - Both users cleaned up`);
+    } catch (error) {
+      console.error("[CLEANUP FAILED SESSION ERROR]:", error);
+    }
+  }
+
+  //create a session in collab service
+  async triggerRoomCreation(matchData) {
+    try {
+      const response = await fetch(
+        `${process.env.COLLAB_SERVICE_URL}/api/sessions`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId: matchData.sessionId,
+            user1: matchData.user1,
+            user2: matchData.user2,
+            criteria: matchData.criteria,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        // update Redis match data status to "active"
+        const data = await response.json();
+        const updatedMatch = {
+          ...matchData,
+          status: "active",
+          question: data.question,
+        };
+        await redisClient.setEx(
+          `${this.SESSION_PREFIX}${matchData.sessionId}`,
+          3600,
+          JSON.stringify(updatedMatch)
+        );
+        console.log("Created room successfully");
+      } else {
+        // Handle failures from collab service (e.g., no questions available)
+        console.error(`Failed to create room for ${matchData.sessionId}`);
+        
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (e) {
+          errorData = { error: "Unknown error", message: "Failed to create session" };
+        }
+
+        // Store error in session data so both users can be notified
+        const errorMatch = {
+          ...matchData,
+          status: "failed",
+          error: errorData.error || "Failed to create session",
+          errorMessage: errorData.message || "Unable to create a collaboration session. Please try different criteria.",
+          errorDetails: errorData.criteria || null,
+        };
+        
+        await redisClient.setEx(
+          `${this.SESSION_PREFIX}${matchData.sessionId}`,
+          300, // 5 minutes expiry for error state
+          JSON.stringify(errorMatch)
+        );
+        
+        console.log(`[SESSION CREATION FAILED] ${matchData.sessionId} - Error: ${errorData.error}`);
+      }
+    } catch (err) {
+      console.error("Error in creating session room", err);
+      
+      // Store error in session data
+      try {
+        const errorMatch = {
+          ...matchData,
+          status: "failed",
+          error: "Connection error",
+          errorMessage: "Unable to connect to collaboration service. Please try again.",
+        };
+        
+        await redisClient.setEx(
+          `${this.SESSION_PREFIX}${matchData.sessionId}`,
+          300,
+          JSON.stringify(errorMatch)
+        );
+      } catch (redisErr) {
+        console.error("Failed to store error state in Redis", redisErr);
+      }
     }
   }
 

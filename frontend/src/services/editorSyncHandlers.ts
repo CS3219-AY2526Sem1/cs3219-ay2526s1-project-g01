@@ -1,5 +1,17 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: ChatGPT(model: GPT 5.0), date: 2025-10-06
+ * Purpose: To understand how to track and send cursor information between users
+ * Author Review: I validated correctness, security, and performance of the method suggested and modified areas such as
+ * uing createDecorationsCollection instead of deltaDecorations suggested by the model
+ */
+
+// With Reference to https://stackoverflow.com/questions/68453051/decode-a-uint8array-into-a-json for uint8array to string conversion
+
 import * as Y from "yjs";
 import * as monaco from "monaco-editor";
+import ReconnectingWebSocket from "reconnecting-websocket";
+import { createInlineStyle } from "@/lib/utils";
 
 interface BasePayload {
   type: string;
@@ -23,13 +35,108 @@ interface editorSyncPayload extends BasePayload {
   ydocState: string;
 }
 
+//Partner's cursor CSS
+createInlineStyle(
+  "remote-cursor",
+  "border-left: 2px solid rgba(255, 64, 11, 1);",
+);
+//Current user's cursor CSS
+createInlineStyle(
+  "local-cursor",
+  "border-left: 2px solid rgba(46, 216, 246, 1)",
+);
+
+//Handle updates made to monaco editor by current user
+function registerEditorUpdateHandler(
+  ydoc: Y.Doc,
+  clientWS: ReconnectingWebSocket,
+) {
+  ydoc.on("update", (update: Uint8Array, origin: string) =>
+    onEditorChangeHandler(update, origin, clientWS),
+  );
+}
+
+//Handle updates made to current user's cursor
+function registerCursorUpdateHandler(
+  userId: string,
+  editorInstance: monaco.editor.IStandaloneCodeEditor,
+  cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
+  clientWS: ReconnectingWebSocket,
+  userName: string,
+) {
+  editorInstance.onDidChangeCursorSelection((event) =>
+    onCursorChangeHandler(cursorCollections, event, clientWS, userId, userName),
+  );
+}
+
+//Initialises browser Websocket events
+function configureCollabWebsocket(
+  userId: string,
+  ydoc: Y.Doc,
+  editorInstance: monaco.editor.IStandaloneCodeEditor,
+  cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
+  clientWS: ReconnectingWebSocket,
+  onLeaveSession: () => void,
+  onPartnerLeaveSession: () => void,
+) {
+  clientWS.onmessage = (messageEvent) => {
+    if (typeof messageEvent.data === "string") {
+      const payloadObject = JSON.parse(messageEvent.data);
+
+      if (payloadObject.type === "cursor" && payloadObject.userId !== userId) {
+        onPartnerCursorChangeHandler(
+          messageEvent,
+          editorInstance,
+          cursorCollections,
+        );
+        return;
+      } else if (payloadObject.type === "sync") {
+        const yUpdate: Uint8Array = Buffer.from(
+          payloadObject.ydocUpdate,
+          "base64",
+        );
+        Y.applyUpdate(ydoc, yUpdate, "remote");
+        return;
+      } else if (payloadObject.type === "disconnect") {
+        const disconnectedUser: string = payloadObject.disconnectedUserId;
+        console.log(disconnectedUser);
+        const cursorDecorator: monaco.editor.IEditorDecorationsCollection =
+          cursorCollections[disconnectedUser];
+        if (cursorDecorator) {
+          cursorDecorator.clear();
+        }
+        delete cursorCollections[disconnectedUser];
+        onPartnerLeaveSession();
+      } else if (payloadObject.type === "end") {
+        onLeaveSession();
+      }
+      //bufferArray Type
+    } else {
+      const yUpdate: Uint8Array = new Uint8Array(messageEvent.data);
+      Y.applyUpdate(ydoc, yUpdate, "remote");
+    }
+  };
+
+  clientWS.onerror = (error) => {
+    console.log(error);
+  };
+
+  clientWS.onclose = () => {
+    const cursorDecorator: monaco.editor.IEditorDecorationsCollection =
+      cursorCollections[userId];
+    if (cursorDecorator) {
+      cursorDecorator.clear();
+    }
+    delete cursorCollections[userId];
+  };
+}
+
 //Set up initial cursor position as a decoration.
 function initEditor(
   userId: string,
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
   editorInstance: monaco.editor.IStandaloneCodeEditor,
 ) {
-  console.log("Connected to server Websocket Succesfully");
   cursorCollections[userId] = editorInstance.createDecorationsCollection([]);
 
   cursorCollections[userId].set([
@@ -41,10 +148,16 @@ function initEditor(
       },
     },
   ]);
+  console.log("Add user cursor decorator");
 }
 
 //Send initial editor state to backend socket
-function sendEditorState(userId: string, ydoc: Y.Doc, ws: WebSocket) {
+function sendEditorState(
+  userId: string,
+  ydoc: Y.Doc,
+  ws: ReconnectingWebSocket,
+) {
+  console.log("sent editor state");
   const initialState: Uint8Array = Y.encodeStateVector(ydoc);
   const stateAsString: string = Buffer.from(initialState).toString("base64");
 
@@ -61,7 +174,7 @@ function sendEditorState(userId: string, ydoc: Y.Doc, ws: WebSocket) {
 function onEditorChangeHandler(
   update: Uint8Array,
   origin: string,
-  clientWS: WebSocket,
+  clientWS: ReconnectingWebSocket,
 ) {
   if (origin != "remote" && clientWS.readyState === WebSocket.OPEN) {
     clientWS.send(update);
@@ -72,8 +185,9 @@ function onEditorChangeHandler(
 function onCursorChangeHandler(
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
   event: monaco.editor.ICursorSelectionChangedEvent,
-  clientWS: WebSocket,
+  clientWS: ReconnectingWebSocket,
   userId: string,
+  userName: string,
 ) {
   const { startLineNumber, startColumn, endLineNumber, endColumn } =
     event.selection;
@@ -100,7 +214,7 @@ function onCursorChangeHandler(
       ),
       options: {
         className: "local-cursor",
-        hoverMessage: { value: `User ${userId}` },
+        hoverMessage: { value: `User ${userName}` },
       },
     },
   ]);
@@ -139,9 +253,9 @@ function onPartnerCursorChangeHandler(
 }
 
 export {
+  configureCollabWebsocket,
   initEditor,
   sendEditorState,
-  onCursorChangeHandler,
-  onEditorChangeHandler,
-  onPartnerCursorChangeHandler,
+  registerCursorUpdateHandler,
+  registerEditorUpdateHandler,
 };

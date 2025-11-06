@@ -12,23 +12,24 @@
 
 import * as Y from "yjs";
 import {
-  getYDoc,
   parseCursorUpdate,
   handleInitialDocSync,
   broadcastToRoom,
   handleSocketDisconnection,
 } from "./socketEventHandlers.js";
+import logger from "../utils/logger.js";
+import { saveLocalState } from "../utils/sessionDataHandler.js";
 
 //Initialises backend socket events
-function initialiseWebSocket(wss, ws, request, roomToDocMap) {
-  const path_params = request.url.split("/");
-  const userId = path_params[2];
-  const roomId = path_params[3];
-
+async function initialiseWebSocket(wss, ws, request, redisDb, roomToDataMap) {
+  const fullUrl = `ws://host${request.url}`;
+  const url = new URL(fullUrl);
+  logger.info(fullUrl);
+  const sessionId = url.searchParams.get("sessionId");
+  logger.info(sessionId);
+  //validate the connection here
   ws.isAlive = true;
-  ws.room = roomId;
-  ws.userId = userId;
-  const doc = getYDoc(roomToDocMap, userId, roomId);
+  ws.sessionId = sessionId;
 
   ws.on("pong", () => {
     ws.isAlive = true;
@@ -38,23 +39,34 @@ function initialiseWebSocket(wss, ws, request, roomToDocMap) {
 
   ws.on("message", (update) => {
     const cursorData = parseCursorUpdate(update);
+    const localSessionData = roomToDataMap.get(sessionId);
+    const doc = localSessionData.doc;
 
     if (cursorData != null) {
-      broadcastToRoom(wss, ws, roomId, cursorData);
+      broadcastToRoom(wss, ws, sessionId, cursorData);
       return;
     }
 
-    if (handleInitialDocSync(update, ws, doc)) {
+    if (handleInitialDocSync(update, ws, doc, wss, sessionId)) {
       return;
     }
 
     const yUpdate = new Uint8Array(update);
     Y.applyUpdate(doc, yUpdate);
-    broadcastToRoom(wss, ws, roomId, yUpdate);
+    broadcastToRoom(wss, ws, sessionId, yUpdate);
+
+    //Save local state to redis if last saved more than 30 seconds ago
+    if (Date.now() - Number(localSessionData.lastSavedAt) >= 30000) {
+      const key = `session:${sessionId}`;
+      localSessionData.lastSavedAt = Date.now();
+      saveLocalState(key, redisDb, localSessionData);
+      logger.info("state saved in redis");
+    }
   });
 
-  ws.on("close", () => {
-    handleSocketDisconnection(ws, wss, roomToDocMap);
+  ws.on("close", async () => {
+    logger.info("websocket on server closed");
+    await handleSocketDisconnection(ws, wss, roomToDataMap, redisDb);
   });
 }
 export { initialiseWebSocket };
