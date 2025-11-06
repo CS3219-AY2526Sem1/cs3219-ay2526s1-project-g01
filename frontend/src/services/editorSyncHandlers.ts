@@ -155,7 +155,7 @@ function configureCollabWebsocket(
   };
 
   const heartBeat = setInterval(() => {
-    if (Date.now() - editorWebSocketManager.getTime() > 20000) {
+    if (Date.now() - editorWebSocketManager.getTime() > 10000) {
       console.warn(
         "frontend socket not receiving ping from server, reconnecting socket"
       );

@@ -88,6 +88,7 @@ export default function CodingComponent({
     }
     openDialog();
     if (!ydoc) {
+      console.log("my ydoc is being resetted even without navigating away");
       ydoc = new Y.Doc();
       yText = ydoc.getText("monaco");
       binding = new MonacoBinding(
