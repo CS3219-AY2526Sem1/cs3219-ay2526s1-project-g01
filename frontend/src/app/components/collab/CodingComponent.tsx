@@ -79,8 +79,10 @@ export default function CodingComponent({
   ) {
     const cursorDecorator: monaco.editor.IEditorDecorationsCollection =
       cursorCollections[userId];
+    console.log("handleEditorUnmount called ");
     if (cursorDecorator) {
       cursorDecorator.clear();
+      console.log("this shud not appear ");
     }
     delete cursorCollections[userId];
   }
@@ -110,7 +112,6 @@ export default function CodingComponent({
     }
 
     const ydoc = ydocRef.current!;
-    const binding = bindingRef.current!;
 
     const cursorCollections: Record<
       string,
@@ -150,15 +151,18 @@ export default function CodingComponent({
     }, 2000);
 
     return () => {
-      console.log("remove client binding and ydoc");
       handleEditorUnmount(user_id, cursorCollections);
-      // editorWebSocketManager.close();
-      // clientWS.close();
-      ydoc.destroy();
-      binding.destroy();
     };
   }, [editorReady, isConnected]);
 
+  useEffect(() => {
+    return () => {
+      console.log("remove client binding and ydoc");
+
+      bindingRef.current?.destroy();
+      ydocRef.current?.destroy();
+    };
+  }, []);
   return (
     <>
       <div className="mt-5">
