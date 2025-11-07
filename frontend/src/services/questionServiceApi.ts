@@ -106,7 +106,7 @@ export const markQuestionAttempted = async (
         question_id: questionId,
         user_id: userIds,
         attempted_date: attemptedDate,
-      }
+      },
     );
     return response.data;
   } catch (error) {
@@ -116,8 +116,7 @@ export const markQuestionAttempted = async (
         error.response?.data || error.message,
       );
       throw new Error(
-        error.response?.data?.message ||
-          "Failed to mark question as attempted",
+        error.response?.data?.message || "Failed to mark question as attempted",
       );
     }
     throw error;

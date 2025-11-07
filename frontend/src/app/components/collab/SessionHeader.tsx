@@ -30,9 +30,7 @@ export default function SessionHeader({
     const handleMessage = (event: MessageEvent) => {
       try {
         const data =
-          typeof event.data === "string"
-            ? JSON.parse(event.data)
-            : event.data;
+          typeof event.data === "string" ? JSON.parse(event.data) : event.data;
 
         if (data.type === "attempt-marked") {
           setIsMarkedAsCompleted(true);
@@ -64,7 +62,7 @@ export default function SessionHeader({
     setIsSubmitting(true);
     try {
       const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
-      
+
       // Call the API to mark the question as attempted
       await markQuestionAttempted(questionId, [user.id, partnerUserId], today);
 
@@ -77,7 +75,7 @@ export default function SessionHeader({
         socket.send(
           JSON.stringify({
             type: "attempt-marked",
-          })
+          }),
         );
       }
 
