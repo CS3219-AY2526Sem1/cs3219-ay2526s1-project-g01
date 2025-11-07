@@ -12,7 +12,7 @@
 # =============================================================================
 #
 # 🔥 LIVE RELOAD ENABLED FOR MICROSERVICES ONLY
-# 
+#
 # ARCHITECTURE:
 # ├── 🌐 Frontend (Next.js) - Runs via NPM DEV (host machine)
 # ├── 🚀 Microservices - Run via DOCKER with live reload
@@ -78,6 +78,7 @@ services:
       - FRONTEND_BASE_URL=http://localhost:3000
       - QUESTION_SERVICE_URL=http://question-service:7000
       - COMMUNICATION_SERVICE_URL=http://communication-service:6000
+      - AI_SERVICE_URL=http://ai-service:8086
       - PORT=80 # Override Dockerfile default for local development
 
     # Frontend Next.js Application
@@ -89,6 +90,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       target: runner # Production build target
+      # args:
+      #   - NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://localhost
+      #   - NEXT_PUBLIC_USER_SERVICE_URL=http://user-service:4000
     ports:
       - "3000:3000" # Expose frontend on localhost:3000
     environment:
@@ -116,7 +120,11 @@ services:
     environment:
       - DB_LOCAL_URI=mongodb://root:example@mongodb-user-services:27017 # Override for container
       - NODE_ENV=development # Development mode for better error messages
-    command: ["/bin/sh", "-c", "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js"] # Install deps and run with polling for Windows/WSL2
+    command: [
+        "/bin/sh",
+        "-c",
+        "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js",
+      ] # Install deps and run with polling for Windows/WSL2
 
   # Matching Service - DEVELOPMENT MODE WITH LIVE RELOAD
   matching-service:
@@ -138,7 +146,11 @@ services:
       - ./matching-service/.env
     environment:
       - NODE_ENV=development # Development mode
-    command: ["/bin/sh", "-c", "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js"] # Install deps and run with polling for Windows/WSL2
+    command: [
+        "/bin/sh",
+        "-c",
+        "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js",
+      ] # Install deps and run with polling for Windows/WSL2
 
   # Collaboration Service - DEVELOPMENT MODE WITH LIVE RELOAD
   collab-service:
@@ -149,7 +161,7 @@ services:
       dockerfile: Dockerfile
       # No target specified - uses default single-stage build
     ports:
-      - "8000:8000" # Expose for direct access during development  
+      - "8000:8000" # Expose for direct access during development
     volumes:
       # Mount source code for live reload (adjust paths based on actual structure)
       - ./collab-service:/app:cached
@@ -160,7 +172,11 @@ services:
       - ./collab-service/.env
     environment:
       - NODE_ENV=development # Development mode
-    command: ["/bin/sh", "-c", "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js"] # Install deps and run with polling for Windows/WSL2
+    command: [
+        "/bin/sh",
+        "-c",
+        "npm install && npx nodemon --legacy-watch --polling-interval 1000 server.js",
+      ] # Install deps and run with polling for Windows/WSL2
 
   communication-service:
     image: honeydews/communication-service  # Replace with your image name
@@ -209,50 +225,18 @@ services:
   redis-collab-service:
     image: redis:latest
     container_name: collab-redis
-    command:
-      [
-        "redis-server",
-        "--requirepass",
-        "${REDIS_PASSWORD}",
-        "--appendonly",
-        "yes",
-      ]
+    command: ["redis-server", "--appendonly", "yes"]
     env_file:
       - ./collab-service/.env
     volumes:
       - redis-data-collab-service:/data
 
-  ## postgres-question-service:
-  ##   image: postgres:16
-  ##   container_name: question-service-postgres-gateway
-  ##   environment:
-  ##     POSTGRES_USER: ${QUESTION_SERVICE_USER}
-  ##     POSTGRES_PASSWORD: ${QUESTION_SERVICE_PASSWORD}
-  ##     POSTGRES_DB: ${QUESTION_SERVICE_DB}
-  ##   ports:
-  ##     - "7001:5432"
-  ##   env_file:
-  ##     - ./.env
-  ##   volumes:
-  ##     - postgres-question-data:/var/lib/postgresql/data
-
-  # postgres-db:
-  #   image: postgres:16
-  #   ports: 
-  #     -  5432:5432
-  #   environment:
-  #     POSTGRES_USER: ${QUESTION_SERVICE_USER}
-  #     POSTGRES_PASSWORD: ${QUESTION_SERVICE_PASSWORD}
-  #     POSTGRES_DB: ${QUESTION_SERVICE_DB}
-  #   volumes:
-  #     - postgres-data-question-service:/var/lib/postgresql/data
-  #     - ./question-service/db-init2.sql:/docker-entrypoint-initdb.d/db-init2.sql:ro
   
   pg-question-service:
     image: postgres:16
     container_name: pg-question-service ## matches DB_HOST
     ports:
-      - 5432:5432 ## matches DB_PORT
+      - 5433:5432 ## matches DB_PORT
     environment:
       POSTGRES_USER: ${QUESTION_SERVICE_USER} ## matches DB_USER
       POSTGRES_PASSWORD: ${QUESTION_SERVICE_PASSWORD}
@@ -294,6 +278,21 @@ services:
       - ./matching-service/.env
     volumes:
       - redis-data-matching-service:/data
+
+  # AI Service
+  ai-service:
+    image: ai-service
+    pull_policy: never
+    build:
+      context: ./ai-service
+      dockerfile: dockerfile
+    ports:
+      - "8086:8086"
+    env_file:
+      - ./ai-service/.env
+    environment:
+      - NODE_ENV=development
+      - PORT=8086
 
 # Named volumes for data persistence
 volumes:
