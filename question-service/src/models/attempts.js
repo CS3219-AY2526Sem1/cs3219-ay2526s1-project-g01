@@ -24,10 +24,11 @@ function formatTopicName(topic) {
 
 /**
  * Add a new attempt record to the database
+ * If the user has already attempted this question, update the attempted_date to the latest date
  * @param {number} questionId - The ID of the question attempted
  * @param {string[]} userIds - Array of user IDs (MongoDB ObjectId strings)
  * @param {string} attemptedDate - The date of the attempt (YYYY-MM-DD format)
- * @returns {Promise<Object[]>} Array of created attempt records
+ * @returns {Promise<Object[]>} Array of created/updated attempt records
  */
 export async function addAttemptToDb(questionId, userIds, attemptedDate) {
   const client = await pool.connect();
@@ -36,11 +37,13 @@ export async function addAttemptToDb(questionId, userIds, attemptedDate) {
     
     const insertedAttempts = [];
     
-    // Insert one record for each user
+    // Insert one record for each user, or update if already exists
     for (const userId of userIds) {
       const query = `
         INSERT INTO attempts (question_id, user_id, attempted_date)
         VALUES ($1, $2, $3)
+        ON CONFLICT (user_id, question_id) 
+        DO UPDATE SET attempted_date = EXCLUDED.attempted_date
         RETURNING id, question_id, user_id, attempted_date
       `;
       

@@ -50,7 +50,8 @@ CREATE TABLE attempts (
     question_id INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
     user_id TEXT NOT NULL,
     attempted_date DATE,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    UNIQUE (user_id, question_id)
 );
 
 
