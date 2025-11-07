@@ -33,7 +33,7 @@ import NotAuthorizedDialog from "@/components/ui/not-authorised-dialog";
 import { useUser } from "@/contexts/UserContext";
 import { endSession } from "@/services/matchingServiceApi";
 import { editorWebSocketManager } from "@/services/editorSocketManager";
-import { deleteSession } from "@/services/collabServiceApi";
+import { deleteSession, getPartnerUserId } from "@/services/collabServiceApi";
 import * as monaco from "monaco-editor";
 import { Question } from "@/services/matchingServiceApi";
 
@@ -48,6 +48,7 @@ function CollabPageContent() {
   const router = useRouter();
   const { user } = useUser();
   const [question, setQuestion] = useState<Question | null>(null);
+  const [partnerUserId, setPartnerUserId] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("sessionId");
 
@@ -86,6 +87,26 @@ function CollabPageContent() {
     }
   }, [sessionId]);
 
+  // Fetch partner's user ID from collab service
+  useEffect(() => {
+    const fetchPartnerData = async () => {
+      if (user?.id) {
+        try {
+          console.log("Fetching partner user ID for user:", user.id);
+          const partnerId = await getPartnerUserId(user.id);
+          console.log("Partner user ID:", partnerId);
+          setPartnerUserId(partnerId);
+        } catch (error) {
+          console.error("Failed to fetch partner user ID:", error);
+        }
+      } else {
+        console.log("Missing user.id:", user?.id);
+      }
+    };
+
+    fetchPartnerData();
+  }, [user?.id]);
+
   if (blockUser) {
     return (
       <>
@@ -111,6 +132,9 @@ function CollabPageContent() {
         showConfirmationAlert={() => {
           setshowConfirmationAlert(true);
         }}
+        questionId={question?.id || null}
+        sessionId={sessionId}
+        partnerUserId={partnerUserId}
       />
 
       <div className="flex flex-1 w-full bg-black ">

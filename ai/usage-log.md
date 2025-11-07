@@ -2623,7 +2623,6 @@ GET `/questions/attempts/{user_id}/topics`
 GET `/questions/attempts/{user_id}/favourite-topic` 
 - Get favourite topic(s) for a user, and returns an array with topic(s) of highest attempts
 
-
 # Output Summary:
 
 - Created attempt.js to handle attempt related queries
@@ -2641,5 +2640,42 @@ GET `/questions/attempts/{user_id}/favourite-topic`
 - Designed the endpoints 
 - Modified some error handling logic
 - Verified correctness and performance of the code
+
+---
+
+## Entry 67
+
+# Date/Time:
+
+2025-11-08 03:00
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Create a button in the frontend's collab page's session header component.
+This button is meant to mark the question as attempted. 
+One of the 2 users in the room can click it, a pop up confirmation message will appear.
+Once user confirms, then send a POST request to the question-service to update
+Request body should retrieve user id from collab's room session data
+Both buttons should turn green afterwards, on both screens, and should not be able to be clicked again
+
+# Output Summary:
+
+- Created the button that works as specified
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Fixed the bugs
+- Validated correctness and performance of the code
+- Modified the Ui 
 
 ---

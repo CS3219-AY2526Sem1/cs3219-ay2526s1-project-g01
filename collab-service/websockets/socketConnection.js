@@ -47,6 +47,22 @@ async function initialiseWebSocket(wss, ws, request, redisDb, roomToDataMap) {
       return;
     }
 
+    // Handle custom JSON messages (like attempt-marked)
+    try {
+      const text = update.toString();
+      if (text.startsWith("{")) {
+        const data = JSON.parse(text);
+        // Forward custom messages to all clients in the room
+        if (data.type === "attempt-marked") {
+          broadcastToRoom(wss, ws, sessionId, text);
+          logger.info(`Broadcasting attempt-marked message in session ${sessionId}`);
+          return;
+        }
+      }
+    } catch (e) {
+      // Not a JSON message or parsing failed, continue to Y.js handling
+    }
+
     if (handleInitialDocSync(update, ws, doc, wss, sessionId)) {
       return;
     }
