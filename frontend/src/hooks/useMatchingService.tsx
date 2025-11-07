@@ -72,6 +72,7 @@ export function useMatchingService(userId: string | undefined) {
               clearPolling();
               //Delete sessionData in matching service redis if both users already polled status active
               if (data.canDelete) {
+                console.log("frontend calls endSession due to active");
                 await endSession(uid);
               }
             } else if (data.status === "failed") {
@@ -89,12 +90,14 @@ export function useMatchingService(userId: string | undefined) {
               if (data.canDelete && uid) {
                 // Clean up the failed session for this user
                 try {
+                  console.log("frontend calls endSession due to failed");
+
                   await endSession(uid);
                   console.log("Cleaned up failed session");
                 } catch (cleanupErr) {
                   console.error(
                     "Error cleaning up failed session:",
-                    cleanupErr,
+                    cleanupErr
                   );
                 }
               }
@@ -107,7 +110,7 @@ export function useMatchingService(userId: string | undefined) {
               clearPolling();
               setStatus("idle");
               setErrorMessage(
-                "No match found within 5 minutes. Please try again with different criteria.",
+                "No match found within 5 minutes. Please try again with different criteria."
               );
             }
           }
@@ -120,7 +123,7 @@ export function useMatchingService(userId: string | undefined) {
       }, 1000);
     },
 
-    [clearPolling, sessionId],
+    [clearPolling, sessionId]
   );
 
   const startMatching = useCallback(
@@ -159,7 +162,7 @@ export function useMatchingService(userId: string | undefined) {
         setStatus("idle");
       }
     },
-    [userId, pollStatus],
+    [userId, pollStatus]
   );
 
   const handleCancelSearch = useCallback(async () => {

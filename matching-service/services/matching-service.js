@@ -349,6 +349,7 @@ class MatchingService {
 
   async endSession(userId) {
     try {
+      console.log("IS endSESSION CALLED");
       const sessionId = await redisClient.get(
         `${this.USER_SESSION_PREFIX}${userId}`
       );
