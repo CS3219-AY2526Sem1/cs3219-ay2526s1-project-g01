@@ -94,7 +94,7 @@ export function useMatchingService(userId: string | undefined) {
                 } catch (cleanupErr) {
                   console.error(
                     "Error cleaning up failed session:",
-                    cleanupErr
+                    cleanupErr,
                   );
                 }
               }
@@ -107,7 +107,7 @@ export function useMatchingService(userId: string | undefined) {
               clearPolling();
               setStatus("idle");
               setErrorMessage(
-                "No match found within 5 minutes. Please try again with different criteria."
+                "No match found within 5 minutes. Please try again with different criteria.",
               );
             }
           }
@@ -120,7 +120,7 @@ export function useMatchingService(userId: string | undefined) {
       }, 1000);
     },
 
-    [clearPolling, sessionId]
+    [clearPolling, sessionId],
   );
 
   const startMatching = useCallback(
@@ -159,7 +159,7 @@ export function useMatchingService(userId: string | undefined) {
         setStatus("idle");
       }
     },
-    [userId, pollStatus]
+    [userId, pollStatus],
   );
 
   const handleCancelSearch = useCallback(async () => {

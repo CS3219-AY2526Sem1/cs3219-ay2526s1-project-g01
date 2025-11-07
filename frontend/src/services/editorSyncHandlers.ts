@@ -40,21 +40,21 @@ interface editorSyncPayload extends BasePayload {
 //Partner's cursor CSS
 createInlineStyle(
   "remote-cursor",
-  "border-left: 2px solid rgba(255, 64, 11, 1);"
+  "border-left: 2px solid rgba(255, 64, 11, 1);",
 );
 //Current user's cursor CSS
 createInlineStyle(
   "local-cursor",
-  "border-left: 2px solid rgba(46, 216, 246, 1)"
+  "border-left: 2px solid rgba(46, 216, 246, 1)",
 );
 
 //Handle updates made to monaco editor by current user
 function registerEditorUpdateHandler(
   ydoc: Y.Doc,
-  clientWS: ReconnectingWebSocket
+  clientWS: ReconnectingWebSocket,
 ) {
   ydoc.on("update", (update: Uint8Array, origin: string) =>
-    onEditorChangeHandler(update, origin, clientWS)
+    onEditorChangeHandler(update, origin, clientWS),
   );
 }
 
@@ -64,7 +64,7 @@ function registerCursorUpdateHandler(
   editorInstance: monaco.editor.IStandaloneCodeEditor,
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
   clientWS: ReconnectingWebSocket,
-  userName: string
+  userName: string,
 ) {
   editorInstance.onDidChangeCursorSelection((event) =>
     onCursorChangeHandler(
@@ -73,8 +73,8 @@ function registerCursorUpdateHandler(
       clientWS,
       userId,
       userName,
-      editorInstance
-    )
+      editorInstance,
+    ),
   );
 }
 
@@ -86,7 +86,7 @@ function configureCollabWebsocket(
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
   clientWS: ReconnectingWebSocket,
   onLeaveSession: () => void,
-  onCloseConnection: () => void
+  onCloseConnection: () => void,
 ) {
   clientWS.onmessage = (messageEvent) => {
     if (typeof messageEvent.data === "string") {
@@ -103,7 +103,7 @@ function configureCollabWebsocket(
         onPartnerCursorChangeHandler(
           messageEvent,
           editorInstance,
-          cursorCollections
+          cursorCollections,
         );
         return;
 
@@ -111,7 +111,7 @@ function configureCollabWebsocket(
       } else if (payloadObject.type === "sync") {
         const yUpdate: Uint8Array = Buffer.from(
           payloadObject.ydocUpdate,
-          "base64"
+          "base64",
         );
         Y.applyUpdate(ydoc, yUpdate, "remote");
         return;
@@ -124,7 +124,7 @@ function configureCollabWebsocket(
       } else if (payloadObject.type === "disconnect") {
         removePartnerCursor(
           payloadObject.disconnectedUserId,
-          cursorCollections
+          cursorCollections,
         );
       } else if (payloadObject.type === "end") {
         onLeaveSession();
@@ -151,10 +151,10 @@ function configureCollabWebsocket(
     //Socket has not received ping messages sent by backend for more than 12 seconds
     if (Date.now() - editorWebSocketManager.getTime() > 12000) {
       console.warn(
-        "frontend socket not receiving ping from server, reconnecting socket"
+        "frontend socket not receiving ping from server, reconnecting socket",
       );
       toast.warning(
-        "You are now offline. This could be due to poor internet connection or issues with our server. Changes made offline will still be saved."
+        "You are now offline. This could be due to poor internet connection or issues with our server. Changes made offline will still be saved.",
       );
 
       //Delete partner cursor
@@ -182,7 +182,7 @@ function configureCollabWebsocket(
 function initEditor(
   userId: string,
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
-  editorInstance: monaco.editor.IStandaloneCodeEditor
+  editorInstance: monaco.editor.IStandaloneCodeEditor,
 ) {
   cursorCollections[userId] = editorInstance.createDecorationsCollection([]);
 
@@ -202,7 +202,7 @@ function initEditor(
 function sendEditorState(
   userId: string,
   ydoc: Y.Doc,
-  ws: ReconnectingWebSocket
+  ws: ReconnectingWebSocket,
 ) {
   console.log("sent editor state");
   const initialState: Uint8Array = Y.encodeStateVector(ydoc);
@@ -221,7 +221,7 @@ function sendEditorState(
 function onEditorChangeHandler(
   update: Uint8Array,
   origin: string,
-  clientWS: ReconnectingWebSocket
+  clientWS: ReconnectingWebSocket,
 ) {
   if (origin != "remote" && clientWS.readyState === WebSocket.OPEN) {
     clientWS.send(update);
@@ -235,7 +235,7 @@ function onCursorChangeHandler(
   clientWS: ReconnectingWebSocket,
   userId: string,
   userName: string,
-  editorInstance: monaco.editor.IStandaloneCodeEditor
+  editorInstance: monaco.editor.IStandaloneCodeEditor,
 ) {
   const { startLineNumber, startColumn, endLineNumber, endColumn } =
     event.selection;
@@ -262,7 +262,7 @@ function onCursorChangeHandler(
         startLineNumber,
         startColumn,
         endLineNumber,
-        endColumn
+        endColumn,
       ),
       options: {
         className: "local-cursor",
@@ -276,7 +276,7 @@ function onCursorChangeHandler(
 function onPartnerCursorChangeHandler(
   messageEvent: MessageEvent,
   editorInstance: monaco.editor.IStandaloneCodeEditor,
-  cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>
+  cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
 ) {
   const data: CursorUpdatePayload = JSON.parse(messageEvent.data);
 
@@ -293,7 +293,7 @@ function onPartnerCursorChangeHandler(
           startLineNumber,
           startColumn,
           endLineNumber,
-          endColumn
+          endColumn,
         ),
         options: {
           className: "remote-cursor",
@@ -308,7 +308,7 @@ function onPartnerCursorChangeHandler(
 function sendOfflineLocalUpdates(
   clientWS: ReconnectingWebSocket,
   ydoc: Y.Doc,
-  ydocState: string
+  ydocState: string,
 ) {
   const initialServerState = Buffer.from(ydocState, "base64");
   const serverMissingDiff = Y.encodeStateAsUpdate(ydoc, initialServerState);
@@ -324,7 +324,7 @@ function sendOfflineLocalUpdates(
 //Delete partner cursor
 function removePartnerCursor(
   disconnectedUser: string,
-  cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>
+  cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
 ) {
   const cursorDecorator: monaco.editor.IEditorDecorationsCollection =
     cursorCollections[disconnectedUser];

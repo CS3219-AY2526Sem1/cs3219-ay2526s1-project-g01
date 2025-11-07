@@ -91,7 +91,7 @@ export default function MatchPage() {
       getUserSessionStatus(
         user.id,
         (sid) => setSessionId(sid),
-        () => setshowRejoinRoomDialog(true)
+        () => setshowRejoinRoomDialog(true),
       );
     }
   }, [user?.id]);

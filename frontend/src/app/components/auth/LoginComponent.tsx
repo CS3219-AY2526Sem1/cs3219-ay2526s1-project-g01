@@ -66,7 +66,7 @@ export default function LoginForm() {
       handleApiSuccess(
         "Login successful!",
         `Welcome back! Redirecting to homepage...`,
-        response.data
+        response.data,
       );
 
       // Use router.replace instead of push for better Docker/Nginx compatibility
@@ -97,7 +97,7 @@ export default function LoginForm() {
         error?.response?.data?.username
       ) {
         router.push(
-          `/auth/unverified?email=${encodeURIComponent(email)}&username=${encodeURIComponent(error?.response?.data?.username)}`
+          `/auth/unverified?email=${encodeURIComponent(email)}&username=${encodeURIComponent(error?.response?.data?.username)}`,
         );
         return;
       }

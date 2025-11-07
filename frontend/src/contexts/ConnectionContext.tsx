@@ -15,7 +15,7 @@ type ConnectionContextType = {
 };
 
 const ConnectionContext = createContext<ConnectionContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const ConnectionProvider = ({
@@ -36,7 +36,7 @@ export const useConnectionContext = () => {
   const context = useContext(ConnectionContext);
   if (!context)
     throw new Error(
-      "useWebSocketContext must be used within a WebSocketProvider"
+      "useWebSocketContext must be used within a WebSocketProvider",
     );
   return context;
 };
