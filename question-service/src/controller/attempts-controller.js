@@ -16,7 +16,7 @@ import {
  * Controller to handle POST /questions/attempts
  * Request body:
  *   - question_id: number - The question ID
- *   - user_id: number[] - Array of user IDs (minimum 1, maximum 2)
+ *   - user_id: string[] - Array of user IDs (MongoDB ObjectId strings, minimum 1, maximum 2)
  *   - attempted_date: string - Date in YYYY-MM-DD format
  * Returns:
  *   - 201: Attempt(s) created successfully
@@ -56,16 +56,15 @@ export async function createAttempt(req, res) {
       });
     }
 
-    // Validate each user ID is a positive integer
+    // Validate each user ID is a non-empty string (MongoDB ObjectId format)
     const userIds = [];
     for (const id of user_id) {
-      const userId = parseInt(id, 10);
-      if (isNaN(userId) || userId <= 0) {
+      if (typeof id !== 'string' || id.trim().length === 0) {
         return res.status(400).json({
-          message: 'All user IDs must be positive integers'
+          message: 'All user IDs must be non-empty strings'
         });
       }
-      userIds.push(userId);
+      userIds.push(id.trim());
     }
 
     // Validate attempted_date format (YYYY-MM-DD)
@@ -113,7 +112,7 @@ export async function createAttempt(req, res) {
 /**
  * Controller to handle GET /questions/attempts/users/:user_id
  * Request parameters:
- *   - user_id: The user ID
+ *   - user_id: The user ID (MongoDB ObjectId string)
  * Returns:
  *   - 200: Object with total_count and array of question IDs sorted in ascending order
  *   - 400: Invalid user ID
@@ -124,18 +123,13 @@ export async function getUserAttempts(req, res) {
     const { user_id } = req.params;
 
     // Validate user_id
-    if (!user_id) {
+    if (!user_id || typeof user_id !== 'string' || user_id.trim().length === 0) {
       return res.status(400).json({
-        message: 'User ID parameter is required'
+        message: 'Valid user ID parameter is required'
       });
     }
 
-    const userId = parseInt(user_id, 10);
-    if (isNaN(userId) || userId <= 0) {
-      return res.status(400).json({
-        message: 'Invalid user_id. Must be a positive integer.'
-      });
-    }
+    const userId = user_id.trim();
 
     // Get attempted questions from database
     const result = await getAttemptedQuestionsByUserFromDb(userId);
@@ -162,7 +156,7 @@ export async function getUserAttempts(req, res) {
 /**
  * Controller to handle GET /questions/attempts/:user_id/topics
  * Request parameters:
- *   - user_id: The user ID
+ *   - user_id: The user ID (MongoDB ObjectId string)
  * Returns:
  *   - 200: Array of objects with topic and attempted_topic_count
  *   - 400: Invalid user ID
@@ -173,18 +167,13 @@ export async function getUserAttemptedTopics(req, res) {
     const { user_id } = req.params;
 
     // Validate user_id
-    if (!user_id) {
+    if (!user_id || typeof user_id !== 'string' || user_id.trim().length === 0) {
       return res.status(400).json({
-        message: 'User ID parameter is required'
+        message: 'Valid user ID parameter is required'
       });
     }
 
-    const userId = parseInt(user_id, 10);
-    if (isNaN(userId) || userId <= 0) {
-      return res.status(400).json({
-        message: 'Invalid user_id. Must be a positive integer.'
-      });
-    }
+    const userId = user_id.trim();
 
     // Get attempted topics from database
     const topics = await getAttemptedTopicsByUserFromDb(userId);
@@ -211,7 +200,7 @@ export async function getUserAttemptedTopics(req, res) {
 /**
  * Controller to handle GET /questions/attempts/:user_id/favorite-topic
  * Request parameters:
- *   - user_id: The user ID
+ *   - user_id: The user ID (MongoDB ObjectId string)
  * Returns:
  *   - 200: Array of favorite topic names (topics with highest attempt count)
  *   - 400: Invalid user ID
@@ -222,18 +211,13 @@ export async function getUserFavoriteTopics(req, res) {
     const { user_id } = req.params;
 
     // Validate user_id
-    if (!user_id) {
+    if (!user_id || typeof user_id !== 'string' || user_id.trim().length === 0) {
       return res.status(400).json({
-        message: 'User ID parameter is required'
+        message: 'Valid user ID parameter is required'
       });
     }
 
-    const userId = parseInt(user_id, 10);
-    if (isNaN(userId) || userId <= 0) {
-      return res.status(400).json({
-        message: 'Invalid user_id. Must be a positive integer.'
-      });
-    }
+    const userId = user_id.trim();
 
     // Get favorite topics from database
     const favoriteTopics = await getFavoriteTopicsByUserFromDb(userId);

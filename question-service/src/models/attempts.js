@@ -25,7 +25,7 @@ function formatTopicName(topic) {
 /**
  * Add a new attempt record to the database
  * @param {number} questionId - The ID of the question attempted
- * @param {number[]} userIds - Array of user IDs (1 or 2 users)
+ * @param {string[]} userIds - Array of user IDs (MongoDB ObjectId strings)
  * @param {string} attemptedDate - The date of the attempt (YYYY-MM-DD format)
  * @returns {Promise<Object[]>} Array of created attempt records
  */
@@ -61,7 +61,7 @@ export async function addAttemptToDb(questionId, userIds, attemptedDate) {
 
 /**
  * Get all question IDs attempted by a specific user, sorted, with total count
- * @param {number} userId - The user ID
+ * @param {string} userId - The user ID (MongoDB ObjectId string)
  * @returns {Promise<Object|null>} Object with total_count and array of question IDs sorted in ascending order, or null if no attempts found
  */
 export async function getAttemptedQuestionsByUserFromDb(userId) {
@@ -94,7 +94,7 @@ export async function getAttemptedQuestionsByUserFromDb(userId) {
 
 /**
  * Get topics and their attempt counts for a specific user
- * @param {number} userId - The user ID
+ * @param {string} userId - The user ID (MongoDB ObjectId string)
  * @returns {Promise<Object[]|null>} Array of objects with topic and attempted_topic_count, or null if no attempts found
  */
 export async function getAttemptedTopicsByUserFromDb(userId) {
@@ -130,7 +130,7 @@ export async function getAttemptedTopicsByUserFromDb(userId) {
 
 /**
  * Get the favorite topic(s) for a specific user (topics with highest attempt count)
- * @param {number} userId - The user ID
+ * @param {string} userId - The user ID (MongoDB ObjectId string)
  * @returns {Promise<string[]|null>} Array of topic names with the highest attempt count, or null if no attempts found
  */
 export async function getFavoriteTopicsByUserFromDb(userId) {
