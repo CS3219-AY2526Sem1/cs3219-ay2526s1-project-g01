@@ -2206,7 +2206,7 @@ ChatGPT (model: GPT 5.0)
 
 # Prompt/Command:
 
-Creaet a not authorised dialog box in radix to notify user that they are not allowed to access the room
+Create a not authorised dialog box in radix to notify user that they are not allowed to access the room
 
 # Output Summary:
 
