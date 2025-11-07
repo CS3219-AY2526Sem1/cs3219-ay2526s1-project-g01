@@ -84,6 +84,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       target: runner # Production build target
+      # args:
+      #   - NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://localhost
+      #   - NEXT_PUBLIC_USER_SERVICE_URL=http://user-service:4000
     ports:
       - "3000:3000" # Expose frontend on localhost:3000
     environment:
@@ -227,7 +230,7 @@ services:
     image: postgres:16
     container_name: pg-question-service ## matches DB_HOST
     ports:
-      - 5432:5432 ## matches DB_PORT
+      - 5433:5432 ## matches DB_PORT
     environment:
       POSTGRES_USER: ${QUESTION_SERVICE_USER} ## matches DB_USER
       POSTGRES_PASSWORD: ${QUESTION_SERVICE_PASSWORD}
@@ -269,6 +272,21 @@ services:
       - ./matching-service/.env
     volumes:
       - redis-data-matching-service:/data
+
+  # AI Service
+  ai-service:
+    image: ai-service
+    pull_policy: never
+    build:
+      context: ./ai-service
+      dockerfile: dockerfile
+    ports:
+      - "8086:8086"
+    env_file:
+      - ./ai-service/.env
+    environment:
+      - NODE_ENV=development
+      - PORT=8086
 
 # Named volumes for data persistence
 volumes:

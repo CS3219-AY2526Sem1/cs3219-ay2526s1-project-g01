@@ -1,14 +1,29 @@
 /**
  * AI Assistance Disclosure:
+ * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2024-10-28
+ * Purpose: Enhanced collab page with toggle between peer chat and AI assistant panel
+ * Author Review: State management and component integration validated
+ */
+
+/**
+ * AI Assistance Disclosure:
  * Tool: Claude Sonnet 4.5, date: 2025-11-02
  * Purpose: To integrate question data retrieval and display in the collaboration page.
  * Author Review: Verified correctness and functionality of the code.
  */
 
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2025-11-06
+ * Purpose: Refactored to separate voice chat from chat panels to fix video unmounting issue
+ * Author Review: Component structure and WebRTC persistence validated
+ */
+
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import ChatComponent from "../components/collab/ChatComponent";
+import VoiceChatComponent from "../components/collab/VoiceChatComponent";
+import ChatPanelWrapper from "../components/collab/ChatPanelWrapper";
 import CodingComponentWrapper from "../components/collab/CodingComponentWrapper";
 import QuestionComponent from "../components/collab/QuestionComponent";
 import SessionHeader from "../components/collab/SessionHeader";
@@ -19,6 +34,7 @@ import { useUser } from "@/contexts/UserContext";
 import { endSession } from "@/services/matchingServiceApi";
 import { editorWebSocketManager } from "@/services/editorSocketManager";
 import { deleteSession } from "@/services/collabServiceApi";
+import * as monaco from "monaco-editor";
 import { Question } from "@/services/matchingServiceApi";
 
 function CollabPageContent() {
@@ -26,8 +42,11 @@ function CollabPageContent() {
     useState<boolean>(false);
   const [showLoadingDialog, setShowLoadingDialog] = useState<boolean>(true);
   const [blockUser, setblockUser] = useState<boolean>(true);
+  const [editorInstance, setEditorInstance] =
+    useState<monaco.editor.IStandaloneCodeEditor>();
+  const [language, setLanguage] = useState<string>("javascript");
   const router = useRouter();
-  const { user, setUser } = useUser();
+  const { user } = useUser();
   const [question, setQuestion] = useState<Question | null>(null);
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("sessionId");
@@ -101,14 +120,23 @@ function CollabPageContent() {
 
         <div className="flex-[2]">
           <CodingComponentWrapper
+            onEditorMount={setEditorInstance}
+            onLanguageChange={setLanguage}
             isOpen={showLoadingDialog}
             closeDialog={() => setShowLoadingDialog(false)}
             onLeave={() => directToMatch()}
           />
         </div>
 
-        <div className="flex-1 p-5">
-          <ChatComponent />
+        <div className="flex-1 p-5 min-h-0 overflow-hidden flex flex-col gap-4">
+          {/* Voice/Video Chat - stays mounted */}
+          <VoiceChatComponent />
+
+          {/* Chat and AI Assist Toggle Panel */}
+          <ChatPanelWrapper
+            editorInstance={editorInstance}
+            language={language}
+          />
         </div>
         <DisconnectAlertDialog
           open={showConfirmationAlert}
