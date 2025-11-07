@@ -100,6 +100,7 @@ export default function CodingComponent({
     if (!ydocRef.current || !cursorCollectionsRef.current) {
       const ydoc = new Y.Doc();
       const yText = ydoc.getText("monaco");
+      editorInstance.getModel()?.setEOL(monaco.editor.EndOfLineSequence.LF);
       const binding = new MonacoBinding(
         yText,
         editorInstance.getModel()!,
