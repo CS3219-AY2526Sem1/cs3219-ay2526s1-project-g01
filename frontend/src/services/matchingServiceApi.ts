@@ -4,6 +4,12 @@
  * Purpose: To add JWT authentication to matching service API calls for secure communication.
  * Author Review: I validated correctness, security, and performance of the code.
  */
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-03
+ * Purpose: To integrate question data retrieval and display in the collaboration page.
+ * Author Review: Verified correctness and functionality of the code.
+ */
 
 import axios from "axios";
 import { getToken } from "./userServiceCookies";
@@ -34,6 +40,27 @@ export interface MatchResponse {
   };
 }
 
+export interface QuestionTopic {
+  id: number;
+  topic: string;
+}
+
+export interface QuestionTestCase {
+  index: number;
+  input: string;
+  output: string;
+}
+
+export interface Question {
+  id: number;
+  title: string;
+  difficulty: string;
+  description: string;
+  question_constraints: string;
+  topics: QuestionTopic[];
+  test_cases: QuestionTestCase[];
+}
+
 export interface MatchStatusResponse {
   success: boolean;
   status: "idle" | "searching" | "matched" | "active" | "failed";
@@ -44,13 +71,14 @@ export interface MatchStatusResponse {
     difficulty: string[];
     topics: string[];
   };
-  question?: {
-    id: string;
-    title: string;
+  question?: Question;
+  error?: string;
+  errorMessage?: string;
+  errorDetails?: {
+    difficulty: string[];
+    topics: string[];
   };
   canDelete?: boolean;
-  errorMessage?: string;
-  error?: string;
 }
 
 export interface TerminateResponse {

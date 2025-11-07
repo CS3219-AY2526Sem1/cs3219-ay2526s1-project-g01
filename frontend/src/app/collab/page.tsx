@@ -1,26 +1,35 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-02
+ * Purpose: To integrate question data retrieval and display in the collaboration page.
+ * Author Review: Verified correctness and functionality of the code.
+ */
+
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import ChatComponent from "../components/collab/ChatComponent";
 import CodingComponentWrapper from "../components/collab/CodingComponentWrapper";
 import QuestionComponent from "../components/collab/QuestionComponent";
 import SessionHeader from "../components/collab/SessionHeader";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import DisconnectAlertDialog from "@/components/ui/alert-dialog";
 import NotAuthorizedDialog from "@/components/ui/not-authorised-dialog";
 import { useUser } from "@/contexts/UserContext";
-import { endSession } from "@/services/matchingServiceApi";
 import { editorWebSocketManager } from "@/services/editorSocketManager";
 import { deleteSession } from "@/services/collabServiceApi";
-import { Toaster } from "sonner";
+import { Question } from "@/services/matchingServiceApi";
 
-export default function CollabPage() {
+function CollabPageContent() {
   const [showConfirmationAlert, setshowConfirmationAlert] =
     useState<boolean>(false);
   const [showLoadingDialog, setShowLoadingDialog] = useState<boolean>(true);
   const [blockUser, setblockUser] = useState<boolean>(true);
   const router = useRouter();
-  const { user } = useUser();
+  const { user, setUser } = useUser();
+  const [question, setQuestion] = useState<Question | null>(null);
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get("sessionId");
 
   //Delete userId to {sessionId, parternId} mapping in backend server
   async function directToMatch() {
@@ -41,6 +50,22 @@ export default function CollabPage() {
       setblockUser(false);
     }
   }, []);
+
+  // Retrieve question data from sessionStorage
+  useEffect(() => {
+    if (sessionId) {
+      const questionData = sessionStorage.getItem(`question_${sessionId}`);
+      if (questionData) {
+        try {
+          const parsedQuestion = JSON.parse(questionData);
+          setQuestion(parsedQuestion);
+          console.log("Question data loaded:", parsedQuestion);
+        } catch (error) {
+          console.error("Error parsing question data:", error);
+        }
+      }
+    }
+  }, [sessionId]);
 
   if (blockUser) {
     return (
@@ -71,7 +96,7 @@ export default function CollabPage() {
 
       <div className="flex flex-1 w-full bg-black ">
         <div className="flex-1 p-5">
-          <QuestionComponent />
+          <QuestionComponent question={question} />
         </div>
 
         <div className="flex-[2]">
@@ -97,5 +122,13 @@ export default function CollabPage() {
         />
       </div>
     </main>
+  );
+}
+
+export default function CollabPage() {
+  return (
+    <Suspense fallback={<div className="bg-stone-900 h-screen" />}>
+      <CollabPageContent />
+    </Suspense>
   );
 }

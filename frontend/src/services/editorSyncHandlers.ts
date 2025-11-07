@@ -148,8 +148,8 @@ function configureCollabWebsocket(
   //Mechanism to detect if wifi is disconnected or server is down, however such failures are not detected immedidately
   //but will be detected within 5 - 7 seconds approximately
   const heartBeat = setInterval(() => {
-    //Socket has not received ping messages sent by backend for more than 10 seconds
-    if (Date.now() - editorWebSocketManager.getTime() > 10000) {
+    //Socket has not received ping messages sent by backend for more than 12 seconds
+    if (Date.now() - editorWebSocketManager.getTime() > 12000) {
       console.warn(
         "frontend socket not receiving ping from server, reconnecting socket"
       );

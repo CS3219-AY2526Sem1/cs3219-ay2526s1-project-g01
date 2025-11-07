@@ -227,31 +227,6 @@ services:
     volumes:
       - redis-data-collab-service:/data
 
-  ## postgres-question-service:
-  ##   image: postgres:16
-  ##   container_name: question-service-postgres-gateway
-  ##   environment:
-  ##     POSTGRES_USER: ${QUESTION_SERVICE_USER}
-  ##     POSTGRES_PASSWORD: ${QUESTION_SERVICE_PASSWORD}
-  ##     POSTGRES_DB: ${QUESTION_SERVICE_DB}
-  ##   ports:
-  ##     - "7001:5432"
-  ##   env_file:
-  ##     - ./.env
-  ##   volumes:
-  ##     - postgres-question-data:/var/lib/postgresql/data
-
-  # postgres-db:
-  #   image: postgres:16
-  #   ports: 
-  #     -  5432:5432
-  #   environment:
-  #     POSTGRES_USER: ${QUESTION_SERVICE_USER}
-  #     POSTGRES_PASSWORD: ${QUESTION_SERVICE_PASSWORD}
-  #     POSTGRES_DB: ${QUESTION_SERVICE_DB}
-  #   volumes:
-  #     - postgres-data-question-service:/var/lib/postgresql/data
-  #     - ./question-service/db-init2.sql:/docker-entrypoint-initdb.d/db-init2.sql:ro
   
   pg-question-service:
     image: postgres:16

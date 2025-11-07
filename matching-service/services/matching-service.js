@@ -1,3 +1,10 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-03
+ * Purpose: To integrate question data retrieval and display in the collaboration page.
+ * Author Review: Verified correctness and functionality of the code.
+ */
+
 require("dotenv").config();
 
 const redisClient = require("../utils/redisClient");
@@ -277,15 +284,27 @@ class MatchingService {
             );
           }
 
-          response = {
-            question: matchData.question,
-            canDelete: matchData.polled_users.length === 2,
-            ...response,
-          };
+          if (matchData.status === "active") {
+            response = {
+              question: matchData.question,
+              canDelete: matchData.polled_users.length === 2,
+              ...response,
+            };
+          } else if (matchData.status === "failed") {
+            // Session creation failed, return error but keep session temporarily
+            // so both users can see the error before it's cleaned up
+            response = {
+              status: "failed",
+              canDelete: matchData.polled_users.length === 2,
+
+              error: matchData.error,
+              errorMessage: matchData.errorMessage,
+              errorDetails: matchData.errorDetails,
+            };
+          }
         }
         return response;
       }
-
       // check if user is searching
       const activeSearch = await redisClient.get(
         `${this.ACTIVE_SEARCH_PREFIX}${userId}`
@@ -396,23 +415,40 @@ class MatchingService {
           3600,
           JSON.stringify(updatedMatch)
         );
-        console.log("Created room successuflly");
+        console.log("Created room successfully");
       } else {
         throw new Error(`Collab service returned ${response.status}`);
       }
     } catch (err) {
-      console.error("Error in creating session room", err);
-      const updatedMatch = {
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        errorData = {
+          error: "Unknown error",
+          message:
+            "Failed to create session. We are currently facing issues with our server.",
+        };
+      }
+      const errorMatch = {
         ...matchData,
         status: "failed",
+        error:
+          errorData.error ||
+          "ailed to create session. We are currently facing issues with our server",
+        errorMessage:
+          errorData.message ||
+          "Unable to create a collaboration session. Please try different criteria.",
+        errorDetails: errorData.criteria || null,
       };
+
       try {
         await redisClient.setEx(
-          `${this.SESSION_PREFIX}${updatedMatch.sessionId}`,
+          `${this.SESSION_PREFIX}${matchData.sessionId}`,
           3600,
-          JSON.stringify(updatedMatch)
+          JSON.stringify(errorMatch)
         );
-        console.error(`Failed to create room for ${matchData.sessionId}`);
+        console.error(`Failed to create room for ${errorMatch.sessionId}`);
       } catch (redisErr) {
         console.error("Failed to store session state in Redis", redisErr);
       }
