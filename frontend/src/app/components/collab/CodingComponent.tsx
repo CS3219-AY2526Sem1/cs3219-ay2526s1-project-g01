@@ -1,4 +1,11 @@
 //With reference to https://dev.to/akormous/building-a-shared-code-editor-using-nodejs-websocket-and-crdt-4l0f for binding editor to yjs
+/**
+ * AI Assistance Disclosure:
+ * Tool: ChatGPT (model: GPT 5.0), date: 2025-11-07
+ * Purpose: To understand why there is a ydoc sync issue when a new line is entered between users with different operating systems.
+ * Author Review: I validated correctness of the explanation provided and the necessary fix
+ */
+
 "use client";
 import * as Y from "yjs";
 import Editor from "@monaco-editor/react";
