@@ -145,8 +145,8 @@ function configureCollabWebsocket(
     console.log(error);
   };
 
-  //Mechanism to detect if wifi is disconnected, however wifi disconnections are not detected immedidately
-  //Wifi disconnections will be detected within 5 - 7 seconds approximately
+  //Mechanism to detect if wifi is disconnected or server is down, however such failures are not detected immedidately
+  //but will be detected within 5 - 7 seconds approximately
   const heartBeat = setInterval(() => {
     //Socket has not received ping messages sent by backend for more than 10 seconds
     if (Date.now() - editorWebSocketManager.getTime() > 10000) {
@@ -154,7 +154,7 @@ function configureCollabWebsocket(
         "frontend socket not receiving ping from server, reconnecting socket"
       );
       toast.warning(
-        "You are now offline. Changes made offline will still be saved."
+        "You are now offline. This could be due to poor internet connection or issues with our server. Changes made offline will still be saved."
       );
 
       //Delete partner cursor
