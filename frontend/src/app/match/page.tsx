@@ -11,7 +11,7 @@ import { getToken } from "@/services/userServiceCookies";
 import DisconnectAlertDialog from "@/components/ui/alert-dialog";
 import { getUserSessionStatus } from "@/services/collabServiceApi";
 import NotAuthorizedDialog from "@/components/ui/not-authorised-dialog";
-import { toast } from "sonner";
+import { useConnectionContext } from "@/contexts/ConnectionContext";
 
 export default function MatchPage() {
   const [difficulty, setDifficulty] = useState<string[]>([]);
@@ -40,6 +40,7 @@ export default function MatchPage() {
   const handleStartMatching = () => {
     startMatching(difficulty, topics, user?.username || user?.id || "");
   };
+  const { setIsConnected } = useConnectionContext();
 
   //Handles every socket connection to server and closes the creating room dialog box
   useEffect(() => {
@@ -51,6 +52,7 @@ export default function MatchPage() {
       socket.onopen = () => {
         console.log("Socket connection established");
         setStatus("connected");
+        setIsConnected(true);
       };
 
       socket.onclose = () => {

@@ -20,7 +20,7 @@ export default function CollabPage() {
   const [showLoadingDialog, setShowLoadingDialog] = useState<boolean>(true);
   const [blockUser, setblockUser] = useState<boolean>(true);
   const router = useRouter();
-  const { user, setUser } = useUser();
+  const { user } = useUser();
 
   //Delete userId to {sessionId, parternId} mapping in backend server
   async function directToMatch() {
@@ -78,6 +78,7 @@ export default function CollabPage() {
           <CodingComponentWrapper
             isOpen={showLoadingDialog}
             closeDialog={() => setShowLoadingDialog(false)}
+            openDialog={() => setShowLoadingDialog(true)}
             onLeave={() => directToMatch()}
           />
         </div>

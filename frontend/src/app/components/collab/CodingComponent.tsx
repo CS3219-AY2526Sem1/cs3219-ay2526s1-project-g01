@@ -11,10 +11,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, CircleUser } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
+import { useConnectionContext } from "@/contexts/ConnectionContext";
 import { useRouter } from "next/navigation";
 import ReconnectingWebSocket from "reconnecting-websocket";
 import DisconnectAlertDialog from "@/components/ui/alert-dialog";
@@ -27,25 +28,37 @@ import {
   registerCursorUpdateHandler,
   registerEditorUpdateHandler,
 } from "@/services/editorSyncHandlers";
+import { toast } from "sonner";
 
 export default function CodingComponent({
   isOpen,
   closeDialog,
+  openDialog,
   onLeave,
 }: {
   isOpen: boolean;
   closeDialog: () => void;
+  openDialog: () => void;
   onLeave: () => void;
 }) {
   const [codeContent, setCodeContent] = useState<string>("");
   const [selectedLanguage, setSeletedLanguage] = useState<string>("JavaScript");
   const router = useRouter();
-  const [editorInstance, setEditorInstance] =
-    useState<monaco.editor.IStandaloneCodeEditor>();
+
   const { user } = useUser();
   const user_id: string = user?.id || "0";
   const user_name: string = user?.username || "Unknown";
+  const { isConnected, setIsConnected } = useConnectionContext();
 
+  const ydocRef = useRef<Y.Doc | null>(null);
+  const yTextRef = useRef<Y.Text | null>(null);
+  const bindingRef = useRef<MonacoBinding | null>(null);
+  const cursorCollectionsRef = useRef<Record<
+    string,
+    monaco.editor.IEditorDecorationsCollection
+  > | null>(null);
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [editorReady, setEditorReady] = useState(false);
   function setInitialContent(value: string | undefined) {
     if (value != undefined) {
       setCodeContent(value);
@@ -53,7 +66,9 @@ export default function CodingComponent({
   }
 
   function handleEditorMount(editor: monaco.editor.IStandaloneCodeEditor) {
-    setEditorInstance(editor);
+    editorRef.current = editor;
+    setEditorReady(true);
+    console.log("test");
   }
 
   function handleEditorUnmount(
@@ -72,23 +87,44 @@ export default function CodingComponent({
   }
 
   //Sets up local editor state, socket event listenr and syncrhonise editor state with backend ydoc version
+  //This useEffect runs again when user connects to wifi after loosing internet connection
   useEffect(() => {
-    if (!editorInstance) {
+    if (!editorReady || !isConnected || !editorRef.current) {
       return;
     }
-    const ydoc: Y.Doc = new Y.Doc();
-    const yText: Y.Text = ydoc.getText("monaco");
-    const binding: MonacoBinding = new MonacoBinding(
-      yText,
-      editorInstance.getModel()!,
-      new Set([editorInstance])
-    );
+    const editorInstance = editorRef.current;
+    let isOnline = true;
+    openDialog();
 
+    //On Initial connection, set up variables
+    if (!ydocRef.current || !cursorCollectionsRef.current) {
+      const ydoc = new Y.Doc();
+      const yText = ydoc.getText("monaco");
+      const binding = new MonacoBinding(
+        yText,
+        editorInstance.getModel()!,
+        new Set([editorInstance])
+      );
+      const cursorCollections: Record<
+        string,
+        monaco.editor.IEditorDecorationsCollection
+      > = {};
+      ydocRef.current = ydoc;
+      yTextRef.current = yText;
+      bindingRef.current = binding;
+      cursorCollectionsRef.current = cursorCollections;
+      isOnline = false;
+    }
+
+    const ydoc = ydocRef.current!;
+
+    const clientWS: ReconnectingWebSocket = editorWebSocketManager.getSocket()!;
     const cursorCollections: Record<
       string,
       monaco.editor.IEditorDecorationsCollection
-    > = {};
-    const clientWS: ReconnectingWebSocket = editorWebSocketManager.getSocket()!;
+    > = cursorCollectionsRef.current;
+
+    handleEditorUnmount(user_id, cursorCollections);
 
     //set up message event listener on socket
     configureCollabWebsocket(
@@ -99,7 +135,8 @@ export default function CodingComponent({
       clientWS,
       () => {
         router.replace("/match");
-      }
+      },
+      () => setIsConnected(false)
     );
 
     registerCursorUpdateHandler(
@@ -120,16 +157,25 @@ export default function CodingComponent({
 
     setTimeout(() => {
       closeDialog();
+      if (isOnline) {
+        toast.success("You are back online!!!");
+      }
     }, 2000);
 
     return () => {
-      console.log("remove client binding and ydoc");
       handleEditorUnmount(user_id, cursorCollections);
-
-      ydoc.destroy();
-      binding.destroy();
     };
-  }, [editorInstance]);
+  }, [editorReady, isConnected]);
+
+  //Clean up variables
+  useEffect(() => {
+    return () => {
+      console.log("remove client binding and ydoc");
+
+      bindingRef.current?.destroy();
+      ydocRef.current?.destroy();
+    };
+  }, []);
 
   return (
     <>

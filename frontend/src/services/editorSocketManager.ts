@@ -12,6 +12,7 @@ import ReconnectingWebSocket from "reconnecting-websocket";
 class WebSocketManager {
   private socket: ReconnectingWebSocket | null = null;
   private static instance: WebSocketManager;
+  private lastPing: number = 0; //Time socket last received a ping message
 
   private constructor() {}
 
@@ -28,6 +29,8 @@ class WebSocketManager {
 
     this.socket = new ReconnectingWebSocket(url);
     this.socket.binaryType = "arraybuffer";
+    this.lastPing = Date.now();
+
     console.log("Websocket connected to server");
     return this.socket;
   }
@@ -36,11 +39,19 @@ class WebSocketManager {
     return this.socket;
   }
 
+  getTime() {
+    return this.lastPing;
+  }
+  setTime() {
+    this.lastPing = Date.now();
+  }
+
   close() {
     if (this.socket) {
       this.socket.close();
       console.log("does this run ");
       this.socket = null;
+      this.lastPing = 0;
     }
   }
 }
