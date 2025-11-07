@@ -9,6 +9,7 @@ DROP VIEW IF EXISTS question_difficulties_view;
 DROP TABLE IF EXISTS test_cases;
 DROP TABLE IF EXISTS question_topics;
 DROP TABLE IF EXISTS topics;
+DROP TABLE IF EXISTS attempts;
 DROP TABLE IF EXISTS questions;
 
 -- Questions table (one difficulty per question)
@@ -44,9 +45,17 @@ CREATE TABLE test_cases (
     PRIMARY KEY (question_id, index)
 );
 
+CREATE TABLE attempts (
+    id SERIAL,
+    question_id INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+    user_id INT NOT NULL,
+    attempted_date DATE,
+    PRIMARY KEY (id)
+);
+
 
 -- Insert the sorting topic
-INSERT INTO topics (name) VALUES ('sorting');
+INSERT INTO topics (name) VALUES ('Sorting');
 
 -- EASY QUESTIONS (1-10)
 
@@ -1062,7 +1071,7 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 
 -- First, insert the hash table topic if it doesn't exist
-INSERT INTO topics (name) VALUES ('hash table') ON CONFLICT (name) DO NOTHING;
+INSERT INTO topics (name) VALUES ('Hash Table') ON CONFLICT (name) DO NOTHING;
 
 -- EASY QUESTIONS (91-100)
 

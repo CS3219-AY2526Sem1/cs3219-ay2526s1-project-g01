@@ -2597,3 +2597,49 @@ Request to separate voice/video chat and text chat components to fix issue where
 - Troubleshooting: Addressed CORS issues (port 3000 vs 3001), Docker frontend conflicts, and TURN API response format
 - Maintainability: Clear separation of concerns - voice chat, text chat, and AI assist are now independent
 - Architecture: Follows React best practices with proper component composition and state management
+
+---
+
+## Entry 66
+
+# Date/Time:
+
+2025-11-08 02:00
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Give code to handle the following endpoints
+
+POST `/questions/attempts` 
+- send a JSON body of question_id, array of user_id, and date. date should be inclusive of today and prior
+GET `/questions/attempts/{user_id}` 
+- Get count of all attempts for a user, and an array of question_id of attempted question
+GET `/questions/attempts/{user_id}/topics` 
+- Get a mapping of topics and the count of questions attempted that is associated with this topic
+GET `/questions/attempts/{user_id}/favourite-topic` 
+- Get favourite topic(s) for a user, and returns an array with topic(s) of highest attempts
+
+
+# Output Summary:
+
+- Created attempt.js to handle attempt related queries
+- Created attempt-controller.js to handle attempt related parsing 
+- Updated question-routes.js with the routes I provided
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Designed the endpoints 
+- Modified some error handling logic
+- Verified correctness and performance of the code
+
+---

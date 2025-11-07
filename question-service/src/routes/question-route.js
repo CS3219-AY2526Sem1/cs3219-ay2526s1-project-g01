@@ -15,6 +15,12 @@ import {
   getQuestionById
 } from '../controller/question-controller.js';
 import { getTopicNames, addTopic } from '../controller/topic-controller.js';
+import {
+  createAttempt,
+  getUserAttempts,
+  getUserAttemptedTopics,
+  getUserFavoriteTopics
+} from '../controller/attempts-controller.js';
 
 const router = express.Router();
 
@@ -42,5 +48,17 @@ router.put('/:id', updateQuestion);
 
 // Route to delete a question by ID
 router.delete('/:id', deleteQuestion);
+
+// Route to add a new attempt
+router.post('/attempts', createAttempt);
+
+// Route to get all attempted questions by a user
+router.get('/attempts/:user_id', getUserAttempts);
+
+// Route to get all attempted topics and topic count by a user
+router.get('/attempts/:user_id/topics', getUserAttemptedTopics);
+
+// Route to get (all) favourite topic(s) by a user
+router.get('/attempts/:user_id/favourite-topic', getUserFavoriteTopics);
 
 export default router;
