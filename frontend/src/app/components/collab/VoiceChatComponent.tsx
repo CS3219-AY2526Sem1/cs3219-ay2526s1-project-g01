@@ -42,6 +42,10 @@ export default function VoiceChatComponent() {
   // Remote user's audio
   const [remoteAudioStatus, setRemoteAudioStatus] = useState<boolean>(true);
 
+  // Remote user's connection status
+  const [remoteConnectionStatus, setRemoteConnectionStatus] =
+    useState<boolean>(false);
+
   // Hardcode session id
   const sessionID = "98r4389r43r894389";
 
@@ -160,11 +164,17 @@ export default function VoiceChatComponent() {
           const isCaller = ownUserName < username;
           isCallerRef.current = isCaller;
 
+          setRemoteConnectionStatus(true);
+
           if (isCaller) {
             setTimeout(() => {
               offerCall();
             }, 500);
           }
+        });
+
+        socket.on("peer-left", () => {
+          setRemoteConnectionStatus(false);
         });
 
         // Join session after all listeners are set up
@@ -180,15 +190,22 @@ export default function VoiceChatComponent() {
     initializeConnection();
 
     return () => {
+      socketRef.current?.emit("leave-session", {
+        sessionID,
+        username: user?.username,
+      });
+
       if (currentStreamRef.current) {
         currentStreamRef.current.getTracks().forEach((track) => track.stop());
       }
       if (connectionRef.current) {
         connectionRef.current.close();
+        connectionRef.current = null;
       }
       if (socketRef.current) {
         socketRef.current.disconnect();
       }
+      
       // Clear pending candidates
       pendingCandidatesRef.current = [];
     };
@@ -295,12 +312,14 @@ export default function VoiceChatComponent() {
           muted
           className="w-[50%] rounded aspect-video"
         />
-        <video
-          ref={remoteVideoRef}
-          autoPlay
-          playsInline
-          className="w-[50%] rounded aspect-video"
-        />
+        {remoteConnectionStatus && (
+          <video
+            ref={remoteVideoRef}
+            autoPlay
+            playsInline
+            className="w-[50%]"
+          />
+        )}
       </div>
 
       <div className="flex w-full gap-2">
