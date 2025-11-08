@@ -139,11 +139,11 @@ function CollabPageContent() {
       />
 
       <div className="flex flex-1 w-full bg-black ">
-        <div className="flex-1 p-5">
+        <div className="flex w-[25%] p-5">
           <QuestionComponent question={question} />
         </div>
 
-        <div className="flex-[2]">
+        <div className="flex-1">
           <CodingComponentWrapper
             ydoc={ydocRef.current}
             onEditorMount={setEditorInstance}
@@ -154,7 +154,7 @@ function CollabPageContent() {
           />
         </div>
 
-        <div className="flex-1 p-5 min-h-0 overflow-hidden flex flex-col gap-4">
+        <div className="p-5 min-h-0 overflow-hidden flex flex-col w-[30%] gap-4">
           {/* Voice/Video Chat - stays mounted */}
           <VoiceChatComponent />
 

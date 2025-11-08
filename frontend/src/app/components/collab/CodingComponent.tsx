@@ -13,6 +13,7 @@
  * Purpose: Modified to accept shared Yjs document instead of creating new one
  * Author Review: Yjs document sharing and binding validated
  */
+
 "use client";
 import * as Y from "yjs";
 import Editor from "@monaco-editor/react";
