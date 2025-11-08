@@ -19,8 +19,7 @@
  * Author Review: Component structure and WebRTC persistence validated
  */
 
-/**
- * AI Assistance Disclosure:
+/** AI Assistance Disclosure:
  * Tool: Claude Sonnet 4.5, date: 2025-11-08
  * Purpose: Added shared Yjs document management for editor and chat synchronization
  * Author Review: Yjs document sharing and lifecycle management validated
@@ -139,11 +138,11 @@ function CollabPageContent() {
       />
 
       <div className="flex flex-1 w-full bg-black ">
-        <div className="flex w-[30%] p-5">
+        <div className="flex w-[25%] p-5 overflow-hidden">
           <QuestionComponent question={question} />
         </div>
 
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <CodingComponentWrapper
             ydoc={ydocRef.current}
             onEditorMount={setEditorInstance}
@@ -154,7 +153,7 @@ function CollabPageContent() {
           />
         </div>
 
-        <div className="p-5 min-h-0 overflow-hidden flex flex-col w-[30%] gap-4">
+        <div className="p-5 min-h-0 overflow-hidden flex flex-col w-[25%] gap-4">
           {/* Voice/Video Chat - stays mounted */}
           <VoiceChatComponent />
 
