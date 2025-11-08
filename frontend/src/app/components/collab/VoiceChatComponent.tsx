@@ -205,7 +205,7 @@ export default function VoiceChatComponent() {
       if (socketRef.current) {
         socketRef.current.disconnect();
       }
-      
+
       // Clear pending candidates
       pendingCandidatesRef.current = [];
     };
