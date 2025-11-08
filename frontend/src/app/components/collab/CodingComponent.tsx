@@ -1,3 +1,12 @@
+//With reference to https://dev.to/akormous/building-a-shared-code-editor-using-nodejs-websocket-and-crdt-4l0f for binding editor to yjs
+
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2024-10-28
+ * Purpose: Added props interface and callbacks to expose editor instance and language for AI assistant
+ * Author Review: Callback integration and useEffect dependencies validated
+ */
+
 /**
  * AI Assistance Disclosure:
  * Tool: Claude Sonnet 4.5, date: 2025-11-08

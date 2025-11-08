@@ -5,6 +5,13 @@
  * Author Review: Props forwarding validated
  */
 
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2025-11-06
+ * Purpose: Created wrapper component to toggle between Chat and AI Assist panels
+ * Author Review: Component structure and state management validated
+ */
+
 "use client";
 
 import { useState } from "react";

@@ -1,5 +1,26 @@
 /**
  * AI Assistance Disclosure:
+ * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2024-10-28
+ * Purpose: Enhanced collab page with toggle between peer chat and AI assistant panel
+ * Author Review: State management and component integration validated
+ */
+
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-02
+ * Purpose: To integrate question data retrieval and display in the collaboration page.
+ * Author Review: Verified correctness and functionality of the code.
+ */
+
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2025-11-06
+ * Purpose: Refactored to separate voice chat from chat panels to fix video unmounting issue
+ * Author Review: Component structure and WebRTC persistence validated
+ */
+
+/**
+ * AI Assistance Disclosure:
  * Tool: Claude Sonnet 4.5, date: 2025-11-08
  * Purpose: Added shared Yjs document management for editor and chat synchronization
  * Author Review: Yjs document sharing and lifecycle management validated

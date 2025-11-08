@@ -1,5 +1,12 @@
 /**
  * AI Assistance Disclosure:
+ * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2025-11-06
+ * Purpose: Simplified ChatComponent to only handle text chat, video/audio moved to VoiceChatComponent
+ * Author Review: Component refactoring and separation of concerns validated
+ * /
+
+/**
+ * AI Assistance Disclosure:
  * Tool: Claude Sonnet 4.5, date: 2025-11-08
  * Purpose: Modified to use shared Yjs document for chat synchronization
  * Author Review: Yjs integration with shared document validated
