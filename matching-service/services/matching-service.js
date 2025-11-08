@@ -436,7 +436,7 @@ class MatchingService {
         status: "failed",
         error:
           errorData.error ||
-          "ailed to create session. We are currently facing issues with our server",
+          "Failed to create session. We are currently facing issues with our server",
         errorMessage:
           errorData.message ||
           "Unable to create a collaboration session. Please try different criteria.",
