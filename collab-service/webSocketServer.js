@@ -32,18 +32,20 @@ export function initWebSocketServer() {
         return ws.terminate();
       }
       ws.isAlive = false;
+      ws.send(JSON.stringify({ type: "ping" }));
+
       ws.ping();
     });
-  }, 30000);
+  }, 5000);
 
-  //For clearing of y doc state on server and redis if more than 2 minutes has passed since room is empty
+  //For clearing of y doc state on server and redis if more than 3 minutes has passed since room is empty
   const state_interval = setInterval(async () => {
     const current_time = Date.now();
     for (const [roomId, room] of roomToData.entries()) {
       if (
         room.users.size === 0 &&
         room.lastEmptyAt &&
-        current_time - room.lastEmptyAt > 120000
+        current_time - room.lastEmptyAt > 180000
       ) {
         logger.info(
           `Deleting Y.Doc for room ${roomId} (inactive for more than 2min)`

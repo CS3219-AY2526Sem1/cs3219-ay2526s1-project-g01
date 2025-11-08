@@ -1933,13 +1933,15 @@ ChatGPT (model: GPT-5)
 Request to review WebRTC signaling code and verify the correctness of the flow, including whether the exchange of SDP offers and answers between users works properly, and how ICE candidates are handled before the remote description is set.
 
 # Output Summary:
+
 - Reviewed the code handling offer-made, offer-accepted, and ice-candidate socket events.
 - Confirmed that the logic correctly ensures both peers can exchange SDP offers and answers through the signaling server.
 - Explained the proper WebRTC flow:
- 1. User A creates an SDP offer and sends it through the signaling server.
- 2. User B receives the offer, sets it as a remote description, creates an SDP answer, and returns it.
- 3. User A then sets the received answer as a remote description.
- 4. Both sides exchange ICE candidates
+
+1.  User A creates an SDP offer and sends it through the signaling server.
+2.  User B receives the offer, sets it as a remote description, creates an SDP answer, and returns it.
+3.  User A then sets the received answer as a remote description.
+4.  Both sides exchange ICE candidates
 
 # Action Taken:
 
@@ -2100,6 +2102,7 @@ Request to implement Alert Dialog from radix-ui
 - [ ] Rejected
 
 # Author Notes:
+
 - The signaling logic and peer connection setup were tested in a live environment with two users joining the same session room.
 - Connection established successfully with audio/video exchange.
 - Fix bugs where the server emits to the wrong user (eg to the current user instead of the other user)
@@ -2148,6 +2151,7 @@ Request on sample code on how to use redish hash to store session data
 ## Entry 57
 
 # Date/Time:
+
 2025-10-29 10:50
 
 # Tool:
@@ -2180,23 +2184,29 @@ Create a loading dialog box with spinner in radix
 ## Entry 58
 
 # Date/Time:
+
 2025-10-31 10:44
 
 # Tool:
+
 ChatGPT (model: GPT 5.0)
 
 # Prompt/Command:
+
 Singleton class to manage websocket connection for client frontend
 
 # Output Summary:
+
 - Provided boilerplate code for singleton class
 
 # Action Taken:
+
 - [ ] Accepted as-is
-- [X] Modified
+- [x] Modified
 - [ ] Rejected
 
 # Author Notes:
+
 - Verified that instance methods are appropriate
 - Modified instance methods to fit use case
 
@@ -2214,7 +2224,7 @@ ChatGPT (model: GPT 5.0)
 
 # Prompt/Command:
 
-Creaet a not authorised dialog box in radix to notify user that they are not allowed to access the room
+Create a not authorised dialog box in radix to notify user that they are not allowed to access the room
 
 # Output Summary:
 
@@ -2250,7 +2260,7 @@ GitHub Copilot (model: Claude Sonnet 3.5)
 "Give code for /api/question/add endpoint that adds a question. It should pass a JSON req.body that specifies all the data required to insert 1 question, as demonstrated in my init.sql file"
 "Give code for api/question/delete endpoint that deletes a question by the question id. It should get the question id from the req query.
 All the tables related to that 1 question should be deleted, as shown by the data inserted to insert 1 question in the init.sql file."
-"Give me code for the api/question/update-question that will update an existing question. An updated question is sent, with all the details 
+"Give me code for the api/question/update-question that will update an existing question. An updated question is sent, with all the details
 similar to adding a new question. However the question id remains the same"
 "Give me code for the api/question/{id} to get question by id. It should return the full JSON that is similar to the JSON body added"
 "give me code for the api/question/topic/add that will add a new topic specified in the query param to the topics tables in init.sql"
@@ -2318,7 +2328,6 @@ question: {
 Doing this should extract the data correctly. Might need to log to verify. Then getMatchStatus's data return should include the question data now
 
 pollStatus const question will then be updated with the question in task 1. Then I want to propagate this change to reflect on the frontend, specifically using this data to replace the hardcoded data in QuestionComponent.tsx
-
 
 # Output Summary:
 
@@ -2400,7 +2409,7 @@ GitHub Copilot (model: Claude Sonnet 3.5)
 "Give code for /api/question/add endpoint that adds a question. It should pass a JSON req.body that specifies all the data required to insert 1 question, as demonstrated in my init.sql file"
 "Give code for api/question/delete endpoint that deletes a question by the question id. It should get the question id from the req query.
 All the tables related to that 1 question should be deleted, as shown by the data inserted to insert 1 question in the init.sql file."
-"Give me code for the api/question/update-question that will update an existing question. An updated question is sent, with all the details 
+"Give me code for the api/question/update-question that will update an existing question. An updated question is sent, with all the details
 similar to adding a new question. However the question id remains the same"
 "Give me code for the api/question/{id} to get question by id. It should return the full JSON that is similar to the JSON body added"
 "give me code for the api/question/topic/add that will add a new topic specified in the query param to the topics tables in init.sql"
@@ -2468,7 +2477,6 @@ question: {
 Doing this should extract the data correctly. Might need to log to verify. Then getMatchStatus's data return should include the question data now
 
 pollStatus const question will then be updated with the question in task 1. Then I want to propagate this change to reflect on the frontend, specifically using this data to replace the hardcoded data in QuestionComponent.tsx
-
 
 # Output Summary:
 
@@ -2542,7 +2550,7 @@ When user 1 clicks search for a specified difficulty and topic, and when user 2 
 
 - Modified checkStatus(), removed immediate cleanup when "failed" status is detected, and returns "failed" status without deleting session
 - Modified "failed" status handling: When user receives "failed" status, it shows error message to user, calls endSession(userId) to clean up their side of the session
-Resets to idle state, thereby cleaning up independently when they see the error
+  Resets to idle state, thereby cleaning up independently when they see the error
 
 # Action Taken:
 
@@ -2597,3 +2605,100 @@ Request to separate voice/video chat and text chat components to fix issue where
 - Troubleshooting: Addressed CORS issues (port 3000 vs 3001), Docker frontend conflicts, and TURN API response format
 - Maintainability: Clear separation of concerns - voice chat, text chat, and AI assist are now independent
 - Architecture: Follows React best practices with proper component composition and state management
+
+---
+
+## Entry 66
+
+# Date/Time:
+
+2025-11-05 10:35
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Create a multiple tabs detector using browser api broadcastchannel
+
+# Output Summary:
+
+- Provided sample code for tabs detector
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that tabguard file generated is correct by referencing stackoverflow posts
+- Modified logic to suit application by adding a dialog box for duplicate tabs opened
+- Added logic to ensure original tab stays unchanged when multiple tabs are opened
+- Tested that tab guard works as intended after making modifications
+
+---
+
+## Entry 67
+
+# Date/Time:
+
+2025-11-06 9:14
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Create React ConnectionContext for managing internet connection state.
+
+# Output Summary:
+
+- Provided sample code for React Context
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that context generated is correct
+- Modified context to suit usecase
+
+---
+
+## Entry 68
+
+# Date/Time:
+
+2025-11-06 14:45
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Why is there a ydoc sync issue when a new line is entered on ydoc monaco editor binding between users with different operating systems.
+
+# Output Summary:
+
+- Explained reason for sync issues
+- Provided possible fix for issue.
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that explanation generated is correct
+- Modified solution to suit usecase
+- Tested that solution solved issue

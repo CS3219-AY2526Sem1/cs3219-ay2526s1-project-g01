@@ -8,23 +8,51 @@ function handleInitialDocSync(message, ws, ydoc, wss, sessionId) {
   if (text.startsWith("{")) {
     const data = JSON.parse(text);
     if (data.type === "sync") {
-      const initialState = Buffer.from(data.ydocState, "base64");
-      const update = Y.encodeStateAsUpdate(ydoc, initialState);
-      Y.applyUpdate(ydoc, update);
+      //Inform partner that user joined the room
+      const payloadToPartner = {
+        type: "partner_join",
+      };
+      broadcastToRoom(wss, ws, sessionId, JSON.stringify(payloadToPartner));
 
-      broadcastToRoom(wss, ws, sessionId, update);
-      const updateAsString = Buffer.from(update).toString("base64");
-      const payload = {
+      //Get and send changes that server ydoc has but client does not
+      const initialClientState = Buffer.from(data.ydocState, "base64");
+      const clientMissingDiff = Y.encodeStateAsUpdate(ydoc, initialClientState);
+      const updateAsString = Buffer.from(clientMissingDiff).toString("base64");
+      const update_payload = {
         type: "sync",
         ydocUpdate: updateAsString,
       };
-      ws.send(JSON.stringify(payload));
+      ws.send(JSON.stringify(update_payload));
+
+      //Encode server state and send to client to determine what client has and server does not
+      const serverDocState = Y.encodeStateVector(ydoc);
+      const serverStateAsString =
+        Buffer.from(serverDocState).toString("base64");
+      const req_payload = {
+        type: "sync_client",
+        ydocState: serverStateAsString,
+      };
+      ws.send(JSON.stringify(req_payload));
       return true;
     }
   }
   return false;
 }
 
+//Handles syncing of server ydoc and partner ydoc with offline changes made by client
+function handleClientDocSync(message, ws, ydoc, wss, sessionId) {
+  const text = message.toString();
+  if (text.startsWith("{")) {
+    const data = JSON.parse(text);
+    if (data.type === "sync_client") {
+      const yUpdate = Buffer.from(data.ydocUpdate, "base64");
+      logger.info(yUpdate.length);
+      Y.applyUpdate(ydoc, yUpdate);
+      broadcastToRoom(wss, ws, sessionId, yUpdate);
+      return true;
+    }
+  }
+}
 //Handles client disconnection and inform partner of disconnection
 async function handleSocketDisconnection(ws, wss, roomToDocMap, redisDb) {
   const payloadToPartner = {
@@ -110,4 +138,5 @@ export {
   handleInitialDocSync,
   broadcastToRoom,
   handleSocketDisconnection,
+  handleClientDocSync,
 };

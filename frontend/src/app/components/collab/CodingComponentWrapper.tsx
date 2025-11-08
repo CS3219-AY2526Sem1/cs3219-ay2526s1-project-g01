@@ -30,6 +30,7 @@ const CodingComponent = dynamic(() => import("./CodingComponent"), {
 interface CodingComponentWrapperProps {
   isOpen: boolean;
   closeDialog: () => void;
+  openDialog: () => void;
   onLeave: () => void;
   onEditorMount?: (editor: monaco.editor.IStandaloneCodeEditor) => void;
   onLanguageChange?: (language: string) => void;
@@ -38,6 +39,7 @@ interface CodingComponentWrapperProps {
 export default function CodingComponentWrapper({
   isOpen,
   closeDialog,
+  openDialog,
   onLeave,
   onEditorMount,
   onLanguageChange,
@@ -46,6 +48,7 @@ export default function CodingComponentWrapper({
     <CodingComponent
       isOpen={isOpen}
       closeDialog={closeDialog}
+      openDialog={openDialog}
       onLeave={onLeave}
       onEditorMount={onEditorMount}
       onLanguageChange={onLanguageChange}
