@@ -2378,12 +2378,161 @@ Give code to so that during the matching topic and difficulty selection, users c
 
 # Author Notes:
 
+- Validated complete end-to-end implementation from backend API to frontend UI
+- Confirmed Google Gemini integration provides free tier with generous limits (60 req/min, 1,500/day)
+- Tested AI service independently and integrated with frontend collab page
+- Verified code context automatically included from Monaco editor with each question
+- Security considerations: API key stored in backend .env, code sent to Google Gemini servers
+- Cost-effective solution: completely free for development and student projects
+- UX design: toggle between peer chat and AI assistant without layout disruption
+- Error handling: comprehensive error messages for API failures and rate limits
+- Documentation: created detailed setup guides for both development and production deployment
+- Maintainability: clean separation of concerns with routes/controllers/services pattern
+- Performance: lightweight AI service with minimal dependencies
+- Troubleshooting: addressed Docker port conflicts, PostgreSQL binding issues, and dependency installation
+
+---
+
+## Entry 61
+
+# Date/Time:
+
+<<<<<<< HEAD
+2025-10-29 06:15
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 3.5)
+
+# Prompt/Command:
+
+"Give code for /api/question/add endpoint that adds a question. It should pass a JSON req.body that specifies all the data required to insert 1 question, as demonstrated in my init.sql file"
+"Give code for api/question/delete endpoint that deletes a question by the question id. It should get the question id from the req query.
+All the tables related to that 1 question should be deleted, as shown by the data inserted to insert 1 question in the init.sql file."
+"Give me code for the api/question/update-question that will update an existing question. An updated question is sent, with all the details
+similar to adding a new question. However the question id remains the same"
+"Give me code for the api/question/{id} to get question by id. It should return the full JSON that is similar to the JSON body added"
+"give me code for the api/question/topic/add that will add a new topic specified in the query param to the topics tables in init.sql"
+
+# Output Summary:
+
+- Created the some routers, controllers and functions part by part based on the existing database and code structure
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Modified endpoints and added a few endpoints afterwards to make it more intuitive
+- Modified controller function incrementally to ensure more checks are done, as there were errors in testing
+- Modified functions added new topic during update, to only allow updates if the with preexisting topics and difficulties
+- Verified to ensure that all the endpoints work as intended after modifications
+
+---
+
+## Entry 62
+
+# Date/Time:
+
+2025-11-02 05:00
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+I want to propagate the question data that matching received as a response from calling collab. I think I need to do a few things:
+
+Update the matchingServiceApi MatchStatusResponse question field to accomodate for JSON of the similar form to:
+question: {
+"id": 11,
+"title": "Sort by Frequency and Value",
+"difficulty": "medium",
+"description": "Given an array of integers, sort them by frequency in descending order. If two numbers have the same frequency, sort them by value in ascending order.",
+"question_constraints": "Array length: 1 ≤ n ≤ 1000; Array elements: -10^6 ≤ arr[i] ≤ 10^6",
+"topics": [
+{
+"id": 1,
+"topic": "sorting"
+}
+],
+"test_cases": [
+{
+"index": 1,
+"input": "[1, 1, 2, 2, 2, 3]",
+"output": "[2, 2, 2, 1, 1, 3]"
+},
+{
+"index": 2,
+"input": "[4, 5, 6, 5, 4, 3]",
+"output": "[4, 4, 5, 5, 3, 6]"
+}
+]
+}
+
+Doing this should extract the data correctly. Might need to log to verify. Then getMatchStatus's data return should include the question data now
+
+pollStatus const question will then be updated with the question in task 1. Then I want to propagate this change to reflect on the frontend, specifically using this data to replace the hardcoded data in QuestionComponent.tsx
+
+# Output Summary:
+
+- Updated MatchStatusResponse question field
+- Updated getMatchStatus to be able to return the full question
+- Updated pollStatus to also return question now
+- QuestionComponent.tsx hard coded data is replaced with the newly retrieved data
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Designed the general approach to integration
+- Validated that a question is sent from question service's existing questions
+- Validated that the question sent matches the criteria specified by both users
+
+---
+
+## Entry 63
+
+# Date/Time:
+
+2025-11-03 03:00
+
+# Tool:
+
+GitHub Copilot (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Give code to so that during the matching topic and difficulty selection, users can only see and select live topics available from the question-service. Help me to also capitalise the first letter of each word for the topics returned. Topics rendered should be of equal size, dynamic to changes in screen size.
+
+# Output Summary:
+
+- Added useEffect in TopicsComponent to fetch available topics from question service.
+- Added a capitlize function
+- Replaced flex flex-wrap with grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))]
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
 - Validated that matching page displays the actual topics available in question service
 - Validated that if a new topic is added to quesiton service, a refresh of the matching page will reflect the new topic
 
 ---
 
-## Entry 63
+## Entry 64
 
 # Date/Time:
 
@@ -2414,3 +2563,142 @@ When user 1 clicks search for a specified difficulty and topic, and when user 2 
 - Validated that error message is the same for both users
 
 ---
+
+## Entry 65
+
+# Date/Time:
+
+2025-11-06
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Request to separate voice/video chat and text chat components to fix issue where switching to AI Assist tab unmounts the WebRTC connection and stops video streaming.
+
+# Output Summary:
+
+- Created VoiceChatComponent.tsx - Standalone component for WebRTC video/audio functionality
+- Created ChatPanelWrapper.tsx - Wrapper component for Chat and AI Assist toggle functionality
+- Updated ChatComponent.tsx - Simplified to only handle text chat (removed WebRTC logic)
+- Updated page.tsx - Restructured layout so VoiceChatComponent stays mounted while Chat/AI panels toggle
+- Fixed /api/turn/route.ts - Corrected ICE servers array format for RTCPeerConnection compatibility
+- Component separation ensures video chat persists when switching between Chat and AI Assist tabs
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated WebRTC lifecycle management - connection now persists across tab switches
+- Confirmed component isolation - VoiceChatComponent and ChatPanelWrapper are independently mounted
+- Fixed RTCPeerConnection initialization error by ensuring iceServers is returned as array
+- Tested layout with flex properties to ensure proper space distribution between components
+- Security considerations: WebRTC signaling still uses communication service, no security changes
+- Performance: Eliminates unnecessary connection teardown/rebuild when switching tabs
+- UX improvement: Users can access AI assistance without disrupting video call
+- Troubleshooting: Addressed CORS issues (port 3000 vs 3001), Docker frontend conflicts, and TURN API response format
+- Maintainability: Clear separation of concerns - voice chat, text chat, and AI assist are now independent
+- Architecture: Follows React best practices with proper component composition and state management
+
+---
+
+## Entry 66
+
+# Date/Time:
+
+2025-11-05 10:35
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Create a multiple tabs detector using browser api broadcastchannel
+
+# Output Summary:
+
+- Provided sample code for tabs detector
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that tabguard file generated is correct by referencing stackoverflow posts
+- Modified logic to suit application by adding a dialog box for duplicate tabs opened
+- Added logic to ensure original tab stays unchanged when multiple tabs are opened
+- Tested that tab guard works as intended after making modifications
+
+---
+
+## Entry 67
+
+# Date/Time:
+
+2025-11-06 9:14
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Create React ConnectionContext for managing internet connection state.
+
+# Output Summary:
+
+- Provided sample code for React Context
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that context generated is correct
+- Modified context to suit usecase
+
+---
+
+## Entry 68
+
+# Date/Time:
+
+2025-11-06 14:45
+
+# Tool:
+
+ChatGPT (model: GPT 5.0)
+
+# Prompt/Command:
+
+Why is there a ydoc sync issue when a new line is entered on ydoc monaco editor binding between users with different operating systems.
+
+# Output Summary:
+
+- Explained reason for sync issues
+- Provided possible fix for issue.
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated that explanation generated is correct
+- Modified solution to suit usecase
+- Tested that solution solved issue

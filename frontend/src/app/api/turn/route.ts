@@ -13,7 +13,11 @@ export async function GET(req: NextRequest) {
       `https://peerprep-communication.metered.live/api/v1/turn/credentials?apiKey=${process.env.METERED_API_KEY}`,
     );
 
-    const iceServers = await response.json();
+    const data = await response.json();
+
+    // The Metered API returns an array of ICE servers, but we need to wrap it properly
+    // RTCPeerConnection expects { iceServers: [...] } format
+    const iceServers = Array.isArray(data) ? data : [];
 
     return NextResponse.json(iceServers);
   } catch (err) {

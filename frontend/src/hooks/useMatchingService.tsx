@@ -52,7 +52,6 @@ export function useMatchingService(userId: string | undefined) {
               if (!sessionId) {
                 setSessionId(data.sessionId!);
                 setStatus("matched");
-                console.log("frontend sets status to matched");
                 setTimeRemaining(0);
               }
             } else if (data.status === "searching") {
@@ -66,7 +65,6 @@ export function useMatchingService(userId: string | undefined) {
                 setQuestion(data.question);
                 console.log("Question data received:", data.question);
               }
-              console.log("frontend sets status to active");
               clearPolling();
               //Delete sessionData in matching service redis if both users already polled status active
               if (data.canDelete) {
@@ -92,7 +90,7 @@ export function useMatchingService(userId: string | undefined) {
                 } catch (cleanupErr) {
                   console.error(
                     "Error cleaning up failed session:",
-                    cleanupErr,
+                    cleanupErr
                   );
                 }
               }
@@ -105,7 +103,7 @@ export function useMatchingService(userId: string | undefined) {
               clearPolling();
               setStatus("idle");
               setErrorMessage(
-                "No match found within 5 minutes. Please try again with different criteria.",
+                "No match found within 5 minutes. Please try again with different criteria."
               );
             }
           }
@@ -118,7 +116,7 @@ export function useMatchingService(userId: string | undefined) {
       }, 1000);
     },
 
-    [clearPolling, sessionId],
+    [clearPolling, sessionId]
   );
 
   const startMatching = useCallback(
@@ -157,7 +155,7 @@ export function useMatchingService(userId: string | undefined) {
         setStatus("idle");
       }
     },
-    [userId, pollStatus],
+    [userId, pollStatus]
   );
 
   const handleCancelSearch = useCallback(async () => {

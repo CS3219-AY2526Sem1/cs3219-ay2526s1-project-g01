@@ -65,7 +65,6 @@ export default function MatchPage() {
         editorWebSocketManager.close();
       };
     }
-    console.log("useeffect should run ");
   }, [status, sessionId, router]);
 
   //Handles navigation to collab page and closing of socket connection when user leaves a session willingly
@@ -75,7 +74,7 @@ export default function MatchPage() {
       if (question) {
         sessionStorage.setItem(
           `question_${sessionId}`,
-          JSON.stringify(question),
+          JSON.stringify(question)
         );
       }
       router.push(`/collab?sessionId=${sessionId}`);
@@ -87,11 +86,10 @@ export default function MatchPage() {
   //Determines if user left an existing session accidentally and provide option to rejoin
   useEffect(() => {
     if (user?.id) {
-      console.log("rejoin room function runs");
       getUserSessionStatus(
         user.id,
         (sid) => setSessionId(sid),
-        () => setshowRejoinRoomDialog(true),
+        () => setshowRejoinRoomDialog(true)
       );
     }
   }, [user?.id]);

@@ -4,8 +4,11 @@
  * Tool: ChatGPT (model: GPT 5.0), date: 2025-11-07
  * Purpose: To understand why there is a ydoc sync issue when a new line is entered between users with different operating systems.
  * Author Review: I validated correctness of the explanation provided and the necessary fix
- */
 
+ * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2024-10-28
+ * Purpose: Added props interface and callbacks to expose editor instance and language for AI assistant
+ * Author Review: Callback integration and useEffect dependencies validated
+ */
 "use client";
 import * as Y from "yjs";
 import Editor from "@monaco-editor/react";
@@ -37,17 +40,24 @@ import {
 } from "@/services/editorSyncHandlers";
 import { toast } from "sonner";
 
+interface CodingComponentProps {
+  isOpen: boolean;
+  closeDialog: () => void;
+  openDialog: () => void;
+
+  onLeave: () => void;
+  onEditorMount?: (editor: monaco.editor.IStandaloneCodeEditor) => void;
+  onLanguageChange?: (language: string) => void;
+}
+
 export default function CodingComponent({
   isOpen,
   closeDialog,
   openDialog,
   onLeave,
-}: {
-  isOpen: boolean;
-  closeDialog: () => void;
-  openDialog: () => void;
-  onLeave: () => void;
-}) {
+  onEditorMount,
+  onLanguageChange,
+}: CodingComponentProps) {
   const [codeContent, setCodeContent] = useState<string>("");
   const [selectedLanguage, setSeletedLanguage] = useState<string>("JavaScript");
   const router = useRouter();
@@ -66,6 +76,14 @@ export default function CodingComponent({
   > | null>(null);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [editorReady, setEditorReady] = useState(false);
+
+  // Notify parent when language changes
+  useEffect(() => {
+    if (onLanguageChange) {
+      onLanguageChange(selectedLanguage);
+    }
+  }, [selectedLanguage, onLanguageChange]);
+
   function setInitialContent(value: string | undefined) {
     if (value != undefined) {
       setCodeContent(value);
@@ -75,7 +93,10 @@ export default function CodingComponent({
   function handleEditorMount(editor: monaco.editor.IStandaloneCodeEditor) {
     editorRef.current = editor;
     setEditorReady(true);
-    console.log("test");
+    // Notify parent component
+    if (onEditorMount) {
+      onEditorMount(editor);
+    }
   }
 
   function handleEditorUnmount(
@@ -83,7 +104,7 @@ export default function CodingComponent({
     cursorCollections: Record<
       string,
       monaco.editor.IEditorDecorationsCollection
-    >,
+    >
   ) {
     const cursorDecorator: monaco.editor.IEditorDecorationsCollection =
       cursorCollections[userId];
@@ -111,7 +132,7 @@ export default function CodingComponent({
       const binding = new MonacoBinding(
         yText,
         editorInstance.getModel()!,
-        new Set([editorInstance]),
+        new Set([editorInstance])
       );
       const cursorCollections: Record<
         string,
@@ -144,7 +165,7 @@ export default function CodingComponent({
       () => {
         router.replace("/match");
       },
-      () => setIsConnected(false),
+      () => setIsConnected(false)
     );
 
     registerCursorUpdateHandler(
@@ -152,7 +173,7 @@ export default function CodingComponent({
       editorInstance,
       cursorCollections,
       clientWS,
-      user_name,
+      user_name
     );
 
     registerEditorUpdateHandler(ydoc, clientWS);

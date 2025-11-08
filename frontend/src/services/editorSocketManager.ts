@@ -49,7 +49,6 @@ class WebSocketManager {
   close() {
     if (this.socket) {
       this.socket.close();
-      console.log("does this run ");
       this.socket = null;
       this.lastPing = 0;
     }
