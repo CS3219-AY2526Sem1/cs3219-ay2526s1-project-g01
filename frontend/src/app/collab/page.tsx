@@ -139,7 +139,7 @@ function CollabPageContent() {
       />
 
       <div className="flex flex-1 w-full bg-black ">
-        <div className="flex w-[25%] p-5">
+        <div className="flex w-[30%] p-5">
           <QuestionComponent question={question} />
         </div>
 
