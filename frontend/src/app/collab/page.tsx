@@ -1,27 +1,13 @@
 /**
  * AI Assistance Disclosure:
- * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2024-10-28
- * Purpose: Enhanced collab page with toggle between peer chat and AI assistant panel
- * Author Review: State management and component integration validated
- */
-
-/**
- * AI Assistance Disclosure:
- * Tool: Claude Sonnet 4.5, date: 2025-11-02
- * Purpose: To integrate question data retrieval and display in the collaboration page.
- * Author Review: Verified correctness and functionality of the code.
- */
-
-/**
- * AI Assistance Disclosure:
- * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2025-11-06
- * Purpose: Refactored to separate voice chat from chat panels to fix video unmounting issue
- * Author Review: Component structure and WebRTC persistence validated
+ * Tool: Claude Sonnet 4.5, date: 2025-11-08
+ * Purpose: Added shared Yjs document management for editor and chat synchronization
+ * Author Review: Yjs document sharing and lifecycle management validated
  */
 
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useRef } from "react";
 import VoiceChatComponent from "../components/collab/VoiceChatComponent";
 import ChatPanelWrapper from "../components/collab/ChatPanelWrapper";
 import CodingComponentWrapper from "../components/collab/CodingComponentWrapper";
@@ -36,6 +22,7 @@ import { editorWebSocketManager } from "@/services/editorSocketManager";
 import { deleteSession } from "@/services/collabServiceApi";
 import * as monaco from "monaco-editor";
 import { Question } from "@/services/matchingServiceApi";
+import * as Y from "yjs";
 
 function CollabPageContent() {
   const [showConfirmationAlert, setshowConfirmationAlert] =
@@ -50,6 +37,23 @@ function CollabPageContent() {
   const [question, setQuestion] = useState<Question | null>(null);
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("sessionId");
+
+  // Shared Yjs document for both editor and chat
+  const ydocRef = useRef<Y.Doc | null>(null);
+
+  // Initialize Yjs document once
+  useEffect(() => {
+    if (!ydocRef.current) {
+      ydocRef.current = new Y.Doc();
+    }
+
+    return () => {
+      if (ydocRef.current) {
+        ydocRef.current.destroy();
+        ydocRef.current = null;
+      }
+    };
+  }, []);
 
   //Delete userId to {sessionId, parternId} mapping in backend server
   async function directToMatch() {
@@ -120,6 +124,7 @@ function CollabPageContent() {
 
         <div className="flex-[2]">
           <CodingComponentWrapper
+            ydoc={ydocRef.current}
             onEditorMount={setEditorInstance}
             onLanguageChange={setLanguage}
             isOpen={showLoadingDialog}
@@ -134,6 +139,7 @@ function CollabPageContent() {
 
           {/* Chat and AI Assist Toggle Panel */}
           <ChatPanelWrapper
+            ydoc={ydocRef.current}
             editorInstance={editorInstance}
             language={language}
           />

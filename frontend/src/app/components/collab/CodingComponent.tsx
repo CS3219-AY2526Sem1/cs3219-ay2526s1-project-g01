@@ -1,10 +1,8 @@
-//With reference to https://dev.to/akormous/building-a-shared-code-editor-using-nodejs-websocket-and-crdt-4l0f for binding editor to yjs
-
 /**
  * AI Assistance Disclosure:
- * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2024-10-28
- * Purpose: Added props interface and callbacks to expose editor instance and language for AI assistant
- * Author Review: Callback integration and useEffect dependencies validated
+ * Tool: Claude Sonnet 4.5, date: 2025-11-08
+ * Purpose: Modified to accept shared Yjs document instead of creating new one
+ * Author Review: Yjs document sharing and binding validated
  */
 "use client";
 import * as Y from "yjs";
@@ -20,7 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, CircleUser } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { useRouter } from "next/navigation";
 import ReconnectingWebSocket from "reconnecting-websocket";
@@ -36,6 +34,7 @@ import {
 } from "@/services/editorSyncHandlers";
 
 interface CodingComponentProps {
+  ydoc: Y.Doc | null;
   isOpen: boolean;
   closeDialog: () => void;
   onLeave: () => void;
@@ -44,6 +43,7 @@ interface CodingComponentProps {
 }
 
 export default function CodingComponent({
+  ydoc,
   isOpen,
   closeDialog,
   onLeave,
@@ -97,12 +97,12 @@ export default function CodingComponent({
     delete cursorCollections[userId];
   }
 
-  //Sets up local editor state, socket event listenr and syncrhonise editor state with backend ydoc version
+  //Sets up local editor state, socket event listener and synchronise editor state with backend ydoc version
   useEffect(() => {
-    if (!editorInstance) {
+    if (!editorInstance || !ydoc) {
       return;
     }
-    const ydoc: Y.Doc = new Y.Doc();
+
     const yText: Y.Text = ydoc.getText("monaco");
     const binding: MonacoBinding = new MonacoBinding(
       yText,
@@ -150,14 +150,12 @@ export default function CodingComponent({
     }, 2000);
 
     return () => {
-      console.log("remove client binding and ydoc");
+      console.log("remove client binding");
       handleEditorUnmount(user_id, cursorCollections);
-      // editorWebSocketManager.close();
-      // clientWS.close();
-      ydoc.destroy();
+      // Don't destroy ydoc here - it's managed by parent
       binding.destroy();
     };
-  }, [editorInstance]);
+  }, [editorInstance, ydoc]);
 
   return (
     <>
