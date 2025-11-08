@@ -74,7 +74,7 @@ export default function MatchPage() {
       if (question) {
         sessionStorage.setItem(
           `question_${sessionId}`,
-          JSON.stringify(question)
+          JSON.stringify(question),
         );
       }
       router.push(`/collab?sessionId=${sessionId}`);
@@ -89,7 +89,7 @@ export default function MatchPage() {
       getUserSessionStatus(
         user.id,
         (sid) => setSessionId(sid),
-        () => setshowRejoinRoomDialog(true)
+        () => setshowRejoinRoomDialog(true),
       );
     }
   }, [user?.id]);

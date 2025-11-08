@@ -15,7 +15,7 @@ export async function deleteSession(userId: string) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -32,7 +32,7 @@ export async function deleteSession(userId: string) {
 export async function getUserSessionStatus(
   userId: string,
   setSessionId: (sid: string) => void,
-  setshowRejoinRoomDialog: () => void
+  setshowRejoinRoomDialog: () => void,
 ) {
   try {
     const token = getToken();
@@ -44,7 +44,7 @@ export async function getUserSessionStatus(
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     if (!response.ok) {

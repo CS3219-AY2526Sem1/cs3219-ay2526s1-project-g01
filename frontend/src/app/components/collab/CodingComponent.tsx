@@ -104,7 +104,7 @@ export default function CodingComponent({
     cursorCollections: Record<
       string,
       monaco.editor.IEditorDecorationsCollection
-    >
+    >,
   ) {
     const cursorDecorator: monaco.editor.IEditorDecorationsCollection =
       cursorCollections[userId];
@@ -132,7 +132,7 @@ export default function CodingComponent({
       const binding = new MonacoBinding(
         yText,
         editorInstance.getModel()!,
-        new Set([editorInstance])
+        new Set([editorInstance]),
       );
       const cursorCollections: Record<
         string,
@@ -165,7 +165,7 @@ export default function CodingComponent({
       () => {
         router.replace("/match");
       },
-      () => setIsConnected(false)
+      () => setIsConnected(false),
     );
 
     registerCursorUpdateHandler(
@@ -173,7 +173,7 @@ export default function CodingComponent({
       editorInstance,
       cursorCollections,
       clientWS,
-      user_name
+      user_name,
     );
 
     registerEditorUpdateHandler(ydoc, clientWS);
