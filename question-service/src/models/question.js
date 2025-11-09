@@ -245,6 +245,27 @@ export async function deleteQuestionFromDb(questionId) {
     // Delete the question
     await client.query('DELETE FROM questions WHERE id = $1', [questionId]);
 
+    // Prevent ID reuse: Ensure the sequence is advanced past the deleted ID
+    const seqRes = await client.query(
+      `SELECT pg_get_serial_sequence('questions', 'id') AS seqname`
+    );
+    const seqName = seqRes.rows[0] && seqRes.rows[0].seqname;
+    if (seqName) {
+      // Get the current sequence value
+      const currentSeqResult = await client.query(
+        `SELECT last_value FROM ${seqName}`
+      );
+      const currentSeq = currentSeqResult.rows[0].last_value;
+
+      // If the deleted ID is >= current sequence, advance the sequence past it
+      if (questionId >= currentSeq) {
+        await client.query(
+          `SELECT setval($1, $2)`,
+          [seqName, questionId]
+        );
+      }
+    }
+
     // Commit transaction
     await client.query('COMMIT');
 
