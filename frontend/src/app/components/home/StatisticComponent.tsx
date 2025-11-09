@@ -1,3 +1,9 @@
+/* AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-10
+ * Purpose: Updated StatisticComponent to fetch and display user statistics
+ * Author Review: I validated correctness, security, and performance of the code.
+ */ 
+
 "use client";
 
 import { useEffect, useState } from "react";

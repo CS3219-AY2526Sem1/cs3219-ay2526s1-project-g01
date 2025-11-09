@@ -19,6 +19,12 @@
  * Author Review: Component structure and WebRTC persistence validated
  */
 
+/* AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-10-10
+ * Purpose: Updated the styling of Collab Page to make it dynamic and responsive
+ * Author Review: I validated correctness and performance of the code.
+ */ 
+
 "use client";
 
 import { useState, useEffect, Suspense } from "react";

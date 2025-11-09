@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { CircleUser, Mic, Check } from "lucide-react";
+import { CircleUser, Check } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { useState, useEffect } from "react";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";

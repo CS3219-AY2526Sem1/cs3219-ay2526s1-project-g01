@@ -1,3 +1,9 @@
+/* AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-10-10
+ * Purpose: Updated the styling of MatchPage to make it dynamic and responsive
+ * Author Review: I validated correctness and performance of the code.
+ */ 
+
 "use client";
 import { useState, useEffect } from "react";
 import TopicsComponent from "../components/match/TopicsComponent";

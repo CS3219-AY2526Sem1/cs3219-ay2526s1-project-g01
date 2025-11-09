@@ -2789,7 +2789,7 @@ Both buttons should turn green afterwards, on both screens, and should not be ab
 
 # Date/Time:
 
-2025-11-09 23:00
+2025-11-10 00:10
 
 # Tool:
 
@@ -2800,6 +2800,7 @@ Claude Code (model: Claude Sonnet 4.5)
 For the home page, help me to modify it and its components so that its dynamic 
 and the words in the statistics component does not overflo, but stay within the 
 box when I make the screen smaller
+
 # Output Summary:
 
 - Modified the styling as described
@@ -2816,3 +2817,99 @@ box when I make the screen smaller
 
 ---
 
+## Entry 72
+
+# Date/Time:
+
+2025-11-10 01:00
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Help implement the feature such that the home page is updated with the live statistics instead of the hardcoded ones: Total Problems Attempted, Questions Attempted in the past week, Favourite Topic. Remove the last hardcoded statistic and ensure the the homepage is dynamic.
+Help implement Recent sessions in the History component to reflect data from the last 3 questions attempted.
+
+
+# Output Summary:
+
+- Updated the routes, controllers and attempts model to handle such request
+- Updated the frontend to make calls to the question service each time a user enters the homepage
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [X] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated correctness and performance of the code
+- Modified the styling of the home page and the match page
+
+---
+
+## Entry 73
+
+# Date/Time:
+
+2025-11-10 01:15
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Help add validation to attempt.js
+
+# Output Summary:
+
+- Added validation checks to attempt.js
+
+# Action Taken:
+
+- [X] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated to make sure the checks were appropriate
+
+---
+
+## Entry 74
+
+# Date/Time:
+
+2025-11-10 02:00
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Help me to make the collab page dynamic:
+- ensure that the 3 columns maintain the same ratio when screen size changes
+- hide the vertical scrollbars for the question, ai chat, ai text prompt box, and keep the overflow text within the same column box
+- make the VoiceChatComponent vertically dynamic to save space when screen size becomes small
+
+# Output Summary:
+
+- Made the above changes
+
+# Action Taken:
+
+- [X] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated to make sure the implementation was correct and tweaked when needed
+
+---

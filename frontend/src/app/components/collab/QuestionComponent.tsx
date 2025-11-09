@@ -4,6 +4,11 @@
  * Purpose: To integrate question data retrieval and display in the collaboration page.
  * Author Review: Verified correctness and functionality of the code.
  */
+/* AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-10
+ * Purpose: Updated the styling of QuestionComponent to make it dynamic and responsive
+ * Author Review: I validated correctness and performance of the code.
+ */ 
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
