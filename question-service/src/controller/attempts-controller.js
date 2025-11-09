@@ -28,6 +28,13 @@ import {
  */
 export async function createAttempt(req, res) {
   try {
+    // Validate request body exists
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({
+        message: 'Request body is required'
+      });
+    }
+
     const { question_id, user_id, attempted_date } = req.body;
 
     // Validate required fields
@@ -68,6 +75,21 @@ export async function createAttempt(req, res) {
         });
       }
       userIds.push(id.trim());
+    }
+
+    // Check for duplicate user IDs
+    const uniqueUserIds = [...new Set(userIds)];
+    if (uniqueUserIds.length !== userIds.length) {
+      return res.status(400).json({
+        message: 'Duplicate user IDs are not allowed'
+      });
+    }
+
+    // Validate attempted_date is a string
+    if (typeof attempted_date !== 'string' || attempted_date.trim().length === 0) {
+      return res.status(400).json({
+        message: 'attempted_date must be a non-empty string'
+      });
     }
 
     // Validate attempted_date format (YYYY-MM-DD)
@@ -123,16 +145,35 @@ export async function createAttempt(req, res) {
  */
 export async function getUserAttempts(req, res) {
   try {
+    // Validate req.params exists
+    if (!req.params || Object.keys(req.params).length === 0) {
+      return res.status(400).json({
+        message: 'Request parameters are required'
+      });
+    }
+
     const { user_id } = req.params;
 
-    // Validate user_id
-    if (!user_id || typeof user_id !== 'string' || user_id.trim().length === 0) {
+    // Validate user_id exists and is valid
+    if (!user_id) {
       return res.status(400).json({
-        message: 'Valid user ID parameter is required'
+        message: 'User ID parameter is required'
+      });
+    }
+
+    if (typeof user_id !== 'string') {
+      return res.status(400).json({
+        message: 'User ID must be a string'
       });
     }
 
     const userId = user_id.trim();
+
+    if (userId.length === 0) {
+      return res.status(400).json({
+        message: 'User ID cannot be empty'
+      });
+    }
 
     // Get attempted questions from database
     const result = await getAttemptedQuestionsByUserFromDb(userId);
@@ -167,16 +208,35 @@ export async function getUserAttempts(req, res) {
  */
 export async function getUserAttemptedTopics(req, res) {
   try {
+    // Validate req.params exists
+    if (!req.params || Object.keys(req.params).length === 0) {
+      return res.status(400).json({
+        message: 'Request parameters are required'
+      });
+    }
+
     const { user_id } = req.params;
 
-    // Validate user_id
-    if (!user_id || typeof user_id !== 'string' || user_id.trim().length === 0) {
+    // Validate user_id exists and is valid
+    if (!user_id) {
       return res.status(400).json({
-        message: 'Valid user ID parameter is required'
+        message: 'User ID parameter is required'
+      });
+    }
+
+    if (typeof user_id !== 'string') {
+      return res.status(400).json({
+        message: 'User ID must be a string'
       });
     }
 
     const userId = user_id.trim();
+
+    if (userId.length === 0) {
+      return res.status(400).json({
+        message: 'User ID cannot be empty'
+      });
+    }
 
     // Get attempted topics from database
     const topics = await getAttemptedTopicsByUserFromDb(userId);
@@ -211,16 +271,35 @@ export async function getUserAttemptedTopics(req, res) {
  */
 export async function getUserFavoriteTopics(req, res) {
   try {
+    // Validate req.params exists
+    if (!req.params || Object.keys(req.params).length === 0) {
+      return res.status(400).json({
+        message: 'Request parameters are required'
+      });
+    }
+
     const { user_id } = req.params;
 
-    // Validate user_id
-    if (!user_id || typeof user_id !== 'string' || user_id.trim().length === 0) {
+    // Validate user_id exists and is valid
+    if (!user_id) {
       return res.status(400).json({
-        message: 'Valid user ID parameter is required'
+        message: 'User ID parameter is required'
+      });
+    }
+
+    if (typeof user_id !== 'string') {
+      return res.status(400).json({
+        message: 'User ID must be a string'
       });
     }
 
     const userId = user_id.trim();
+
+    if (userId.length === 0) {
+      return res.status(400).json({
+        message: 'User ID cannot be empty'
+      });
+    }
 
     // Get favorite topics from database
     const favoriteTopics = await getFavoriteTopicsByUserFromDb(userId);
