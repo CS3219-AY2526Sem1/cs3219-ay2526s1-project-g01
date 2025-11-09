@@ -41,9 +41,9 @@ export default function QuestionComponent({
   };
 
   return (
-    <Card className="h-full flex flex-col bg-stone-900 border-black">
+    <Card className="h-full flex flex-col bg-stone-900 border-black overflow-hidden">
       {/* Question Title and Difficulty */}
-      <CardHeader>
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="text-white text-lg sm:text-xl md:text-2xl break-words leading-tight">{question.title}</CardTitle>
         <div className="flex pt-1 items-start gap-1 flex-wrap">
           <Badge className={getDifficultyBadge(question.difficulty)}>
@@ -58,7 +58,7 @@ export default function QuestionComponent({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col flex-1 overflow-y-auto">
+      <CardContent className="flex flex-col flex-1 overflow-y-auto min-h-0 scrollbar-hide">
         {/* Question Description */}
         <div className="text-white mb-5 leading-tight">
           <h3 className="font-semibold mb-2">Description</h3>

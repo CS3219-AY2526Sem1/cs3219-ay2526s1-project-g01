@@ -313,26 +313,26 @@ export default function VoiceChatComponent() {
   }
 
   return (
-    <div className="bg-stone-900 p-2 rounded-lg flex-shrink-0">
-      <div className="flex w-full gap-2 mb-2">
+    <div className="bg-stone-900 p-2 rounded-lg flex flex-col min-h-0">
+      <div className="flex w-full gap-2 mb-2 min-h-0">
         <video
           ref={currentVideoRef}
           autoPlay
           playsInline
           muted
-          className="w-[50%] rounded aspect-video"
+          className="w-[50%] rounded aspect-video object-cover"
         />
         {remoteConnectionStatus && (
           <video
             ref={remoteVideoRef}
             autoPlay
             playsInline
-            className="w-[50%]"
+            className="w-[50%] rounded aspect-video object-cover"
           />
         )}
       </div>
 
-      <div className="flex w-full gap-2">
+      <div className="flex w-full gap-2 flex-shrink-0">
         {/* Button for local stream */}
         <div className="flex gap-2 w-[50%]">
           <Button
@@ -343,9 +343,10 @@ export default function VoiceChatComponent() {
             bg-stone-900
             border
             border-white
-            hover:bg-stone-500"
+            hover:bg-stone-500
+            py-1"
           >
-            {localAudioStatus ? <Mic /> : <MicOff />}
+            {localAudioStatus ? <Mic size={16} /> : <MicOff size={16} />}
           </Button>
           <Button
             onClick={() => muteLocalVideo()}
@@ -355,9 +356,10 @@ export default function VoiceChatComponent() {
             bg-stone-900
             border
             border-white
-            hover:bg-stone-500"
+            hover:bg-stone-500
+            py-1"
           >
-            {localVideoStatus ? <Video /> : <VideoOff />}
+            {localVideoStatus ? <Video size={16} /> : <VideoOff size={16} />}
           </Button>
         </div>
 
@@ -371,9 +373,10 @@ export default function VoiceChatComponent() {
             bg-stone-900
             border
             border-white
-            hover:bg-stone-500"
+            hover:bg-stone-500
+            py-1"
           >
-            {remoteAudioStatus ? <Mic /> : <MicOff />}
+            {remoteAudioStatus ? <Mic size={16} /> : <MicOff size={16} />}
           </Button>
         </div>
       </div>

@@ -127,7 +127,7 @@ function CollabPageContent() {
     );
   }
   return (
-    <main className="bg-stone-900 h-screen flex flex-col items-center">
+    <main className="bg-stone-900 h-screen flex flex-col items-center overflow-hidden">
       <SessionHeader
         showConfirmationAlert={() => {
           setshowConfirmationAlert(true);
@@ -137,12 +137,14 @@ function CollabPageContent() {
         partnerUserId={partnerUserId}
       />
 
-      <div className="flex flex-1 w-full bg-black ">
-        <div className="flex-1 p-5">
+      <div className="flex flex-1 w-full bg-black min-h-0 min-w-0">
+        {/* Left Column - Question Component */}
+        <div className="flex-1 min-w-[250px] p-3 sm:p-4 md:p-5 min-h-0 overflow-hidden">
           <QuestionComponent question={question} />
         </div>
 
-        <div className="flex-[2]">
+        {/* Center Column - Code Editor */}
+        <div className="flex-[2] min-w-[300px] min-h-0">
           <CodingComponentWrapper
             onEditorMount={setEditorInstance}
             onLanguageChange={setLanguage}
@@ -153,7 +155,8 @@ function CollabPageContent() {
           />
         </div>
 
-        <div className="flex-1 p-5 min-h-0 overflow-hidden flex flex-col gap-4">
+        {/* Right Column - Video Chat & Chat/AI Panel */}
+        <div className="flex-1 min-w-[250px] p-3 sm:p-4 md:p-5 min-h-0 overflow-hidden flex flex-col gap-3 sm:gap-4">
           {/* Voice/Video Chat - stays mounted */}
           <VoiceChatComponent />
 

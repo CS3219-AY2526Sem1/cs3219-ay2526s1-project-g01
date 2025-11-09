@@ -142,9 +142,6 @@ export default function SessionHeader({
               "Mark as Attempted"
             )}
           </Button>
-          <Button className="mr-3">
-            <Mic />
-          </Button>
           <Button
             onClick={showConfirmationAlert}
             className="bg-red-500 text-black mr-3 hover:bg-red-300"

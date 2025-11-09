@@ -113,7 +113,7 @@ export default function AiAssistPanel({
   };
 
   return (
-    <div className="h-full min-h-0 flex flex-col bg-stone-900 overflow-hidden">
+    <div className="h-full min-h-0 flex flex-col bg-stone-900 overflow-hidden rounded-lg">
       {/* Header */}
       <div className="p-4 border-b border-stone-700 flex items-center gap-2 flex-shrink-0">
         <Sparkles className="w-5 h-5 text-purple-400" />
@@ -123,7 +123,7 @@ export default function AiAssistPanel({
       {/* Messages Container */}
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 min-h-0"
+        className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 min-h-0 scrollbar-hide"
       >
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-stone-400 text-center px-4">
@@ -247,7 +247,7 @@ export default function AiAssistPanel({
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask about your code... (Shift+Enter for new line)"
-            className="flex-1 bg-stone-800 text-white rounded-lg px-4 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="flex-1 bg-stone-800 text-white rounded-lg px-4 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 scrollbar-hide"
             rows={2}
             disabled={isLoading}
           />

@@ -165,3 +165,15 @@
 [data-sonner-toast][data-type="info"] .toast-custom {
   border-left: 4px solid #6366f1 !important;
 }
+
+/* Hide scrollbar but keep scroll functionality */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+}
