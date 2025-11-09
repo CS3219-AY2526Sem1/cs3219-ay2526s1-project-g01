@@ -24,7 +24,8 @@ import { saveLocalState } from "../utils/sessionDataHandler.js";
 //Initialises backend socket events
 async function initialiseWebSocket(wss, ws, request, redisDb, roomToDataMap) {
   const fullUrl = `ws://host${request.url}`;
-  const url = new URL(fullUrl);roomToDataMap
+  const url = new URL(fullUrl);
+  roomToDataMap;
   logger.info(fullUrl);
   const sessionId = url.searchParams.get("sessionId");
   logger.info(sessionId);
@@ -56,7 +57,9 @@ async function initialiseWebSocket(wss, ws, request, redisDb, roomToDataMap) {
         // Forward custom messages to all clients in the room
         if (data.type === "attempt-marked") {
           broadcastToRoom(wss, ws, sessionId, text);
-          logger.info(`Broadcasting attempt-marked message in session ${sessionId}`);
+          logger.info(
+            `Broadcasting attempt-marked message in session ${sessionId}`,
+          );
           return;
         }
       }

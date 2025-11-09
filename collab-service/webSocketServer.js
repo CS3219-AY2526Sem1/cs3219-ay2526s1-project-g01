@@ -20,7 +20,7 @@ export function initWebSocketServer() {
       ws,
       request,
       dbClient,
-      roomToData
+      roomToData,
     );
   });
 
@@ -48,7 +48,7 @@ export function initWebSocketServer() {
         current_time - room.lastEmptyAt > 180000
       ) {
         logger.info(
-          `Deleting Y.Doc for room ${roomId} (inactive for more than 2min)`
+          `Deleting Y.Doc for room ${roomId} (inactive for more than 2min)`,
         );
         room.doc.destroy();
         roomToData.delete(roomId);

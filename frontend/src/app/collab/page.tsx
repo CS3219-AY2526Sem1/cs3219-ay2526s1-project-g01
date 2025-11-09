@@ -45,7 +45,11 @@ import DisconnectAlertDialog from "@/components/ui/alert-dialog";
 import NotAuthorizedDialog from "@/components/ui/not-authorised-dialog";
 import { useUser } from "@/contexts/UserContext";
 import { editorWebSocketManager } from "@/services/editorSocketManager";
-import { deleteSession, getPartnerUserId, getSessionDetails } from "@/services/collabServiceApi";
+import {
+  deleteSession,
+  getPartnerUserId,
+  getSessionDetails,
+} from "@/services/collabServiceApi";
 import * as monaco from "monaco-editor";
 import { Question } from "@/services/matchingServiceApi";
 
@@ -93,7 +97,10 @@ function CollabPageContent() {
         try {
           const parsedQuestion = JSON.parse(questionData);
           setQuestion(parsedQuestion);
-          console.log("Question data loaded from sessionStorage:", parsedQuestion);
+          console.log(
+            "Question data loaded from sessionStorage:",
+            parsedQuestion,
+          );
         } catch (error) {
           console.error("Error parsing question data:", error);
         }
@@ -101,19 +108,31 @@ function CollabPageContent() {
         // If not in sessionStorage, fetch from question service (for reconnections)
         const fetchQuestionFromSession = async () => {
           try {
-            console.log("Fetching question from session details for sessionId:", sessionId);
+            console.log(
+              "Fetching question from session details for sessionId:",
+              sessionId,
+            );
             const sessionDetails = await getSessionDetails(sessionId);
             setQuestion(sessionDetails.question);
-            console.log("Question data loaded from backend:", sessionDetails.question);
-            
+            console.log(
+              "Question data loaded from backend:",
+              sessionDetails.question,
+            );
+
             // Store in sessionStorage for future use
-            sessionStorage.setItem(`question_${sessionId}`, JSON.stringify(sessionDetails.question));
+            sessionStorage.setItem(
+              `question_${sessionId}`,
+              JSON.stringify(sessionDetails.question),
+            );
           } catch (error) {
-            console.error("Error fetching question from session details:", error);
+            console.error(
+              "Error fetching question from session details:",
+              error,
+            );
             // Optionally show a toast notification to user
           }
         };
-        
+
         fetchQuestionFromSession();
       }
     }

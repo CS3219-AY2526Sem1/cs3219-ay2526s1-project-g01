@@ -2719,19 +2719,20 @@ Claude Code (model: Claude Sonnet 4.5)
 
 Give code to handle the following endpoints
 
-POST `/questions/attempts` 
+POST `/questions/attempts`
+
 - send a JSON body of question_id, array of user_id, and date. date should be inclusive of today and prior
-GET `/questions/attempts/{user_id}` 
+  GET `/questions/attempts/{user_id}`
 - Get count of all attempts for a user, and an array of question_id of attempted question
-GET `/questions/attempts/{user_id}/topics` 
+  GET `/questions/attempts/{user_id}/topics`
 - Get a mapping of topics and the count of questions attempted that is associated with this topic
-GET `/questions/attempts/{user_id}/favourite-topic` 
+  GET `/questions/attempts/{user_id}/favourite-topic`
 - Get favourite topic(s) for a user, and returns an array with topic(s) of highest attempts
 
 # Output Summary:
 
 - Created attempt.js to handle attempt related queries
-- Created attempt-controller.js to handle attempt related parsing 
+- Created attempt-controller.js to handle attempt related parsing
 - Updated question-routes.js with the routes I provided
 
 # Action Taken:
@@ -2742,7 +2743,7 @@ GET `/questions/attempts/{user_id}/favourite-topic`
 
 # Author Notes:
 
-- Designed the endpoints 
+- Designed the endpoints
 - Modified some error handling logic
 - Verified correctness and performance of the code
 
@@ -2761,7 +2762,7 @@ Claude Code (model: Claude Sonnet 4.5)
 # Prompt/Command:
 
 Create a button in the frontend's collab page's session header component.
-This button is meant to mark the question as attempted. 
+This button is meant to mark the question as attempted.
 One of the 2 users in the room can click it, a pop up confirmation message will appear.
 Once user confirms, then send a POST request to the question-service to update
 Request body should retrieve user id from collab's room session data
@@ -2781,7 +2782,7 @@ Both buttons should turn green afterwards, on both screens, and should not be ab
 
 - Fixed the bugs
 - Validated correctness and performance of the code
-- Modified the Ui 
+- Modified the Ui
 
 ---
 
@@ -2797,8 +2798,8 @@ Claude Code (model: Claude Sonnet 4.5)
 
 # Prompt/Command:
 
-For the home page, help me to modify it and its components so that its dynamic 
-and the words in the statistics component does not overflo, but stay within the 
+For the home page, help me to modify it and its components so that its dynamic
+and the words in the statistics component does not overflo, but stay within the
 box when I make the screen smaller
 
 # Output Summary:
@@ -2807,7 +2808,7 @@ box when I make the screen smaller
 
 # Action Taken:
 
-- [X] Accepted as-is
+- [x] Accepted as-is
 - [ ] Modified
 - [ ] Rejected
 
@@ -2832,7 +2833,6 @@ Claude Code (model: Claude Sonnet 4.5)
 Help implement the feature such that the home page is updated with the live statistics instead of the hardcoded ones: Total Problems Attempted, Questions Attempted in the past week, Favourite Topic. Remove the last hardcoded statistic and ensure the the homepage is dynamic.
 Help implement Recent sessions in the History component to reflect data from the last 3 questions attempted.
 
-
 # Output Summary:
 
 - Updated the routes, controllers and attempts model to handle such request
@@ -2841,7 +2841,7 @@ Help implement Recent sessions in the History component to reflect data from the
 # Action Taken:
 
 - [ ] Accepted as-is
-- [X] Modified
+- [x] Modified
 - [ ] Rejected
 
 # Author Notes:
@@ -2871,7 +2871,7 @@ Help add validation to attempt.js
 
 # Action Taken:
 
-- [X] Accepted as-is
+- [x] Accepted as-is
 - [ ] Modified
 - [ ] Rejected
 
@@ -2894,6 +2894,7 @@ Claude Code (model: Claude Sonnet 4.5)
 # Prompt/Command:
 
 Help me to make the collab page dynamic:
+
 - ensure that the 3 columns maintain the same ratio when screen size changes
 - hide the vertical scrollbars for the question, ai chat, ai text prompt box, and keep the overflow text within the same column box
 - make the VoiceChatComponent vertically dynamic to save space when screen size becomes small
@@ -2904,7 +2905,7 @@ Help me to make the collab page dynamic:
 
 # Action Taken:
 
-- [X] Accepted as-is
+- [x] Accepted as-is
 - [ ] Modified
 - [ ] Rejected
 
@@ -2934,13 +2935,13 @@ When deleting a question, I should not be allowed to reuse the same question_id
 
 # Action Taken:
 
-- [X] Accepted as-is
+- [x] Accepted as-is
 - [ ] Modified
 - [ ] Rejected
 
 # Author Notes:
 
-- Validated to make sure the implementation was correct 
+- Validated to make sure the implementation was correct
 
 ---
 
@@ -2964,13 +2965,13 @@ For roomToData in webSocketServer.js, besides storing session id, can I store qu
 
 # Action Taken:
 
-- [X] Accepted as-is
+- [x] Accepted as-is
 - [ ] Modified
 - [ ] Rejected
 
 # Author Notes:
 
-- Validated to make sure the implementation was correct 
+- Validated to make sure the implementation was correct
 
 ---
 
@@ -2996,12 +2997,12 @@ Perhaps you could shuffle ids then choose via id, as the shuffling would be fast
 
 # Action Taken:
 
-- [X] Accepted as-is
+- [x] Accepted as-is
 - [ ] Modified
 - [ ] Rejected
 
 # Author Notes:
 
-- Validated to make sure the implementation was correct, and the endpoint still works as previous 
+- Validated to make sure the implementation was correct, and the endpoint still works as previous
 
 ---

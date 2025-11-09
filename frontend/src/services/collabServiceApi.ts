@@ -127,7 +127,7 @@ export async function getSessionDetails(sessionId: string) {
       console.log("Failed to get session details");
       throw new Error(`Collab service returned ${response.status}`);
     }
-    
+
     const data = await response.json();
     return {
       sessionId: data.sessionId,

@@ -23,7 +23,7 @@ export async function createSession(req, res) {
     const { sessionId, user1, user2, criteria } = req.body;
     const redisKey = `session:${sessionId}`;
     let question;
-    
+
     try {
       const questionServiceUrl = process.env.QUESTION_SERVICE_URL;
 
@@ -40,34 +40,36 @@ export async function createSession(req, res) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(requestBody),
-        }
+        },
       );
 
       if (!questionResponse.ok) {
         const errorMessage = await questionResponse.text();
         logger.error(
-          `Failed to fetch question: ${questionResponse.status} - ${errorMessage}`
+          `Failed to fetch question: ${questionResponse.status} - ${errorMessage}`,
         );
         throw new Error("Failed to fetch question");
       }
 
       const questionData = await questionResponse.json();
-      logger.info(`Question fetched successfully: ${JSON.stringify(questionData)}`);
-      
+      logger.info(
+        `Question fetched successfully: ${JSON.stringify(questionData)}`,
+      );
+
       if (!questionData.data || questionData.data.length === 0) {
         logger.error("No questions match the specified criteria");
-        
+
         // Format the criteria for user-friendly display
         const difficultyText = criteria.difficulty.join(", ");
         const topicsText = criteria.topics.join(", ");
-        
+
         return res.status(404).json({
           error: "No questions match the specified criteria",
           message: `No questions available for the selected criteria: Difficulty [${difficultyText}] and Topics [${topicsText}]`,
           criteria: {
             difficulty: criteria.difficulty,
-            topics: criteria.topics
-          }
+            topics: criteria.topics,
+          },
         });
       }
 
@@ -92,7 +94,7 @@ export async function createSession(req, res) {
     for (const [userId, value] of userToRoom.entries()) {
       logger.info("entry in userToRoom");
       logger.info(
-        `userId:, ${userId}, value.partner: ${value.partner} and value.sessionId ${value.sessionId}`
+        `userId:, ${userId}, value.partner: ${value.partner} and value.sessionId ${value.sessionId}`,
       );
     }
 
@@ -118,23 +120,23 @@ export async function createSession(req, res) {
 export async function getSessionDetails(req, res) {
   try {
     const { sessionId } = req.params;
-    
+
     if (!sessionId) {
       return res.status(400).json({ error: "Missing sessionId" });
     }
 
     // Check if session exists in memory first
     let sessionData = roomToData.get(sessionId);
-    
+
     if (!sessionData) {
       // Try to load from Redis if not in memory
       const redisKey = `session:${sessionId}`;
       const redisData = await dbClient.hGetAll(redisKey);
-      
+
       if (!redisData || !redisData.doc) {
         return res.status(404).json({ error: "Session not found" });
       }
-      
+
       sessionData = {
         questionId: redisData.questionId || null,
       };
@@ -152,19 +154,19 @@ export async function getSessionDetails(req, res) {
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
 
       if (!questionResponse.ok) {
         const errorMessage = await questionResponse.text();
         logger.error(
-          `Failed to fetch question: ${questionResponse.status} - ${errorMessage}`
+          `Failed to fetch question: ${questionResponse.status} - ${errorMessage}`,
         );
         throw new Error("Failed to fetch question");
       }
 
       const questionData = await questionResponse.json();
-      
+
       res.status(200).json({
         sessionId,
         question: questionData.data,
@@ -179,8 +181,8 @@ export async function getSessionDetails(req, res) {
     }
   } catch (err) {
     console.error(err);
-    res.status(500).json({ 
-      message: "Internal server error, unable to retrieve session details" 
+    res.status(500).json({
+      message: "Internal server error, unable to retrieve session details",
     });
   }
 }
