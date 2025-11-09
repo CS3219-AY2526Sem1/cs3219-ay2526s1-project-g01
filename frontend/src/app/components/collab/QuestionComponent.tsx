@@ -44,8 +44,8 @@ export default function QuestionComponent({
     <Card className="h-full flex flex-col bg-stone-900 border-black">
       {/* Question Title and Difficulty */}
       <CardHeader>
-        <CardTitle className="text-white text-4xl">{question.title}</CardTitle>
-        <div className="flex pt-5 items-start gap-2">
+        <CardTitle className="text-white text-lg sm:text-xl md:text-2xl break-words leading-tight">{question.title}</CardTitle>
+        <div className="flex pt-1 items-start gap-1 flex-wrap">
           <Badge className={getDifficultyBadge(question.difficulty)}>
             {question.difficulty.charAt(0).toUpperCase() +
               question.difficulty.slice(1)}
@@ -60,13 +60,13 @@ export default function QuestionComponent({
 
       <CardContent className="flex flex-col flex-1 overflow-y-auto">
         {/* Question Description */}
-        <div className="flex-1 text-white mb-5">
+        <div className="text-white mb-5 leading-tight">
           <h3 className="font-semibold mb-2">Description</h3>
           <p>{question.description}</p>
         </div>
 
         {/* Test Cases Section */}
-        <div className="flex-1 mb-5">
+        <div className="mb-5">
           <h3 className="font-semibold text-white mb-2">Examples</h3>
           {question.test_cases.map((testCase) => (
             <div
@@ -87,7 +87,7 @@ export default function QuestionComponent({
         </div>
 
         {/* Constraints Section */}
-        <div className="flex-1 text-white">
+        <div className="text-white">
           <h3 className="font-semibold mb-2">Constraints</h3>
           <p className="text-sm">{question.question_constraints}</p>
         </div>
