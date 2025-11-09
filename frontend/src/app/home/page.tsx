@@ -2,7 +2,7 @@
  * Tool: Claude Sonnet 4.5, date: 2025-10-10
  * Purpose: Implemented controllers for homepage question attempts statistics.
  * Author Review: I validated correctness and performance of the code.
- */ 
+ */
 
 import HistoryPage from "../components/home/HistoryComponent";
 import QuickActionsPage from "../components/home/QuickActionsComponent";

@@ -8,7 +8,7 @@
  * Tool: Claude Sonnet 4.5, date: 2025-11-10
  * Purpose: Updated the styling of QuestionComponent to make it dynamic and responsive
  * Author Review: I validated correctness and performance of the code.
- */ 
+ */
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,7 +49,9 @@ export default function QuestionComponent({
     <Card className="h-full flex flex-col bg-stone-900 border-black overflow-hidden">
       {/* Question Title and Difficulty */}
       <CardHeader className="flex-shrink-0">
-        <CardTitle className="text-white text-lg sm:text-xl md:text-2xl break-words leading-tight">{question.title}</CardTitle>
+        <CardTitle className="text-white text-lg sm:text-xl md:text-2xl break-words leading-tight">
+          {question.title}
+        </CardTitle>
         <div className="flex pt-1 items-start gap-1 flex-wrap">
           <Badge className={getDifficultyBadge(question.difficulty)}>
             {question.difficulty.charAt(0).toUpperCase() +

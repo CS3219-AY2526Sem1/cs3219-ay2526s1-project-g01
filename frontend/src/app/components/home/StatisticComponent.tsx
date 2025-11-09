@@ -2,14 +2,17 @@
  * Tool: Claude Sonnet 4.5, date: 2025-11-10
  * Purpose: Updated StatisticComponent to fetch and display user statistics
  * Author Review: I validated correctness, security, and performance of the code.
- */ 
+ */
 
 "use client";
 
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useUser } from "@/contexts/UserContext";
-import { fetchUserStatistics, UserStatistics } from "@/services/questionServiceApi";
+import {
+  fetchUserStatistics,
+  UserStatistics,
+} from "@/services/questionServiceApi";
 
 export default function StatisticPage() {
   const { user } = useUser();
@@ -52,9 +55,13 @@ export default function StatisticPage() {
           </CardHeader>
           <CardContent className="p-4 pt-0 flex items-center justify-center">
             {loading ? (
-              <p className="text-xs sm:text-sm text-muted-foreground">Loading...</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Loading...
+              </p>
             ) : (
-              <p className="text-3xl sm:text-4xl font-bold">{statistics.totalAttempts}</p>
+              <p className="text-3xl sm:text-4xl font-bold">
+                {statistics.totalAttempts}
+              </p>
             )}
           </CardContent>
         </Card>
@@ -67,9 +74,13 @@ export default function StatisticPage() {
           </CardHeader>
           <CardContent className="p-4 pt-0 flex items-center justify-center">
             {loading ? (
-              <p className="text-xs sm:text-sm text-muted-foreground">Loading...</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Loading...
+              </p>
             ) : (
-              <p className="text-3xl sm:text-4xl font-bold">{statistics.weeklyAttempts}</p>
+              <p className="text-3xl sm:text-4xl font-bold">
+                {statistics.weeklyAttempts}
+              </p>
             )}
           </CardContent>
         </Card>
@@ -82,7 +93,9 @@ export default function StatisticPage() {
           </CardHeader>
           <CardContent className="p-4 pt-0 flex items-center justify-center">
             {loading ? (
-              <p className="text-xs sm:text-sm text-muted-foreground">Loading...</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Loading...
+              </p>
             ) : statistics.favoriteTopics.length > 0 ? (
               <div className="flex flex-wrap gap-1 justify-center">
                 {statistics.favoriteTopics.map((topic, index) => (
@@ -95,7 +108,9 @@ export default function StatisticPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-xs sm:text-sm text-muted-foreground">No attempts yet</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                No attempts yet
+              </p>
             )}
           </CardContent>
         </Card>

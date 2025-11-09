@@ -20,7 +20,7 @@
  * Tool: Claude Sonnet 4.5, date: 2025-11-10
  * Purpose: Updated the styling of VoiceChatComponent to make it dynamic and responsive
  * Author Review: I validated correctness and performance of the code.
- */ 
+ */
 
 "use client";
 
@@ -124,7 +124,10 @@ export default function VoiceChatComponent() {
             if (pc.signalingState === "stable") {
               await answerCall(offer);
             } else {
-              console.warn("Ignoring offer - not in stable state:", pc.signalingState);
+              console.warn(
+                "Ignoring offer - not in stable state:",
+                pc.signalingState,
+              );
             }
           } catch (error) {
             console.error("Error handling offer:", error);
@@ -241,9 +244,14 @@ export default function VoiceChatComponent() {
 
     try {
       // Check if we're in the right state to set remote description
-      if (connectionRef.current.signalingState !== "stable" && 
-          connectionRef.current.signalingState !== "have-local-offer") {
-        console.warn("Cannot answer call - incorrect signaling state:", connectionRef.current.signalingState);
+      if (
+        connectionRef.current.signalingState !== "stable" &&
+        connectionRef.current.signalingState !== "have-local-offer"
+      ) {
+        console.warn(
+          "Cannot answer call - incorrect signaling state:",
+          connectionRef.current.signalingState,
+        );
         return;
       }
 

@@ -2,19 +2,24 @@
  * Tool: Claude Sonnet 4.5, date: 2025-11-10
  * Purpose: Updated HistoryComponent to fetch and display recent collaboration sessions
  * Author Review: I validated correctness, security, and performance of the code.
- */ 
+ */
 
 "use client";
 
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useUser } from "@/contexts/UserContext";
-import { fetchRecentAttempts, LastAttemptedQuestion } from "@/services/questionServiceApi";
+import {
+  fetchRecentAttempts,
+  LastAttemptedQuestion,
+} from "@/services/questionServiceApi";
 import { Calendar, Code2, Users } from "lucide-react";
 
 export default function HistoryPage() {
   const { user } = useUser();
-  const [recentSessions, setRecentSessions] = useState<LastAttemptedQuestion[]>([]);
+  const [recentSessions, setRecentSessions] = useState<LastAttemptedQuestion[]>(
+    [],
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -58,14 +63,15 @@ export default function HistoryPage() {
     } else {
       const diffTime = Math.abs(today.getTime() - date.getTime());
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
+
       if (diffDays < 7) {
         return `${diffDays} days ago`;
       } else {
         return date.toLocaleDateString("en-US", {
           month: "short",
           day: "numeric",
-          year: date.getFullYear() !== today.getFullYear() ? "numeric" : undefined,
+          year:
+            date.getFullYear() !== today.getFullYear() ? "numeric" : undefined,
         });
       }
     }
@@ -121,7 +127,7 @@ export default function HistoryPage() {
                   </h3>
                   <span
                     className={`text-xs px-2 py-1 rounded-full border font-medium whitespace-nowrap flex-shrink-0 ${getDifficultyColor(
-                      session.difficulty
+                      session.difficulty,
                     )}`}
                   >
                     {session.difficulty}

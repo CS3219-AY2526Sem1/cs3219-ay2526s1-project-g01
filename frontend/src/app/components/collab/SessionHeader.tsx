@@ -38,7 +38,10 @@ export default function SessionHeader({
         }
 
         // Track partner connection status
-        if (data.type === "disconnect" && data.disconnectedUserId === partnerUserId) {
+        if (
+          data.type === "disconnect" &&
+          data.disconnectedUserId === partnerUserId
+        ) {
           setIsPartnerConnected(false);
           console.log("Partner disconnected:", data.disconnectedUserId);
         }
@@ -165,7 +168,7 @@ export default function SessionHeader({
               Mark Question as Attempted?
             </AlertDialog.Title>
             <AlertDialog.Description className="mt-2 text-gray-600">
-              {isPartnerConnected 
+              {isPartnerConnected
                 ? "This will mark this question as attempted for both you and your partner. This action cannot be undone."
                 : "Your partner has left the session. This will mark this question as attempted for you only. This action cannot be undone."}
             </AlertDialog.Description>

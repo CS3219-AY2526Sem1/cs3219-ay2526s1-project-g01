@@ -9,7 +9,7 @@
  * Tool: Claude Sonnet 4.5, date: 2025-11-10
  * Purpose: Updated the styling of TopicsComponent to make it dynamic and responsive
  * Author Review: I validated correctness and performance of the code.
- */ 
+ */
 
 "use client";
 import { IoIosSettings } from "react-icons/io";

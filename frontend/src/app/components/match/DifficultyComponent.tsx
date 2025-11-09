@@ -2,7 +2,7 @@
  * Tool: Claude Sonnet 4.5, date: 2025-11-10
  * Purpose: Updated the styling of DifficultyComponent to make it dynamic and responsive
  * Author Review: I validated correctness and performance of the code.
- */ 
+ */
 
 "use client";
 import { IoIosSettings } from "react-icons/io";
@@ -60,9 +60,7 @@ export default function DifficultyComponent({
               flex items-center justify-center rounded-xl transition-all duration-200`}
         >
           <Check className="absolute left-4 text-green-500 flex-shrink-0" />
-          <span className="px-10 truncate">
-            {Difficulty.EASY}
-          </span>
+          <span className="px-10 truncate">{Difficulty.EASY}</span>
           <IoCheckmark
             className={`absolute right-3 top-1/2 -translate-y-1/2 text-green-500 text-4xl flex-shrink-0 ${
               selectedDifficulty.includes(Difficulty.EASY)
@@ -82,9 +80,7 @@ export default function DifficultyComponent({
               flex items-center justify-center rounded-xl transition-all duration-200`}
         >
           <Pen className="absolute left-4 text-yellow-500 flex-shrink-0" />
-          <span className="px-10 truncate">
-            {Difficulty.MEDIUM}
-          </span>
+          <span className="px-10 truncate">{Difficulty.MEDIUM}</span>
           <IoCheckmark
             className={`absolute right-3 top-1/2 -translate-y-1/2 text-yellow-500 text-4xl flex-shrink-0 ${
               selectedDifficulty.includes(Difficulty.MEDIUM)
@@ -104,9 +100,7 @@ export default function DifficultyComponent({
               flex items-center justify-center rounded-xl transition-all duration-200`}
         >
           <HardHat className="absolute left-4 text-red-500 flex-shrink-0" />
-          <span className="px-10 truncate">
-            {Difficulty.HARD}
-          </span>
+          <span className="px-10 truncate">{Difficulty.HARD}</span>
           <IoCheckmark
             className={`absolute right-3 top-1/2 -translate-y-1/2 text-red-500 text-4xl flex-shrink-0 ${
               selectedDifficulty.includes(Difficulty.HARD)

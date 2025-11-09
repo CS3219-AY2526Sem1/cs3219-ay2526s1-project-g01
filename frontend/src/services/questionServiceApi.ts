@@ -43,11 +43,12 @@ const API_ENDPOINTS = {
   TOPICS: "/questions/topics",
   ATTEMPTS: "/questions/attempts",
   USER_ATTEMPTS: (userId: string) => `/questions/attempts/${userId}`,
-  RECENT_ATTEMPTS: (userId: string, limit?: number) => 
-    `/questions/attempts/${userId}/recent${limit ? `?limit=${limit}` : ''}`,
+  RECENT_ATTEMPTS: (userId: string, limit?: number) =>
+    `/questions/attempts/${userId}/recent${limit ? `?limit=${limit}` : ""}`,
   ATTEMPTS_COUNT: (userId: string) => `/questions/attempts/${userId}/count`,
   WEEKLY_ATTEMPTS: (userId: string) => `/questions/attempts/${userId}/week`,
-  FAVORITE_TOPIC: (userId: string) => `/questions/attempts/${userId}/favourite-topic`,
+  FAVORITE_TOPIC: (userId: string) =>
+    `/questions/attempts/${userId}/favourite-topic`,
 };
 
 /**
@@ -232,7 +233,9 @@ export const fetchRecentAttempts = async (
 ): Promise<LastAttemptedQuestion[]> => {
   try {
     const apiClient = createApiClient();
-    const response = await apiClient.get(API_ENDPOINTS.RECENT_ATTEMPTS(userId, limit));
+    const response = await apiClient.get(
+      API_ENDPOINTS.RECENT_ATTEMPTS(userId, limit),
+    );
     return response.data.data;
   } catch (error) {
     console.error("Failed to fetch recent attempts:", error);
@@ -249,12 +252,11 @@ export const fetchUserStatistics = async (
   userId: string,
 ): Promise<UserStatistics> => {
   try {
-    const [totalAttempts, weeklyData, favoriteTopics] =
-      await Promise.all([
-        fetchTotalAttemptsCount(userId),
-        fetchWeeklyAttempts(userId),
-        fetchFavoriteTopics(userId),
-      ]);
+    const [totalAttempts, weeklyData, favoriteTopics] = await Promise.all([
+      fetchTotalAttemptsCount(userId),
+      fetchWeeklyAttempts(userId),
+      fetchFavoriteTopics(userId),
+    ]);
 
     return {
       totalAttempts,
