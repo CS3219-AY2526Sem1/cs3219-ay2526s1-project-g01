@@ -2913,3 +2913,33 @@ Help me to make the collab page dynamic:
 - Validated to make sure the implementation was correct and tweaked when needed
 
 ---
+
+## Entry 74
+
+# Date/Time:
+
+2025-11-10 03:00
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+When deleting a question, I should not be allowed to reuse the same question_id
+
+# Output Summary:
+
+- Modified the deleteQuestionFromDb function in question.js
+
+# Action Taken:
+
+- [X] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated to make sure the implementation was correct 
+
+---
