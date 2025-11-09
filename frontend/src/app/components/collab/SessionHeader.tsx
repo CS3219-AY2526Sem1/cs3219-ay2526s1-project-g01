@@ -22,6 +22,7 @@ export default function SessionHeader({
   const [isMarkedAsCompleted, setIsMarkedAsCompleted] = useState(false);
   const [showMarkAttemptDialog, setShowMarkAttemptDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPartnerConnected, setIsPartnerConnected] = useState(true);
 
   useEffect(() => {
     const socket = editorWebSocketManager.getSocket();
@@ -35,6 +36,12 @@ export default function SessionHeader({
         if (data.type === "attempt-marked") {
           setIsMarkedAsCompleted(true);
         }
+
+        // Track partner connection status
+        if (data.type === "disconnect" && data.disconnectedUserId === partnerUserId) {
+          setIsPartnerConnected(false);
+          console.log("Partner disconnected:", data.disconnectedUserId);
+        }
       } catch (error) {
         // Not a JSON message, ignore
       }
@@ -42,19 +49,19 @@ export default function SessionHeader({
 
     socket.addEventListener("message", handleMessage);
     return () => socket.removeEventListener("message", handleMessage);
-  }, []);
+  }, [partnerUserId]);
 
   const handleMarkAsAttempted = async () => {
     // Debug logging
     console.log("Debug - user?.id:", user?.id);
     console.log("Debug - questionId:", questionId);
     console.log("Debug - partnerUserId:", partnerUserId);
+    console.log("Debug - isPartnerConnected:", isPartnerConnected);
 
-    if (!user?.id || !questionId || !partnerUserId) {
+    if (!user?.id || !questionId) {
       console.error("Missing required data for marking attempt", {
         userId: user?.id,
         questionId,
-        partnerUserId,
       });
       return;
     }
@@ -63,8 +70,16 @@ export default function SessionHeader({
     try {
       const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
 
-      // Call the API to mark the question as attempted
-      await markQuestionAttempted(questionId, [user.id, partnerUserId], today);
+      // Only include users who are currently in the session
+      const activeUserIds = [user.id];
+      if (partnerUserId && isPartnerConnected) {
+        activeUserIds.push(partnerUserId);
+      }
+
+      console.log("Marking attempt for active users:", activeUserIds);
+
+      // Call the API to mark the question as attempted for active users only
+      await markQuestionAttempted(questionId, activeUserIds, today);
 
       // Mark as completed locally
       setIsMarkedAsCompleted(true);
@@ -153,8 +168,9 @@ export default function SessionHeader({
               Mark Question as Attempted?
             </AlertDialog.Title>
             <AlertDialog.Description className="mt-2 text-gray-600">
-              This will mark this question as attempted for both you and your
-              partner. This action cannot be undone.
+              {isPartnerConnected 
+                ? "This will mark this question as attempted for both you and your partner. This action cannot be undone."
+                : "Your partner has left the session. This will mark this question as attempted for you only. This action cannot be undone."}
             </AlertDialog.Description>
 
             <div className="mt-6 flex justify-end gap-3">
