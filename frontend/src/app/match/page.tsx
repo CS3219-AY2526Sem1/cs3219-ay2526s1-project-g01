@@ -43,6 +43,21 @@ export default function MatchPage() {
   };
   const { setIsConnected } = useConnectionContext();
 
+  // Add keyboard event listener for Enter key
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === "Enter" && status !== "matched" && status !== "active" && !status.includes("searching")) {
+        handleStartMatching();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [status, difficulty, topics, user]);
+
   //Handles every socket connection to server and closes the creating room dialog box
   useEffect(() => {
     if (status === "active" && sessionId) {
