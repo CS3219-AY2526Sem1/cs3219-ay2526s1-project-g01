@@ -2973,3 +2973,35 @@ For roomToData in webSocketServer.js, besides storing session id, can I store qu
 - Validated to make sure the implementation was correct 
 
 ---
+
+## Entry 77
+
+# Date/Time:
+
+2025-11-10 04:00
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.0)
+
+# Prompt/Command:
+
+For the function getAllQuestionsFromDb, it currently uses ORDER BY RANDOM in the query. However this is inefficient and slow.
+
+Perhaps you could shuffle ids then choose via id, as the shuffling would be faster than database sorting, esp as the database gets larger
+
+# Output Summary:
+
+- Modified getAllQuestionsFromDb to randomised by using the question ids.
+
+# Action Taken:
+
+- [X] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated to make sure the implementation was correct, and the endpoint still works as previous 
+
+---
