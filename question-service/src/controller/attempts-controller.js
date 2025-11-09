@@ -10,9 +10,9 @@ import {
   getAttemptedQuestionsByUserFromDb,
   getAttemptedTopicsByUserFromDb,
   getFavoriteTopicsByUserFromDb,
-  getLastAttemptedQuestionByUserFromDb,
   getTotalAttemptsCountByUserFromDb,
-  getAttemptsInPastWeekByUserFromDb
+  getAttemptsInPastWeekByUserFromDb,
+  getRecentAttemptsbyUserFromDb
 } from '../models/attempts.js';
 
 /**
@@ -245,50 +245,6 @@ export async function getUserFavoriteTopics(req, res) {
 }
 
 /**
- * Controller to handle GET /questions/attempts/:user_id/last
- * Request parameters:
- *   - user_id: The user ID (MongoDB ObjectId string)
- * Returns:
- *   - 200: Object with last attempted question details
- *   - 400: Invalid user ID or no attempts found
- *   - 500: Server error
- */
-export async function getLastAttemptedQuestion(req, res) {
-  try {
-    const { user_id } = req.params;
-
-    // Validate user_id
-    if (!user_id || typeof user_id !== 'string' || user_id.trim().length === 0) {
-      return res.status(400).json({
-        message: 'Valid user ID parameter is required'
-      });
-    }
-
-    const userId = user_id.trim();
-
-    // Get last attempted question from database
-    const lastAttempt = await getLastAttemptedQuestionByUserFromDb(userId);
-
-    // Check if user has no attempts
-    if (lastAttempt === null) {
-      return res.status(400).json({
-        message: `User ID ${userId} has not attempted any questions`
-      });
-    }
-
-    res.status(200).json({
-      data: lastAttempt
-    });
-  } catch (err) {
-    console.error('[ERROR] Failed to retrieve last attempted question:', err.message);
-    res.status(500).json({
-      message: 'Failed to retrieve last attempted question',
-      error: err.message
-    });
-  }
-}
-
-/**
  * Controller to handle GET /questions/attempts/:user_id/count
  * Request parameters:
  *   - user_id: The user ID (MongoDB ObjectId string)
@@ -359,6 +315,53 @@ export async function getAttemptsInPastWeek(req, res) {
     console.error('[ERROR] Failed to retrieve weekly attempts:', err.message);
     res.status(500).json({
       message: 'Failed to retrieve weekly attempts',
+      error: err.message
+    });
+  }
+}
+
+/**
+ * Controller to handle GET /questions/attempts/:user_id/recent
+ * Request parameters:
+ *   - user_id: The user ID (MongoDB ObjectId string)
+ * Query parameters:
+ *   - limit: Number of recent attempts to retrieve (default: 3)
+ * Returns:
+ *   - 200: Array of recent attempts
+ *   - 400: Invalid user ID
+ *   - 500: Server error
+ */
+export async function getRecentAttempts(req, res) {
+  try {
+    const { user_id } = req.params;
+    const limit = parseInt(req.query.limit, 10) || 3;
+
+    // Validate user_id
+    if (!user_id || typeof user_id !== 'string' || user_id.trim().length === 0) {
+      return res.status(400).json({
+        message: 'Valid user ID parameter is required'
+      });
+    }
+
+    // Validate limit
+    if (limit < 1 || limit > 50) {
+      return res.status(400).json({
+        message: 'Limit must be between 1 and 50'
+      });
+    }
+
+    const userId = user_id.trim();
+
+    // Get recent attempts from database
+    const recentAttempts = await getRecentAttemptsbyUserFromDb(userId, limit);
+
+    res.status(200).json({
+      data: recentAttempts
+    });
+  } catch (err) {
+    console.error('[ERROR] Failed to retrieve recent attempts:', err.message);
+    res.status(500).json({
+      message: 'Failed to retrieve recent attempts',
       error: err.message
     });
   }

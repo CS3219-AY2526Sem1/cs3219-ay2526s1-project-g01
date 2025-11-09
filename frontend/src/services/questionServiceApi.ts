@@ -43,7 +43,8 @@ const API_ENDPOINTS = {
   TOPICS: "/questions/topics",
   ATTEMPTS: "/questions/attempts",
   USER_ATTEMPTS: (userId: string) => `/questions/attempts/${userId}`,
-  LAST_ATTEMPT: (userId: string) => `/questions/attempts/${userId}/last`,
+  RECENT_ATTEMPTS: (userId: string, limit?: number) => 
+    `/questions/attempts/${userId}/recent${limit ? `?limit=${limit}` : ''}`,
   ATTEMPTS_COUNT: (userId: string) => `/questions/attempts/${userId}/count`,
   WEEKLY_ATTEMPTS: (userId: string) => `/questions/attempts/${userId}/week`,
   FAVORITE_TOPIC: (userId: string) => `/questions/attempts/${userId}/favourite-topic`,
@@ -95,7 +96,6 @@ export interface WeeklyAttempts {
  * Interface for user statistics
  */
 export interface UserStatistics {
-  lastAttempted: LastAttemptedQuestion | null;
   totalAttempts: number;
   weeklyAttempts: number;
   favoriteTopics: string[];
@@ -163,28 +163,6 @@ export const markQuestionAttempted = async (
 };
 
 /**
- * Fetch the last attempted question for a user
- * @param userId - The user ID
- * @returns Promise with last attempted question details or null
- */
-export const fetchLastAttemptedQuestion = async (
-  userId: string,
-): Promise<LastAttemptedQuestion | null> => {
-  try {
-    const apiClient = createApiClient();
-    const response = await apiClient.get(API_ENDPOINTS.LAST_ATTEMPT(userId));
-    return response.data.data;
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.status === 400) {
-      // User has no attempts
-      return null;
-    }
-    console.error("Failed to fetch last attempted question:", error);
-    return null;
-  }
-};
-
-/**
  * Fetch the total count of questions attempted by a user
  * @param userId - The user ID
  * @returns Promise with total count
@@ -243,6 +221,26 @@ export const fetchFavoriteTopics = async (
 };
 
 /**
+ * Fetch recent attempts by a user
+ * @param userId - The user ID
+ * @param limit - Number of recent attempts to retrieve (default: 3)
+ * @returns Promise with array of recent attempts
+ */
+export const fetchRecentAttempts = async (
+  userId: string,
+  limit: number = 3,
+): Promise<LastAttemptedQuestion[]> => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.get(API_ENDPOINTS.RECENT_ATTEMPTS(userId, limit));
+    return response.data.data;
+  } catch (error) {
+    console.error("Failed to fetch recent attempts:", error);
+    return [];
+  }
+};
+
+/**
  * Fetch all user statistics in one call
  * @param userId - The user ID
  * @returns Promise with all statistics
@@ -251,16 +249,14 @@ export const fetchUserStatistics = async (
   userId: string,
 ): Promise<UserStatistics> => {
   try {
-    const [lastAttempted, totalAttempts, weeklyData, favoriteTopics] =
+    const [totalAttempts, weeklyData, favoriteTopics] =
       await Promise.all([
-        fetchLastAttemptedQuestion(userId),
         fetchTotalAttemptsCount(userId),
         fetchWeeklyAttempts(userId),
         fetchFavoriteTopics(userId),
       ]);
 
     return {
-      lastAttempted,
       totalAttempts,
       weeklyAttempts: weeklyData.count,
       favoriteTopics,
@@ -268,7 +264,6 @@ export const fetchUserStatistics = async (
   } catch (error) {
     console.error("Failed to fetch user statistics:", error);
     return {
-      lastAttempted: null,
       totalAttempts: 0,
       weeklyAttempts: 0,
       favoriteTopics: [],

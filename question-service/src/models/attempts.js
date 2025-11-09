@@ -170,11 +170,12 @@ export async function getFavoriteTopicsByUserFromDb(userId) {
 }
 
 /**
- * Get the last attempted question for a specific user
+ * Get the last N attempted questions for a specific user
  * @param {string} userId - The user ID (MongoDB ObjectId string)
- * @returns {Promise<Object|null>} Object with question details and attempt date, or null if no attempts found
+ * @param {number} limit - Number of recent attempts to retrieve (default: 3)
+ * @returns {Promise<Object[]>} Array of recent attempt objects with question details
  */
-export async function getLastAttemptedQuestionByUserFromDb(userId) {
+export async function getRecentAttemptsbyUserFromDb(userId, limit = 3) {
   try {
     const query = `
       SELECT 
@@ -194,24 +195,20 @@ export async function getLastAttemptedQuestionByUserFromDb(userId) {
       JOIN questions q ON a.question_id = q.id
       WHERE a.user_id = $1
       ORDER BY a.attempted_date DESC, a.id DESC
-      LIMIT 1
+      LIMIT $2
     `;
     
-    const { rows } = await pool.query(query, [userId]);
+    const { rows } = await pool.query(query, [userId, limit]);
     
-    if (rows.length === 0) {
-      return null;
-    }
-    
-    return {
-      question_id: rows[0].question_id,
-      title: rows[0].title,
-      difficulty: rows[0].difficulty,
-      topics: rows[0].topics,
-      attempted_date: rows[0].attempted_date
-    };
+    return rows.map(row => ({
+      question_id: row.question_id,
+      title: row.title,
+      difficulty: row.difficulty,
+      topics: row.topics,
+      attempted_date: row.attempted_date
+    }));
   } catch (err) {
-    console.error('[ERROR] getLastAttemptedQuestionByUserFromDb:', err.message);
+    console.error('[ERROR] getRecentAttemptsbyUserFromDb:', err.message);
     throw err;
   }
 }
