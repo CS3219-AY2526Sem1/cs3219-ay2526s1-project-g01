@@ -71,17 +71,11 @@ services:
       - matching-service
       - collab-service
       - communication-service
-    environment:
-      - USER_SERVICE_URL=http://user-service:4000
-      - MATCHING_SERVICE_URL=http://matching-service:3002
-      - COLLAB_SERVICE_URL=http://collab-service:8000
-      - FRONTEND_BASE_URL=http://localhost:3000
-      - QUESTION_SERVICE_URL=http://question-service:7000
-      - COMMUNICATION_SERVICE_URL=http://communication-service:6000
-      - AI_SERVICE_URL=http://ai-service:8086
-      - PORT=80 # Override Dockerfile default for local development
+      - question-service
+    env_file:
+      - ./api-gateway/.env
 
-    # Frontend Next.js Application
+  # Frontend Next.js Application
   # Scalable service with port range mapping
   frontend:
     image: honeydews/frontend

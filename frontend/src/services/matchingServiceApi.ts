@@ -78,6 +78,7 @@ export interface MatchStatusResponse {
     difficulty: string[];
     topics: string[];
   };
+  canDelete?: boolean;
 }
 
 export interface TerminateResponse {

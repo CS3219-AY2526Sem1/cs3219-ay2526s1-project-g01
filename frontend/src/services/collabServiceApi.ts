@@ -7,6 +7,7 @@
 
 import { useUser } from "@/contexts/UserContext";
 import { getToken } from "./userServiceCookies";
+import { toast } from "sonner";
 
 const baseURL = process.env.NEXT_PUBLIC_API_GATEWAY_BASE_URL;
 //Makes delete request to backend to delete userID TO {sessionId, partnerid} mapping
@@ -26,9 +27,11 @@ export async function deleteSession(userId: string) {
 
     if (!response.ok) {
       console.log("Failed to delete userId to session mapping");
+      throw new Error(`Collab service returned ${response.status}`);
     }
   } catch (error) {
     console.error("Error deleting userId to session mapping :", error);
+    toast.error("Our server is facing some issues, please try again later!");
   }
 }
 
@@ -39,7 +42,6 @@ export async function getUserSessionStatus(
   setshowRejoinRoomDialog: () => void,
 ) {
   try {
-    console.log("call get endpoint to check if have session");
     const token = getToken();
     const response = await fetch(
       `${baseURL}/api/collab/${encodeURIComponent(userId)}`,
@@ -54,6 +56,7 @@ export async function getUserSessionStatus(
 
     if (!response.ok) {
       console.log("Failed to get user session status");
+      throw new Error(`Collab service returned ${response.status}`);
     }
     const data = await response.json();
     if (data.hasSession) {
@@ -63,6 +66,8 @@ export async function getUserSessionStatus(
     }
   } catch (error) {
     console.log(error);
+    console.log("backend down");
+    toast.error("Our server is facing some issues, please try again later!");
   }
 }
 

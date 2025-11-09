@@ -31,7 +31,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 import DisconnectAlertDialog from "@/components/ui/alert-dialog";
 import NotAuthorizedDialog from "@/components/ui/not-authorised-dialog";
 import { useUser } from "@/contexts/UserContext";
-import { endSession } from "@/services/matchingServiceApi";
 import { editorWebSocketManager } from "@/services/editorSocketManager";
 import { deleteSession, getPartnerUserId } from "@/services/collabServiceApi";
 import * as monaco from "monaco-editor";
@@ -56,7 +55,6 @@ function CollabPageContent() {
   async function directToMatch() {
     if (user?.id) {
       try {
-        await endSession(user.id);
         await deleteSession(user.id);
       } catch (error) {
         console.error("Failed to end session:", error);
@@ -65,6 +63,8 @@ function CollabPageContent() {
     router.replace("/match");
   }
 
+  //Prevents user from navigating to collab page unless they came from matching system or rejoin room prompt
+  //Also prevents user from opening multiple code editor tabs
   useEffect(() => {
     if (editorWebSocketManager.getSocket()) {
       setblockUser(false);
@@ -121,11 +121,11 @@ function CollabPageContent() {
             "You can only access the code editor after you are matched with a partner through our system"
           }
           buttonName={"Back"}
+          showButton={true}
         />
       </>
     );
   }
-
   return (
     <main className="bg-stone-900 h-screen flex flex-col items-center">
       <SessionHeader
@@ -148,6 +148,7 @@ function CollabPageContent() {
             onLanguageChange={setLanguage}
             isOpen={showLoadingDialog}
             closeDialog={() => setShowLoadingDialog(false)}
+            openDialog={() => setShowLoadingDialog(true)}
             onLeave={() => directToMatch()}
           />
         </div>
