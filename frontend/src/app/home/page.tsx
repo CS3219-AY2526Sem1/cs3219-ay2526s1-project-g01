@@ -13,7 +13,7 @@ export default function HomePage() {
     >
       <WelcomePage />
       <StatisticPage />
-      <div className="flex flex-1 m-10">
+      <div className="flex flex-col lg:flex-row flex-1 px-10 pb-10 gap-4">
         <HistoryPage />
         <QuickActionsPage />
       </div>
