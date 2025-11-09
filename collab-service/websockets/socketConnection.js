@@ -24,7 +24,7 @@ import { saveLocalState } from "../utils/sessionDataHandler.js";
 //Initialises backend socket events
 async function initialiseWebSocket(wss, ws, request, redisDb, roomToDataMap) {
   const fullUrl = `ws://host${request.url}`;
-  const url = new URL(fullUrl);
+  const url = new URL(fullUrl);roomToDataMap
   logger.info(fullUrl);
   const sessionId = url.searchParams.get("sessionId");
   logger.info(sessionId);

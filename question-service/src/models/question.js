@@ -12,6 +12,13 @@
  * Author Review: I modified to add validation and error handling, checked correctness and performance of the code.
  */
 
+/**
+ * AI Assistance Disclosure:
+ * Tool: Github Copilot (Claude Sonnet 4.5), date: 2025-11-10
+ * Purpose: To fix a bug in the sequence handling when deleting questions.
+ * Author Review: I validated the correctness and performance of the code.
+ */
+
 import pool from '../db.js';
 
 

@@ -2914,7 +2914,7 @@ Help me to make the collab page dynamic:
 
 ---
 
-## Entry 74
+## Entry 75
 
 # Date/Time:
 
@@ -2931,6 +2931,36 @@ When deleting a question, I should not be allowed to reuse the same question_id
 # Output Summary:
 
 - Modified the deleteQuestionFromDb function in question.js
+
+# Action Taken:
+
+- [X] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated to make sure the implementation was correct 
+
+---
+
+## Entry 76
+
+# Date/Time:
+
+2025-11-10 03:30
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.0)
+
+# Prompt/Command:
+
+For roomToData in webSocketServer.js, besides storing session id, can I store question id too, so that when I am reconnecting, I can load the same question? guide me through the possible modifications to roomToData and any other changes
+
+# Output Summary:
+
+- Modified to allow question data to be retrieved from session storage or retrieved from question service upon user rejoining session
 
 # Action Taken:
 

@@ -10,7 +10,7 @@ export const userToRoom = new Map();
 //Set up Websocket Server to handle incoming connection requests and heartbeat mechanism
 export function initWebSocketServer() {
   const webSocketServer = new WebSocketServer({ noServer: true });
-  // Local session data storage, stores session_id to {ydoc, users, lastEmptyAt, lastSavedAt}
+  // Local session data storage, stores session_id to {ydoc, users, lastEmptyAt, lastSavedAt, questionId}
   logger.info("WebsocketServer started!");
   //Handles client connection
   webSocketServer.on("connection", async (ws, request) => {

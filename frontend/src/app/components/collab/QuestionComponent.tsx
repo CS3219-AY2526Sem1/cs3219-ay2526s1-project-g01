@@ -57,9 +57,9 @@ export default function QuestionComponent({
             {question.difficulty.charAt(0).toUpperCase() +
               question.difficulty.slice(1)}
           </Badge>
-          {question.topics.map((topic) => (
-            <Badge key={topic.id} variant="outline" className="text-white">
-              {topic.topic}
+          {question.topics.map((topic, index) => (
+            <Badge key={typeof topic === 'string' ? topic : topic.id || index} variant="outline" className="text-white">
+              {typeof topic === 'string' ? topic : topic.topic}
             </Badge>
           ))}
         </div>

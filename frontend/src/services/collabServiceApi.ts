@@ -5,6 +5,13 @@
  * Author Review: Validated correctness and error handling
  */
 
+/**
+ * AI Assistance Disclosure:
+ * Tool: ChatGPT (model: Claude Sonnet 4.0), date: 2025-11-10
+ * Purpose: To implement session creation and retrieval for users who rejoin sessions
+ * Author Review: I validated correctness and performance of the code.
+ */
+
 import { useUser } from "@/contexts/UserContext";
 import { getToken } from "./userServiceCookies";
 import { toast } from "sonner";
@@ -98,5 +105,37 @@ export async function getPartnerUserId(userId: string): Promise<string | null> {
   } catch (error) {
     console.error("Error getting partner user ID:", error);
     return null;
+  }
+}
+
+//Get session details including question for reconnection
+export async function getSessionDetails(sessionId: string) {
+  try {
+    const token = getToken();
+    const response = await fetch(
+      `${baseURL}/api/collab/sessions/${encodeURIComponent(sessionId)}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      console.log("Failed to get session details");
+      throw new Error(`Collab service returned ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return {
+      sessionId: data.sessionId,
+      question: data.question,
+      message: data.message,
+    };
+  } catch (error) {
+    console.error("Error getting session details:", error);
+    throw error;
   }
 }
