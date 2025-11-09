@@ -117,6 +117,8 @@ export default function VoiceChatComponent() {
           try {
             if (pc.signalingState === "stable") {
               await answerCall(offer);
+            } else {
+              console.warn("Ignoring offer - not in stable state:", pc.signalingState);
             }
           } catch (error) {
             console.error("Error handling offer:", error);
@@ -232,6 +234,13 @@ export default function VoiceChatComponent() {
     if (!connectionRef.current) return;
 
     try {
+      // Check if we're in the right state to set remote description
+      if (connectionRef.current.signalingState !== "stable" && 
+          connectionRef.current.signalingState !== "have-local-offer") {
+        console.warn("Cannot answer call - incorrect signaling state:", connectionRef.current.signalingState);
+        return;
+      }
+
       await connectionRef.current.setRemoteDescription(offer);
 
       // Process queued ICE candidates
@@ -244,6 +253,7 @@ export default function VoiceChatComponent() {
           console.error("Error adding queued candidate:", err);
         }
       }
+      pendingCandidatesRef.current = [];
 
       const answer = await connectionRef.current.createAnswer();
       await connectionRef.current.setLocalDescription(answer);

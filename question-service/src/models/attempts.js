@@ -168,3 +168,124 @@ export async function getFavoriteTopicsByUserFromDb(userId) {
     throw err;
   }
 }
+
+/**
+ * Get the last attempted question for a specific user
+ * @param {string} userId - The user ID (MongoDB ObjectId string)
+ * @returns {Promise<Object|null>} Object with question details and attempt date, or null if no attempts found
+ */
+export async function getLastAttemptedQuestionByUserFromDb(userId) {
+  try {
+    const query = `
+      SELECT 
+        a.question_id,
+        a.attempted_date,
+        q.title,
+        q.difficulty,
+        COALESCE(
+          (
+            SELECT JSON_AGG(t.name)
+            FROM question_topics qt
+            JOIN topics t ON qt.topic_id = t.id
+            WHERE qt.question_id = q.id
+          ), '[]'
+        ) AS topics
+      FROM attempts a
+      JOIN questions q ON a.question_id = q.id
+      WHERE a.user_id = $1
+      ORDER BY a.attempted_date DESC, a.id DESC
+      LIMIT 1
+    `;
+    
+    const { rows } = await pool.query(query, [userId]);
+    
+    if (rows.length === 0) {
+      return null;
+    }
+    
+    return {
+      question_id: rows[0].question_id,
+      title: rows[0].title,
+      difficulty: rows[0].difficulty,
+      topics: rows[0].topics,
+      attempted_date: rows[0].attempted_date
+    };
+  } catch (err) {
+    console.error('[ERROR] getLastAttemptedQuestionByUserFromDb:', err.message);
+    throw err;
+  }
+}
+
+/**
+ * Get the total count of distinct questions attempted by a user
+ * @param {string} userId - The user ID (MongoDB ObjectId string)
+ * @returns {Promise<number>} Total count of attempted questions
+ */
+export async function getTotalAttemptsCountByUserFromDb(userId) {
+  try {
+    const query = `
+      SELECT COUNT(DISTINCT question_id) as total_count
+      FROM attempts
+      WHERE user_id = $1
+    `;
+    
+    const { rows } = await pool.query(query, [userId]);
+    return rows[0] ? parseInt(rows[0].total_count, 10) : 0;
+  } catch (err) {
+    console.error('[ERROR] getTotalAttemptsCountByUserFromDb:', err.message);
+    throw err;
+  }
+}
+
+/**
+ * Get questions attempted in the past 7 days by a user
+ * @param {string} userId - The user ID (MongoDB ObjectId string)
+ * @returns {Promise<Object>} Object with count and array of questions
+ */
+export async function getAttemptsInPastWeekByUserFromDb(userId) {
+  try {
+    const query = `
+      WITH weekly_attempts AS (
+        SELECT DISTINCT
+          a.question_id,
+          q.title,
+          q.difficulty,
+          a.attempted_date
+        FROM attempts a
+        JOIN questions q ON a.question_id = q.id
+        WHERE a.user_id = $1
+          AND a.attempted_date >= CURRENT_DATE - INTERVAL '7 days'
+        ORDER BY a.attempted_date DESC, a.question_id DESC
+      )
+      SELECT 
+        COUNT(*) as count,
+        COALESCE(
+          JSON_AGG(JSON_BUILD_OBJECT(
+            'question_id', question_id,
+            'title', title,
+            'difficulty', difficulty,
+            'attempted_date', attempted_date
+          )),
+          '[]'
+        ) as questions
+      FROM weekly_attempts
+    `;
+    
+    const { rows } = await pool.query(query, [userId]);
+    
+    if (rows.length === 0 || rows[0].count === 0) {
+      return {
+        count: 0,
+        questions: []
+      };
+    }
+    
+    return {
+      count: parseInt(rows[0].count, 10),
+      questions: rows[0].questions || []
+    };
+  } catch (err) {
+    console.error('[ERROR] getAttemptsInPastWeekByUserFromDb:', err.message);
+    throw err;
+  }
+}

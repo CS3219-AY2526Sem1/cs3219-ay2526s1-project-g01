@@ -9,7 +9,10 @@ import {
   addAttemptToDb,
   getAttemptedQuestionsByUserFromDb,
   getAttemptedTopicsByUserFromDb,
-  getFavoriteTopicsByUserFromDb
+  getFavoriteTopicsByUserFromDb,
+  getLastAttemptedQuestionByUserFromDb,
+  getTotalAttemptsCountByUserFromDb,
+  getAttemptsInPastWeekByUserFromDb
 } from '../models/attempts.js';
 
 /**
@@ -236,6 +239,126 @@ export async function getUserFavoriteTopics(req, res) {
     console.error('[ERROR] Failed to retrieve user favorite topics:', err.message);
     res.status(500).json({
       message: 'Failed to retrieve user favorite topics',
+      error: err.message
+    });
+  }
+}
+
+/**
+ * Controller to handle GET /questions/attempts/:user_id/last
+ * Request parameters:
+ *   - user_id: The user ID (MongoDB ObjectId string)
+ * Returns:
+ *   - 200: Object with last attempted question details
+ *   - 400: Invalid user ID or no attempts found
+ *   - 500: Server error
+ */
+export async function getLastAttemptedQuestion(req, res) {
+  try {
+    const { user_id } = req.params;
+
+    // Validate user_id
+    if (!user_id || typeof user_id !== 'string' || user_id.trim().length === 0) {
+      return res.status(400).json({
+        message: 'Valid user ID parameter is required'
+      });
+    }
+
+    const userId = user_id.trim();
+
+    // Get last attempted question from database
+    const lastAttempt = await getLastAttemptedQuestionByUserFromDb(userId);
+
+    // Check if user has no attempts
+    if (lastAttempt === null) {
+      return res.status(400).json({
+        message: `User ID ${userId} has not attempted any questions`
+      });
+    }
+
+    res.status(200).json({
+      data: lastAttempt
+    });
+  } catch (err) {
+    console.error('[ERROR] Failed to retrieve last attempted question:', err.message);
+    res.status(500).json({
+      message: 'Failed to retrieve last attempted question',
+      error: err.message
+    });
+  }
+}
+
+/**
+ * Controller to handle GET /questions/attempts/:user_id/count
+ * Request parameters:
+ *   - user_id: The user ID (MongoDB ObjectId string)
+ * Returns:
+ *   - 200: Object with total count of attempted questions
+ *   - 400: Invalid user ID
+ *   - 500: Server error
+ */
+export async function getTotalAttemptsCount(req, res) {
+  try {
+    const { user_id } = req.params;
+
+    // Validate user_id
+    if (!user_id || typeof user_id !== 'string' || user_id.trim().length === 0) {
+      return res.status(400).json({
+        message: 'Valid user ID parameter is required'
+      });
+    }
+
+    const userId = user_id.trim();
+
+    // Get total attempts count from database
+    const totalCount = await getTotalAttemptsCountByUserFromDb(userId);
+
+    res.status(200).json({
+      data: {
+        total_count: totalCount
+      }
+    });
+  } catch (err) {
+    console.error('[ERROR] Failed to retrieve total attempts count:', err.message);
+    res.status(500).json({
+      message: 'Failed to retrieve total attempts count',
+      error: err.message
+    });
+  }
+}
+
+/**
+ * Controller to handle GET /questions/attempts/:user_id/week
+ * Request parameters:
+ *   - user_id: The user ID (MongoDB ObjectId string)
+ * Returns:
+ *   - 200: Object with count and array of questions attempted in past 7 days
+ *   - 400: Invalid user ID
+ *   - 500: Server error
+ */
+export async function getAttemptsInPastWeek(req, res) {
+  try {
+    const { user_id } = req.params;
+
+    // Validate user_id
+    if (!user_id || typeof user_id !== 'string' || user_id.trim().length === 0) {
+      return res.status(400).json({
+        message: 'Valid user ID parameter is required'
+      });
+    }
+
+    const userId = user_id.trim();
+
+    // Get attempts in past week from database
+    const weeklyAttempts = await getAttemptsInPastWeekByUserFromDb(userId);
+
+    res.status(200).json({
+      data: weeklyAttempts
+    });
+  } catch (err) {
+    console.error('[ERROR] Failed to retrieve weekly attempts:', err.message);
+    res.status(500).json({
+      message: 'Failed to retrieve weekly attempts',
       error: err.message
     });
   }

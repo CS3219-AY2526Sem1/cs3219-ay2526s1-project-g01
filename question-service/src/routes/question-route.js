@@ -19,7 +19,10 @@ import {
   createAttempt,
   getUserAttempts,
   getUserAttemptedTopics,
-  getUserFavoriteTopics
+  getUserFavoriteTopics,
+  getLastAttemptedQuestion,
+  getTotalAttemptsCount,
+  getAttemptsInPastWeek
 } from '../controller/attempts-controller.js';
 
 const router = express.Router();
@@ -54,6 +57,15 @@ router.post('/attempts', createAttempt);
 
 // Route to get all attempted questions by a user
 router.get('/attempts/:user_id', getUserAttempts);
+
+// Route to get last attempted question by a user
+router.get('/attempts/:user_id/last', getLastAttemptedQuestion);
+
+// Route to get total count of attempted questions by a user
+router.get('/attempts/:user_id/count', getTotalAttemptsCount);
+
+// Route to get attempts in the past week by a user
+router.get('/attempts/:user_id/week', getAttemptsInPastWeek);
 
 // Route to get all attempted topics and topic count by a user
 router.get('/attempts/:user_id/topics', getUserAttemptedTopics);

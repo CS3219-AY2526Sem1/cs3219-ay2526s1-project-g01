@@ -42,6 +42,11 @@ const createApiClient = () => {
 const API_ENDPOINTS = {
   TOPICS: "/questions/topics",
   ATTEMPTS: "/questions/attempts",
+  USER_ATTEMPTS: (userId: string) => `/questions/attempts/${userId}`,
+  LAST_ATTEMPT: (userId: string) => `/questions/attempts/${userId}/last`,
+  ATTEMPTS_COUNT: (userId: string) => `/questions/attempts/${userId}/count`,
+  WEEKLY_ATTEMPTS: (userId: string) => `/questions/attempts/${userId}/week`,
+  FAVORITE_TOPIC: (userId: string) => `/questions/attempts/${userId}/favourite-topic`,
 };
 
 /**
@@ -60,6 +65,40 @@ interface AttemptRecord {
 interface MarkAttemptResponse {
   message: string;
   data: AttemptRecord[];
+}
+
+/**
+ * Interface for last attempted question
+ */
+export interface LastAttemptedQuestion {
+  question_id: number;
+  title: string;
+  difficulty: string;
+  topics: string[];
+  attempted_date: string;
+}
+
+/**
+ * Interface for weekly attempts response
+ */
+export interface WeeklyAttempts {
+  count: number;
+  questions: Array<{
+    question_id: number;
+    title: string;
+    difficulty: string;
+    attempted_date: string;
+  }>;
+}
+
+/**
+ * Interface for user statistics
+ */
+export interface UserStatistics {
+  lastAttempted: LastAttemptedQuestion | null;
+  totalAttempts: number;
+  weeklyAttempts: number;
+  favoriteTopics: string[];
 }
 
 /**
@@ -120,5 +159,119 @@ export const markQuestionAttempted = async (
       );
     }
     throw error;
+  }
+};
+
+/**
+ * Fetch the last attempted question for a user
+ * @param userId - The user ID
+ * @returns Promise with last attempted question details or null
+ */
+export const fetchLastAttemptedQuestion = async (
+  userId: string,
+): Promise<LastAttemptedQuestion | null> => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.get(API_ENDPOINTS.LAST_ATTEMPT(userId));
+    return response.data.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 400) {
+      // User has no attempts
+      return null;
+    }
+    console.error("Failed to fetch last attempted question:", error);
+    return null;
+  }
+};
+
+/**
+ * Fetch the total count of questions attempted by a user
+ * @param userId - The user ID
+ * @returns Promise with total count
+ */
+export const fetchTotalAttemptsCount = async (
+  userId: string,
+): Promise<number> => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.get(API_ENDPOINTS.ATTEMPTS_COUNT(userId));
+    return response.data.data.total_count;
+  } catch (error) {
+    console.error("Failed to fetch total attempts count:", error);
+    return 0;
+  }
+};
+
+/**
+ * Fetch the count of questions attempted in the past week
+ * @param userId - The user ID
+ * @returns Promise with weekly attempts data
+ */
+export const fetchWeeklyAttempts = async (
+  userId: string,
+): Promise<WeeklyAttempts> => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.get(API_ENDPOINTS.WEEKLY_ATTEMPTS(userId));
+    return response.data.data;
+  } catch (error) {
+    console.error("Failed to fetch weekly attempts:", error);
+    return { count: 0, questions: [] };
+  }
+};
+
+/**
+ * Fetch the favorite topics for a user
+ * @param userId - The user ID
+ * @returns Promise with array of favorite topic names
+ */
+export const fetchFavoriteTopics = async (
+  userId: string,
+): Promise<string[]> => {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.get(API_ENDPOINTS.FAVORITE_TOPIC(userId));
+    return response.data.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 400) {
+      // User has no attempts
+      return [];
+    }
+    console.error("Failed to fetch favorite topics:", error);
+    return [];
+  }
+};
+
+/**
+ * Fetch all user statistics in one call
+ * @param userId - The user ID
+ * @returns Promise with all statistics
+ */
+export const fetchUserStatistics = async (
+  userId: string,
+): Promise<UserStatistics> => {
+  try {
+    const [lastAttempted, totalAttempts, weeklyData, favoriteTopics] =
+      await Promise.all([
+        fetchLastAttemptedQuestion(userId),
+        fetchTotalAttemptsCount(userId),
+        fetchWeeklyAttempts(userId),
+        fetchFavoriteTopics(userId),
+      ]);
+
+    return {
+      lastAttempted,
+      totalAttempts,
+      weeklyAttempts: weeklyData.count,
+      favoriteTopics,
+    };
+  } catch (error) {
+    console.error("Failed to fetch user statistics:", error);
+    return {
+      lastAttempted: null,
+      totalAttempts: 0,
+      weeklyAttempts: 0,
+      favoriteTopics: [],
+    };
   }
 };
