@@ -24,10 +24,11 @@ export default function TabGuard({ children }: TabGuardProps) {
   const [isDuplicate, setIsDuplicate] = useState<boolean>(false);
 
   // Don't apply tab guard to authentication/verification routes
-  const isAuthRoute = pathname?.startsWith("/auth/verify") || 
-                      pathname?.startsWith("/auth/verification") || 
-                      pathname?.startsWith("/auth/error") ||
-                      pathname?.startsWith("/auth/reset-password");
+  const isAuthRoute =
+    pathname?.startsWith("/auth/verify") ||
+    pathname?.startsWith("/auth/verification") ||
+    pathname?.startsWith("/auth/error") ||
+    pathname?.startsWith("/auth/reset-password");
 
   useEffect(() => {
     // Skip tab guard for authentication routes
