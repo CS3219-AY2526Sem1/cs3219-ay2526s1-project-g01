@@ -72,7 +72,7 @@ server.on("upgrade", async (request, socket, head) => {
           }
           webSocketServer.emit("connection", ws, request);
         });
-      }
+      },
     );
   } catch (error) {
     socket.destroy();

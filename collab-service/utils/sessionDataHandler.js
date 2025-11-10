@@ -23,11 +23,14 @@ function convertDataFromDB(redisData) {
     ? Number(redisData.lastEmptyAt)
     : null;
 
+  const questionId = redisData.questionId || null;
+
   const sessionData = {
     doc: doc,
     users: users,
     lastEmptyAt: lastEmptyAt,
     lastSavedAt: lastSavedAt,
+    questionId: questionId,
   };
   return sessionData;
 }
@@ -47,11 +50,16 @@ function convertDataFromLocal(sessionData) {
     ? String(sessionData.lastSavedAt)
     : "";
 
+  const questionIdStr = sessionData.questionId
+    ? String(sessionData.questionId)
+    : "";
+
   return {
     doc: docStateAsString,
     users: usersArrayStr,
     lastEmptyAt: lastEmptyAtStr,
-    lastSavedAtStr: lastSavedAtStr,
+    lastSavedAt: lastSavedAtStr,
+    questionId: questionIdStr,
   };
 }
 

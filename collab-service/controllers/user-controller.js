@@ -25,8 +25,8 @@ export function getUserSessionStatus(req, res) {
     return res.json({ hasSession: false });
   }
   const sessionData = roomToData.get(sessionId);
-  if (sessionData.users.has(partner)) {
-    return res.json({ hasSession: true, sessionId });
+  if (sessionData && sessionData.users.has(partner)) {
+    return res.json({ hasSession: true, sessionId, partnerId: partner });
   } else {
     return res.json({ hasSession: false });
   }

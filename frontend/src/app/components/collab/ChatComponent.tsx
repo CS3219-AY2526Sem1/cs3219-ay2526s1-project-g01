@@ -15,7 +15,7 @@ export default function ChatComponent() {
   return (
     <div className="flex flex-col h-full bg-stone-900 rounded-lg p-2">
       {/* Chat messages area */}
-      <div className="flex bg-stone-500 h-full mb-2 rounded-lg overflow-auto">
+      <div className="flex bg-stone-500 h-full mb-2 rounded-lg overflow-auto scrollbar-hide">
         {/* TODO: Implement chat messages display */}
       </div>
 
