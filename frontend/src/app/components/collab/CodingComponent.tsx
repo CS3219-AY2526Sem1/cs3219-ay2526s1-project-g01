@@ -1,7 +1,10 @@
 //With reference to https://dev.to/akormous/building-a-shared-code-editor-using-nodejs-websocket-and-crdt-4l0f for binding editor to yjs
-
 /**
  * AI Assistance Disclosure:
+ * Tool: ChatGPT (model: GPT 5.0), date: 2025-11-07
+ * Purpose: To understand why there is a ydoc sync issue when a new line is entered between users with different operating systems.
+ * Author Review: I validated correctness of the explanation provided and the necessary fix
+
  * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2024-10-28
  * Purpose: Added props interface and callbacks to expose editor instance and language for AI assistant
  * Author Review: Callback integration and useEffect dependencies validated
@@ -26,10 +29,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
+import { useConnectionContext } from "@/contexts/ConnectionContext";
 import { useRouter } from "next/navigation";
 import ReconnectingWebSocket from "reconnecting-websocket";
 import DisconnectAlertDialog from "@/components/ui/alert-dialog";
@@ -42,11 +46,14 @@ import {
   registerCursorUpdateHandler,
   registerEditorUpdateHandler,
 } from "@/services/editorSyncHandlers";
+import { toast } from "sonner";
 
 interface CodingComponentProps {
   ydoc: Y.Doc | null;
   isOpen: boolean;
   closeDialog: () => void;
+  openDialog: () => void;
+
   onLeave: () => void;
   onEditorMount?: (editor: monaco.editor.IStandaloneCodeEditor) => void;
   onLanguageChange?: (language: string) => void;
@@ -56,20 +63,29 @@ export default function CodingComponent({
   ydoc,
   isOpen,
   closeDialog,
+  openDialog,
   onLeave,
   onEditorMount,
   onLanguageChange,
 }: CodingComponentProps) {
   const [codeContent, setCodeContent] = useState<string>("");
-  const [showDisconnectAlert, setshowDisconnectAlert] =
-    useState<boolean>(false);
   const [selectedLanguage, setSeletedLanguage] = useState<string>("JavaScript");
   const router = useRouter();
-  const [editorInstance, setEditorInstance] =
-    useState<monaco.editor.IStandaloneCodeEditor>();
+
   const { user } = useUser();
   const user_id: string = user?.id || "0";
   const user_name: string = user?.username || "Unknown";
+  const { isConnected, setIsConnected } = useConnectionContext();
+
+  const ydocRef = useRef<Y.Doc | null>(null);
+  const yTextRef = useRef<Y.Text | null>(null);
+  const bindingRef = useRef<MonacoBinding | null>(null);
+  const cursorCollectionsRef = useRef<Record<
+    string,
+    monaco.editor.IEditorDecorationsCollection
+  > | null>(null);
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [editorReady, setEditorReady] = useState(false);
 
   // Notify parent when language changes
   useEffect(() => {
@@ -85,7 +101,8 @@ export default function CodingComponent({
   }
 
   function handleEditorMount(editor: monaco.editor.IStandaloneCodeEditor) {
-    setEditorInstance(editor);
+    editorRef.current = editor;
+    setEditorReady(true);
     // Notify parent component
     if (onEditorMount) {
       onEditorMount(editor);
@@ -107,24 +124,46 @@ export default function CodingComponent({
     delete cursorCollections[userId];
   }
 
-  //Sets up local editor state, socket event listener and synchronise editor state with backend ydoc version
+  //Sets up local editor state, socket event listenr and syncrhonise editor state with backend ydoc version
+  //This useEffect runs again when user connects to wifi after loosing internet connection
   useEffect(() => {
-    if (!editorInstance || !ydoc) {
+    if (!editorReady || !isConnected || !editorRef.current) {
       return;
     }
+    const editorInstance = editorRef.current;
+    let isOnline = true;
+    openDialog();
 
-    const yText: Y.Text = ydoc.getText("monaco");
-    const binding: MonacoBinding = new MonacoBinding(
-      yText,
-      editorInstance.getModel()!,
-      new Set([editorInstance]),
-    );
+    //On Initial connection, set up variables
+    if (!ydocRef.current || !cursorCollectionsRef.current) {
+      const ydoc = new Y.Doc();
+      const yText = ydoc.getText("monaco");
+      editorInstance.getModel()?.setEOL(monaco.editor.EndOfLineSequence.LF);
+      const binding = new MonacoBinding(
+        yText,
+        editorInstance.getModel()!,
+        new Set([editorInstance]),
+      );
+      const cursorCollections: Record<
+        string,
+        monaco.editor.IEditorDecorationsCollection
+      > = {};
+      ydocRef.current = ydoc;
+      yTextRef.current = yText;
+      bindingRef.current = binding;
+      cursorCollectionsRef.current = cursorCollections;
+      isOnline = false;
+    }
 
+    const ydoc = ydocRef.current!;
+
+    const clientWS: ReconnectingWebSocket = editorWebSocketManager.getSocket()!;
     const cursorCollections: Record<
       string,
       monaco.editor.IEditorDecorationsCollection
-    > = {};
-    const clientWS: ReconnectingWebSocket = editorWebSocketManager.getSocket()!;
+    > = cursorCollectionsRef.current;
+
+    handleEditorUnmount(user_id, cursorCollections);
 
     //set up message event listener on socket
     configureCollabWebsocket(
@@ -136,7 +175,7 @@ export default function CodingComponent({
       () => {
         router.replace("/match");
       },
-      () => setshowDisconnectAlert(true),
+      () => setIsConnected(false),
     );
 
     registerCursorUpdateHandler(
@@ -157,15 +196,25 @@ export default function CodingComponent({
 
     setTimeout(() => {
       closeDialog();
-    }, 2000);
+      if (isOnline) {
+        toast.success("You are back online!!!");
+      }
+    }, 5000);
 
     return () => {
-      console.log("remove client binding");
       handleEditorUnmount(user_id, cursorCollections);
-      // Don't destroy ydoc here - it's managed by parent
-      binding.destroy();
     };
-  }, [editorInstance, ydoc]);
+  }, [editorReady, isConnected]);
+
+  //Clean up variables
+  useEffect(() => {
+    return () => {
+      console.log("remove client binding and ydoc");
+
+      bindingRef.current?.destroy();
+      ydocRef.current?.destroy();
+    };
+  }, []);
 
   return (
     <>
@@ -209,15 +258,6 @@ export default function CodingComponent({
           options={{ scrollBeyondLastLine: false }}
           onMount={handleEditorMount}
         ></Editor>
-        <DisconnectAlertDialog
-          open={showDisconnectAlert}
-          onAccept={() => setshowDisconnectAlert(false)}
-          onReject={() => onLeave()}
-          buttonOneTitle="Continue"
-          buttonTwoTitle="Leave"
-          title="Your partner has disconnected"
-          description="Do you want to continue working alone or exit the session? Note that if you disconnect or refresh the page, you will not be able to join back the session."
-        />
       </div>
       <LoadingDialog
         open={isOpen}

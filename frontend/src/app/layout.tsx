@@ -9,8 +9,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { UserProvider } from "@/contexts/UserContext";
+import { ConnectionProvider } from "@/contexts/ConnectionContext";
 import NavbarWrapper from "./components/layout/NavbarWrapper";
 import AuthGuard from "./components/layout/AuthGuard";
+import TabGuard from "./components/layout/TabGuard";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -39,9 +41,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <UserProvider>
-          <AuthGuard />
-          <NavbarWrapper />
-          {children}
+          <ConnectionProvider>
+            <AuthGuard />
+            <NavbarWrapper />
+            <TabGuard>{children}</TabGuard>
+          </ConnectionProvider>
         </UserProvider>
         <Toaster
           position="top-center"

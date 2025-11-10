@@ -137,7 +137,8 @@ class MatchingService {
               topics: newUser.topics,
             },
             matchedAt: new Date().toISOString(),
-            status: "matched", //CHANGE HERE
+            status: "matched",
+            polled_users: [],
           };
 
           // store session (1 hour expiry - change in future iteration if necessary)
@@ -272,29 +273,38 @@ class MatchingService {
           status: matchData.status,
           sessionId,
         };
-        
-        if (matchData.status === "active") {
-          response = {
-            question: matchData.question,
-            ...response,
-          };
-        } else if (matchData.status === "failed") {
-          // Session creation failed, return error but keep session temporarily
-          // so both users can see the error before it's cleaned up
-          response = {
-            status: "failed",
-            error: matchData.error,
-            errorMessage: matchData.errorMessage,
-            errorDetails: matchData.errorDetails,
-          };
-          
-          // Don't clean up immediately - let Redis TTL expire it naturally
-          // This ensures both users see the error even if they poll at different times
+
+        if (matchData.status === "active" || matchData.status === "failed") {
+          if (!matchData.polled_users.includes(userId)) {
+            matchData.polled_users.push(userId);
+            await redisClient.setEx(
+              `${this.SESSION_PREFIX}${matchData.sessionId}`,
+              3600,
+              JSON.stringify(matchData)
+            );
+          }
+
+          if (matchData.status === "active") {
+            response = {
+              question: matchData.question,
+              canDelete: matchData.polled_users.length === 2,
+              ...response,
+            };
+          } else if (matchData.status === "failed") {
+            // Session creation failed, return error but keep session temporarily
+            // so both users can see the error before it's cleaned up
+            response = {
+              status: "failed",
+              canDelete: matchData.polled_users.length === 2,
+
+              error: matchData.error,
+              errorMessage: matchData.errorMessage,
+              errorDetails: matchData.errorDetails,
+            };
+          }
         }
-        
         return response;
       }
-
       // check if user is searching
       const activeSearch = await redisClient.get(
         `${this.ACTIVE_SEARCH_PREFIX}${userId}`
@@ -339,6 +349,7 @@ class MatchingService {
 
   async endSession(userId) {
     try {
+      console.log("IS endSESSION CALLED");
       const sessionId = await redisClient.get(
         `${this.USER_SESSION_PREFIX}${userId}`
       );
@@ -346,7 +357,6 @@ class MatchingService {
       if (!sessionId) {
         return { ended: false, message: "No active session found" };
       }
-
       const sessionData = await redisClient.get(
         `${this.SESSION_PREFIX}${sessionId}`
       );
@@ -361,7 +371,9 @@ class MatchingService {
           `${this.USER_SESSION_PREFIX}${session.user2.userId}`
         );
 
-        console.log(`[SESSION ENDED] ${sessionId} - Both users removed`);
+        console.log(
+          `[SESSION in redis deleted] ${sessionId} - Both users removed`
+        );
       }
 
       return {
@@ -371,24 +383,6 @@ class MatchingService {
     } catch (error) {
       console.error("[END SESSION ERROR]:", error);
       throw error;
-    }
-  }
-
-  // Clean up failed session for both users
-  async cleanupFailedSession(sessionId, matchData) {
-    try {
-      // Remove session and user mappings
-      await redisClient.del(`${this.SESSION_PREFIX}${sessionId}`);
-      await redisClient.del(
-        `${this.USER_SESSION_PREFIX}${matchData.user1.userId}`
-      );
-      await redisClient.del(
-        `${this.USER_SESSION_PREFIX}${matchData.user2.userId}`
-      );
-      
-      console.log(`[FAILED SESSION CLEANUP] ${sessionId} - Both users cleaned up`);
-    } catch (error) {
-      console.error("[CLEANUP FAILED SESSION ERROR]:", error);
     }
   }
 
@@ -424,52 +418,40 @@ class MatchingService {
         );
         console.log("Created room successfully");
       } else {
-        // Handle failures from collab service (e.g., no questions available)
-        console.error(`Failed to create room for ${matchData.sessionId}`);
-        
-        let errorData;
-        try {
-          errorData = await response.json();
-        } catch (e) {
-          errorData = { error: "Unknown error", message: "Failed to create session" };
-        }
-
-        // Store error in session data so both users can be notified
-        const errorMatch = {
-          ...matchData,
-          status: "failed",
-          error: errorData.error || "Failed to create session",
-          errorMessage: errorData.message || "Unable to create a collaboration session. Please try different criteria.",
-          errorDetails: errorData.criteria || null,
-        };
-        
-        await redisClient.setEx(
-          `${this.SESSION_PREFIX}${matchData.sessionId}`,
-          300, // 5 minutes expiry for error state
-          JSON.stringify(errorMatch)
-        );
-        
-        console.log(`[SESSION CREATION FAILED] ${matchData.sessionId} - Error: ${errorData.error}`);
+        throw new Error(`Collab service returned ${response.status}`);
       }
     } catch (err) {
-      console.error("Error in creating session room", err);
-      
-      // Store error in session data
+      let errorData;
       try {
-        const errorMatch = {
-          ...matchData,
-          status: "failed",
-          error: "Connection error",
-          errorMessage: "Unable to connect to collaboration service. Please try again.",
+        errorData = await response.json();
+      } catch (e) {
+        errorData = {
+          error: "Unknown error",
+          message:
+            "Failed to create session. We are currently facing issues with our server.",
         };
-        
+      }
+      const errorMatch = {
+        ...matchData,
+        status: "failed",
+        error:
+          errorData.error ||
+          "Failed to create session. We are currently facing issues with our server",
+        errorMessage:
+          errorData.message ||
+          "Unable to create a collaboration session. Please try different criteria.",
+        errorDetails: errorData.criteria || null,
+      };
+
+      try {
         await redisClient.setEx(
           `${this.SESSION_PREFIX}${matchData.sessionId}`,
-          300,
+          3600,
           JSON.stringify(errorMatch)
         );
+        console.error(`Failed to create room for ${errorMatch.sessionId}`);
       } catch (redisErr) {
-        console.error("Failed to store error state in Redis", redisErr);
+        console.error("Failed to store session state in Redis", redisErr);
       }
     }
   }

@@ -52,7 +52,6 @@ export function useMatchingService(userId: string | undefined) {
               if (!sessionId) {
                 setSessionId(data.sessionId!);
                 setStatus("matched");
-                console.log("frontend sets status to matched");
                 setTimeRemaining(0);
               }
             } else if (data.status === "searching") {
@@ -66,8 +65,11 @@ export function useMatchingService(userId: string | undefined) {
                 setQuestion(data.question);
                 console.log("Question data received:", data.question);
               }
-              console.log("frontend sets status to active");
               clearPolling();
+              //Delete sessionData in matching service redis if both users already polled status active
+              if (data.canDelete) {
+                await endSession(uid);
+              }
             } else if (data.status === "failed") {
               // Session creation failed (e.g., no questions available)
               clearPolling();
@@ -75,12 +77,13 @@ export function useMatchingService(userId: string | undefined) {
               // Show detailed error message
               const errorMsg =
                 data.errorMessage ||
-                "Failed to create session. Please try again.";
+                "Failed to create session. Please try again later.";
               setErrorMessage(errorMsg);
               console.error("Session creation failed:", data.error);
 
-              // Clean up the failed session for this user
-              if (uid) {
+              // Clean up the failed session for both users
+              if (data.canDelete && uid) {
+                // Clean up the failed session for this user
                 try {
                   await endSession(uid);
                   console.log("Cleaned up failed session");
@@ -112,6 +115,7 @@ export function useMatchingService(userId: string | undefined) {
         }
       }, 1000);
     },
+
     [clearPolling, sessionId],
   );
 

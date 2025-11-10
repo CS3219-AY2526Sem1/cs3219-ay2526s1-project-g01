@@ -35,6 +35,7 @@ interface CodingComponentWrapperProps {
   ydoc: Y.Doc | null;
   isOpen: boolean;
   closeDialog: () => void;
+  openDialog: () => void;
   onLeave: () => void;
   onEditorMount?: (editor: monaco.editor.IStandaloneCodeEditor) => void;
   onLanguageChange?: (language: string) => void;
@@ -44,6 +45,7 @@ export default function CodingComponentWrapper({
   ydoc,
   isOpen,
   closeDialog,
+  openDialog,
   onLeave,
   onEditorMount,
   onLanguageChange,
@@ -53,6 +55,7 @@ export default function CodingComponentWrapper({
       ydoc={ydoc}
       isOpen={isOpen}
       closeDialog={closeDialog}
+      openDialog={openDialog}
       onLeave={onLeave}
       onEditorMount={onEditorMount}
       onLanguageChange={onLanguageChange}

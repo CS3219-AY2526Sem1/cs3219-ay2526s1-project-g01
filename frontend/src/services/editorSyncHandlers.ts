@@ -12,6 +12,8 @@ import * as Y from "yjs";
 import * as monaco from "monaco-editor";
 import ReconnectingWebSocket from "reconnecting-websocket";
 import { createInlineStyle } from "@/lib/utils";
+import { toast } from "sonner";
+import { editorWebSocketManager } from "./editorSocketManager";
 
 interface BasePayload {
   type: string;
@@ -65,7 +67,14 @@ function registerCursorUpdateHandler(
   userName: string,
 ) {
   editorInstance.onDidChangeCursorSelection((event) =>
-    onCursorChangeHandler(cursorCollections, event, clientWS, userId, userName),
+    onCursorChangeHandler(
+      cursorCollections,
+      event,
+      clientWS,
+      userId,
+      userName,
+      editorInstance,
+    ),
   );
 }
 
@@ -77,12 +86,19 @@ function configureCollabWebsocket(
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
   clientWS: ReconnectingWebSocket,
   onLeaveSession: () => void,
-  onPartnerLeaveSession: () => void,
+  onCloseConnection: () => void,
 ) {
   clientWS.onmessage = (messageEvent) => {
     if (typeof messageEvent.data === "string") {
       const payloadObject = JSON.parse(messageEvent.data);
 
+      //ping from server
+      if (payloadObject.type === "ping") {
+        editorWebSocketManager.setTime();
+        return;
+      }
+
+      //Cursor updates from partner
       if (payloadObject.type === "cursor" && payloadObject.userId !== userId) {
         onPartnerCursorChangeHandler(
           messageEvent,
@@ -90,6 +106,8 @@ function configureCollabWebsocket(
           cursorCollections,
         );
         return;
+
+        //Receive Ydoc Updates from server ydoc that are missing on local ydoc
       } else if (payloadObject.type === "sync") {
         const yUpdate: Uint8Array = Buffer.from(
           payloadObject.ydocUpdate,
@@ -97,18 +115,24 @@ function configureCollabWebsocket(
         );
         Y.applyUpdate(ydoc, yUpdate, "remote");
         return;
+
+        //Send offline Ydoc updates from client ydoc that are missing on server ydoc
+      } else if (payloadObject.type === "sync_client") {
+        sendOfflineLocalUpdates(clientWS, ydoc, payloadObject.ydocState);
+
+        //Remove partner cursor when partner disconnects
       } else if (payloadObject.type === "disconnect") {
-        const disconnectedUser: string = payloadObject.disconnectedUserId;
-        console.log(disconnectedUser);
-        const cursorDecorator: monaco.editor.IEditorDecorationsCollection =
-          cursorCollections[disconnectedUser];
-        if (cursorDecorator) {
-          cursorDecorator.clear();
-        }
-        delete cursorCollections[disconnectedUser];
-        onPartnerLeaveSession();
+        removePartnerCursor(
+          payloadObject.disconnectedUserId,
+          cursorCollections,
+        );
       } else if (payloadObject.type === "end") {
         onLeaveSession();
+      } else if (payloadObject.type === "partner_join") {
+        console.log("partner joined ");
+        toast.info(`Your partner has joined the session.`, {
+          duration: 3000,
+        });
       }
       //bufferArray Type
     } else {
@@ -121,13 +145,36 @@ function configureCollabWebsocket(
     console.log(error);
   };
 
-  clientWS.onclose = () => {
-    const cursorDecorator: monaco.editor.IEditorDecorationsCollection =
-      cursorCollections[userId];
-    if (cursorDecorator) {
-      cursorDecorator.clear();
+  //Mechanism to detect if wifi is disconnected or server is down, however such failures are not detected immedidately
+  //but will be detected within 5 - 7 seconds approximately
+  const heartBeat = setInterval(() => {
+    //Socket has not received ping messages sent by backend for more than 15 seconds
+    if (Date.now() - editorWebSocketManager.getTime() > 15000) {
+      console.warn(
+        "frontend socket not receiving ping from server, reconnecting socket",
+      );
+      toast.warning(
+        "You are now offline. This could be due to poor internet connection or issues with our server. Changes made offline will still be saved.",
+      );
+
+      //Delete partner cursor
+      for (const [id, decorator] of Object.entries(cursorCollections)) {
+        if (decorator) {
+          decorator.clear();
+          delete cursorCollections[id];
+        }
+      }
+      //Set connection context state to false
+      onCloseConnection();
+
+      //Keep trying to reconnect socket
+      clientWS.reconnect();
     }
-    delete cursorCollections[userId];
+  }, 2000);
+
+  clientWS.onclose = () => {
+    onCloseConnection();
+    clearInterval(heartBeat);
   };
 }
 
@@ -148,7 +195,6 @@ function initEditor(
       },
     },
   ]);
-  console.log("Add user cursor decorator");
 }
 
 //Send initial editor state to backend socket
@@ -157,7 +203,6 @@ function sendEditorState(
   ydoc: Y.Doc,
   ws: ReconnectingWebSocket,
 ) {
-  console.log("sent editor state");
   const initialState: Uint8Array = Y.encodeStateVector(ydoc);
   const stateAsString: string = Buffer.from(initialState).toString("base64");
 
@@ -188,6 +233,7 @@ function onCursorChangeHandler(
   clientWS: ReconnectingWebSocket,
   userId: string,
   userName: string,
+  editorInstance: monaco.editor.IStandaloneCodeEditor,
 ) {
   const { startLineNumber, startColumn, endLineNumber, endColumn } =
     event.selection;
@@ -203,6 +249,10 @@ function onCursorChangeHandler(
       },
     };
     clientWS.send(JSON.stringify(cursorUpdate));
+  }
+
+  if (!cursorCollections[userId]) {
+    cursorCollections[userId] = editorInstance.createDecorationsCollection([]);
   }
   cursorCollections[userId].set([
     {
@@ -252,6 +302,38 @@ function onPartnerCursorChangeHandler(
   }
 }
 
+//Send ydoc updates made offline to the backend server
+function sendOfflineLocalUpdates(
+  clientWS: ReconnectingWebSocket,
+  ydoc: Y.Doc,
+  ydocState: string,
+) {
+  const initialServerState = Buffer.from(ydocState, "base64");
+  const serverMissingDiff = Y.encodeStateAsUpdate(ydoc, initialServerState);
+
+  const updateAsString = Buffer.from(serverMissingDiff).toString("base64");
+  const update_payload = {
+    type: "sync_client",
+    ydocUpdate: updateAsString,
+  };
+  clientWS.send(JSON.stringify(update_payload));
+}
+
+//Delete partner cursor
+function removePartnerCursor(
+  disconnectedUser: string,
+  cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
+) {
+  const cursorDecorator: monaco.editor.IEditorDecorationsCollection =
+    cursorCollections[disconnectedUser];
+  if (cursorDecorator) {
+    cursorDecorator.clear();
+  }
+  delete cursorCollections[disconnectedUser];
+  toast.warning(`Your partner has left the session.`, {
+    duration: 3000,
+  });
+}
 export {
   configureCollabWebsocket,
   initEditor,
