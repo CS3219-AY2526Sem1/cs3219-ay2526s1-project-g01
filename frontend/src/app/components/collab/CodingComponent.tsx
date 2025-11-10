@@ -129,13 +129,17 @@ export default function CodingComponent({
     if (!editorReady || !isConnected || !editorRef.current || !ydoc) {
       return;
     }
-    
+
     const editorInstance = editorRef.current;
     const isOnline = !isInitialConnectionRef.current;
     openDialog();
 
     // On initial connection, set up variables
-    if (!yTextRef.current || !bindingRef.current || !cursorCollectionsRef.current) {
+    if (
+      !yTextRef.current ||
+      !bindingRef.current ||
+      !cursorCollectionsRef.current
+    ) {
       const yText = ydoc.getText("monaco");
       editorInstance.getModel()?.setEOL(monaco.editor.EndOfLineSequence.LF);
       const binding = new MonacoBinding(
@@ -147,7 +151,7 @@ export default function CodingComponent({
         string,
         monaco.editor.IEditorDecorationsCollection
       > = {};
-      
+
       yTextRef.current = yText;
       bindingRef.current = binding;
       cursorCollectionsRef.current = cursorCollections;
