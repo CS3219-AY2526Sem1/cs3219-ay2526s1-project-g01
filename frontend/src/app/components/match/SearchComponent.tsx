@@ -19,6 +19,8 @@ interface SearchComponentProps {
   onCancel: () => void;
   timeRemaining: number | null;
   isSearching: boolean;
+  difficulty: string[];
+  topics: string[];
 }
 
 export default function SearchComponent({
@@ -27,6 +29,8 @@ export default function SearchComponent({
   onCancel,
   timeRemaining,
   isSearching,
+  difficulty,
+  topics,
 }: SearchComponentProps) {
   const formatTimeRemaining = (seconds: number | null) => {
     if (seconds === null) return "5:00";
@@ -79,6 +83,40 @@ export default function SearchComponent({
             <DialogTitle>Searching for a match...</DialogTitle>
             <DialogDescription>Hold on tight!</DialogDescription>
           </DialogHeader>
+
+          {/* Display selected criteria */}
+          <div className="w-full mt-4 space-y-3">
+            {difficulty.length > 0 && (
+              <div className="text-white">
+                <p className="text-sm font-semibold mb-2">Difficulty:</p>
+                <div className="flex flex-wrap gap-2">
+                  {difficulty.map((diff) => (
+                    <span
+                      key={diff}
+                      className="px-3 py-1 bg-stone-700 rounded-full text-xs"
+                    >
+                      {diff}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {topics.length > 0 && (
+              <div className="text-white">
+                <p className="text-sm font-semibold mb-2">Topics:</p>
+                <div className="flex flex-wrap gap-2">
+                  {topics.map((topic) => (
+                    <span
+                      key={topic}
+                      className="px-3 py-1 bg-stone-700 rounded-full text-xs"
+                    >
+                      {topic}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           <Spinner variant="circle-filled" className="text-white" />
 
