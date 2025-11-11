@@ -2749,3 +2749,307 @@ Request to implement disconnected user detection and cleanup system for matching
 - Maintainability: centralized logic in matching service with clear state transitions (searching → matched → active/timeout)
 - Architecture: FIFO queue preserved, timestamp-based cleanup ensures scalability
 - Error handling: timeout status properly propagated to frontend with user-friendly messages
+
+---
+
+## Entry 70
+
+# Date/Time:
+
+2025-11-08 02:00
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Give code to handle the following endpoints
+
+POST `/questions/attempts`
+
+- send a JSON body of question_id, array of user_id, and date. date should be inclusive of today and prior
+  GET `/questions/attempts/{user_id}`
+- Get count of all attempts for a user, and an array of question_id of attempted question
+  GET `/questions/attempts/{user_id}/topics`
+- Get a mapping of topics and the count of questions attempted that is associated with this topic
+  GET `/questions/attempts/{user_id}/favourite-topic`
+- Get favourite topic(s) for a user, and returns an array with topic(s) of highest attempts
+
+# Output Summary:
+
+- Created attempt.js to handle attempt related queries
+- Created attempt-controller.js to handle attempt related parsing
+- Updated question-routes.js with the routes I provided
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Designed the endpoints
+- Modified some error handling logic
+- Verified correctness and performance of the code
+
+---
+
+## Entry 71
+
+# Date/Time:
+
+2025-11-08 03:00
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Create a button in the frontend's collab page's session header component.
+This button is meant to mark the question as attempted.
+One of the 2 users in the room can click it, a pop up confirmation message will appear.
+Once user confirms, then send a POST request to the question-service to update
+Request body should retrieve user id from collab's room session data
+Both buttons should turn green afterwards, on both screens, and should not be able to be clicked again
+
+# Output Summary:
+
+- Created the button that works as specified
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Fixed the bugs
+- Validated correctness and performance of the code
+- Modified the Ui
+
+---
+
+## Entry 72
+
+# Date/Time:
+
+2025-11-10 00:10
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+For the home page, help me to modify it and its components so that its dynamic
+and the words in the statistics component does not overflo, but stay within the
+box when I make the screen smaller
+
+# Output Summary:
+
+- Modified the styling as described
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated correctness and performance of the code
+
+---
+
+## Entry 73
+
+# Date/Time:
+
+2025-11-10 01:00
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Help implement the feature such that the home page is updated with the live statistics instead of the hardcoded ones: Total Problems Attempted, Questions Attempted in the past week, Favourite Topic. Remove the last hardcoded statistic and ensure the the homepage is dynamic.
+Help implement Recent sessions in the History component to reflect data from the last 3 questions attempted.
+
+# Output Summary:
+
+- Updated the routes, controllers and attempts model to handle such request
+- Updated the frontend to make calls to the question service each time a user enters the homepage
+
+# Action Taken:
+
+- [ ] Accepted as-is
+- [x] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated correctness and performance of the code
+- Modified the styling of the home page and the match page
+
+---
+
+## Entry 74
+
+# Date/Time:
+
+2025-11-10 01:15
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Help add validation to attempt.js
+
+# Output Summary:
+
+- Added validation checks to attempt.js
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated to make sure the checks were appropriate
+
+---
+
+## Entry 75
+
+# Date/Time:
+
+2025-11-10 02:00
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Help me to make the collab page dynamic:
+
+- ensure that the 3 columns maintain the same ratio when screen size changes
+- hide the vertical scrollbars for the question, ai chat, ai text prompt box, and keep the overflow text within the same column box
+- make the VoiceChatComponent vertically dynamic to save space when screen size becomes small
+
+# Output Summary:
+
+- Made the above changes
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated to make sure the implementation was correct and tweaked when needed
+
+---
+
+## Entry 76
+
+# Date/Time:
+
+2025-11-10 03:00
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+When deleting a question, I should not be allowed to reuse the same question_id
+
+# Output Summary:
+
+- Modified the deleteQuestionFromDb function in question.js
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated to make sure the implementation was correct
+
+---
+
+## Entry 77
+
+# Date/Time:
+
+2025-11-10 03:30
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.0)
+
+# Prompt/Command:
+
+For roomToData in webSocketServer.js, besides storing session id, can I store question id too, so that when I am reconnecting, I can load the same question? guide me through the possible modifications to roomToData and any other changes
+
+# Output Summary:
+
+- Modified to allow question data to be retrieved from session storage or retrieved from question service upon user rejoining session
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated to make sure the implementation was correct
+
+---
+
+## Entry 78
+
+# Date/Time:
+
+2025-11-10 04:00
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.0)
+
+# Prompt/Command:
+
+For the function getAllQuestionsFromDb, it currently uses ORDER BY RANDOM in the query. However this is inefficient and slow.
+
+Perhaps you could shuffle ids then choose via id, as the shuffling would be faster than database sorting, esp as the database gets larger
+
+# Output Summary:
+
+- Modified getAllQuestionsFromDb to randomised by using the question ids.
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated to make sure the implementation was correct, and the endpoint still works as previous
+
+---

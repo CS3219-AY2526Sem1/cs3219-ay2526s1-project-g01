@@ -1,5 +1,12 @@
 /**
  * AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-08
+ * Purpose: Added ydoc prop to pass to ChatComponent
+ * Author Review: Props forwarding validated
+ */
+
+/**
+ * AI Assistance Disclosure:
  * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2025-11-06
  * Purpose: Created wrapper component to toggle between Chat and AI Assist panels
  * Author Review: Component structure and state management validated
@@ -14,13 +21,16 @@ import { Button } from "@/components/ui/button";
 import { MessageSquare, Sparkles } from "lucide-react";
 import * as monaco from "monaco-editor";
 import { ChatMessage } from "@/services/aiServiceApi";
+import * as Y from "yjs";
 
 interface ChatPanelWrapperProps {
+  ydoc: Y.Doc | null;
   editorInstance?: monaco.editor.IStandaloneCodeEditor;
   language: string;
 }
 
 export default function ChatPanelWrapper({
+  ydoc,
   editorInstance,
   language,
 }: ChatPanelWrapperProps) {
@@ -65,7 +75,7 @@ export default function ChatPanelWrapper({
             setMessages={setAiMessages}
           />
         ) : (
-          <ChatComponent />
+          <ChatComponent ydoc={ydoc} />
         )}
       </div>
     </div>

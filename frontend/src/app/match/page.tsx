@@ -1,3 +1,9 @@
+/* AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-10-10
+ * Purpose: Updated the styling of MatchPage to make it dynamic and responsive
+ * Author Review: I validated correctness and performance of the code.
+ */
+
 "use client";
 import { useState, useEffect } from "react";
 import TopicsComponent from "../components/match/TopicsComponent";
@@ -42,6 +48,26 @@ export default function MatchPage() {
     startMatching(difficulty, topics, user?.username || user?.id || "");
   };
   const { setIsConnected } = useConnectionContext();
+
+  // Add keyboard event listener for Enter key
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (
+        event.key === "Enter" &&
+        status !== "matched" &&
+        status !== "active" &&
+        !status.includes("searching")
+      ) {
+        handleStartMatching();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [status, difficulty, topics, user]);
 
   //Handles every socket connection to server and closes the creating room dialog box
   useEffect(() => {

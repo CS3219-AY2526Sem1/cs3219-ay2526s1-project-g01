@@ -1,5 +1,10 @@
+/* AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-10-10
+ * Purpose: Implemented controllers for homepage question attempts statistics.
+ * Author Review: I validated correctness and performance of the code.
+ */
+
 import HistoryPage from "../components/home/HistoryComponent";
-import QuickActionsPage from "../components/home/QuickActionsComponent";
 import StatisticPage from "../components/home/StatisticComponent";
 import WelcomePage from "../components/home/WelcomeComponent";
 
@@ -13,9 +18,8 @@ export default function HomePage() {
     >
       <WelcomePage />
       <StatisticPage />
-      <div className="flex flex-1 m-10">
+      <div className="flex flex-1 px-10 pb-10 gap-4">
         <HistoryPage />
-        <QuickActionsPage />
       </div>
     </div>
   );

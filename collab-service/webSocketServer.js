@@ -10,7 +10,7 @@ export const userToRoom = new Map();
 //Set up Websocket Server to handle incoming connection requests and heartbeat mechanism
 export function initWebSocketServer() {
   const webSocketServer = new WebSocketServer({ noServer: true });
-  // Local session data storage, stores session_id to {ydoc, users, lastEmptyAt, lastSavedAt}
+  // Local session data storage, stores session_id to {ydoc, users, lastEmptyAt, lastSavedAt, questionId}
   logger.info("WebsocketServer started!");
   //Handles client connection
   webSocketServer.on("connection", async (ws, request) => {
@@ -20,7 +20,7 @@ export function initWebSocketServer() {
       ws,
       request,
       dbClient,
-      roomToData
+      roomToData,
     );
   });
 
@@ -48,7 +48,7 @@ export function initWebSocketServer() {
         current_time - room.lastEmptyAt > 180000
       ) {
         logger.info(
-          `Deleting Y.Doc for room ${roomId} (inactive for more than 2min)`
+          `Deleting Y.Doc for room ${roomId} (inactive for more than 2min)`,
         );
         room.doc.destroy();
         roomToData.delete(roomId);

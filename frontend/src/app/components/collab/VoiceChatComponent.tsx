@@ -1,8 +1,8 @@
 /**
  * References / Credits:
  * 1. Video SDK WebRTC guide: https://www.videosdk.live/developer-hub/webrtc/webrtc-project
- * 2. YouTube tutorial: https://youtu.be/QsH8FL0952k
- * 3. YouTube tutorial: https://youtu.be/WmR9IMUD_CY
+ * 2. Web RTC Full Course & More: https://youtu.be/QsH8FL0952k
+ * 3. WebRTC in 100 Seconds // Build a Video Chat app from Scratch: https://youtu.be/WmR9IMUD_CY
  *
  * These resources were referenced for both the server and frontend implementation.
  * Code has been modified to support a session-based setup where users must join
@@ -16,6 +16,18 @@
  * Author Review: Component isolation and WebRTC lifecycle management validated
  */
 
+/* AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-10
+ * Purpose: Updated the styling of VoiceChatComponent to make it dynamic and responsive
+ * Author Review: I validated correctness and performance of the code.
+ */
+
+/* AI Assistance Disclosure:
+ * Tool: ChatGPT [GPT5], date: 2025-11-12
+ * Purpose: Fix reconnection issue for voice/video chat by adding reconnection logic to socket.io client
+ * Author Review: I validated correctness and performance of the code.
+ */
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -24,7 +36,11 @@ import { Mic, MicOff, Video, VideoOff } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 
-export default function VoiceChatComponent() {
+export default function VoiceChatComponent({
+  sessionId,
+}: {
+  sessionId: string | null;
+}) {
   const { user } = useUser();
 
   const socketRef = useRef<Socket | null>(null);
@@ -42,8 +58,9 @@ export default function VoiceChatComponent() {
   // Remote user's audio
   const [remoteAudioStatus, setRemoteAudioStatus] = useState<boolean>(true);
 
-  // Hardcode session id
-  const sessionID = "98r4389r43r894389";
+  // Remote user's connection status
+  const [remoteConnectionStatus, setRemoteConnectionStatus] =
+    useState<boolean>(false);
 
   useEffect(() => {
     // Prevent the same user from entering the session twice if its username is undefined
@@ -92,7 +109,7 @@ export default function VoiceChatComponent() {
         pc.onicecandidate = (event) => {
           if (event.candidate) {
             socketRef.current?.emit("ice-candidate", {
-              sessionID,
+              sessionId,
               username: user?.username,
               candidate: event.candidate,
             });
@@ -104,6 +121,9 @@ export default function VoiceChatComponent() {
           process.env.NEXT_PUBLIC_API_GATEWAY_BASE_URL as string,
           {
             path: "/communication-socket/",
+            reconnection: true,
+            reconnectionAttempts: Infinity,
+            reconnectionDelay: 1000,
           },
         );
         console.log("Connected to Signalling server successfully");
@@ -113,6 +133,11 @@ export default function VoiceChatComponent() {
           try {
             if (pc.signalingState === "stable") {
               await answerCall(offer);
+            } else {
+              console.warn(
+                "Ignoring offer - not in stable state:",
+                pc.signalingState,
+              );
             }
           } catch (error) {
             console.error("Error handling offer:", error);
@@ -160,6 +185,8 @@ export default function VoiceChatComponent() {
           const isCaller = ownUserName < username;
           isCallerRef.current = isCaller;
 
+          setRemoteConnectionStatus(true);
+
           if (isCaller) {
             setTimeout(() => {
               offerCall();
@@ -167,9 +194,20 @@ export default function VoiceChatComponent() {
           }
         });
 
+        socket.on("peer-left", () => {
+          setRemoteConnectionStatus(false);
+        });
+
+        socket.on("connect", () => {
+          socket.emit("join-session", {
+            sessionId: sessionId,
+            username: user?.username || "anonymous",
+          });
+        });
+
         // Join session after all listeners are set up
         socket.emit("join-session", {
-          sessionID: sessionID,
+          sessionId: sessionId,
           username: user?.username || "anonymous",
         });
       } catch (error) {
@@ -180,15 +218,22 @@ export default function VoiceChatComponent() {
     initializeConnection();
 
     return () => {
+      socketRef.current?.emit("leave-session", {
+        sessionId,
+        username: user?.username,
+      });
+
       if (currentStreamRef.current) {
         currentStreamRef.current.getTracks().forEach((track) => track.stop());
       }
       if (connectionRef.current) {
         connectionRef.current.close();
+        connectionRef.current = null;
       }
       if (socketRef.current) {
         socketRef.current.disconnect();
       }
+
       // Clear pending candidates
       pendingCandidatesRef.current = [];
     };
@@ -202,7 +247,7 @@ export default function VoiceChatComponent() {
       await connectionRef.current.setLocalDescription(offer);
 
       socketRef.current?.emit("offer", {
-        sessionID,
+        sessionId,
         username: user?.username,
         offer,
       });
@@ -215,6 +260,18 @@ export default function VoiceChatComponent() {
     if (!connectionRef.current) return;
 
     try {
+      // Check if we're in the right state to set remote description
+      if (
+        connectionRef.current.signalingState !== "stable" &&
+        connectionRef.current.signalingState !== "have-local-offer"
+      ) {
+        console.warn(
+          "Cannot answer call - incorrect signaling state:",
+          connectionRef.current.signalingState,
+        );
+        return;
+      }
+
       await connectionRef.current.setRemoteDescription(offer);
 
       // Process queued ICE candidates
@@ -227,12 +284,13 @@ export default function VoiceChatComponent() {
           console.error("Error adding queued candidate:", err);
         }
       }
+      pendingCandidatesRef.current = [];
 
       const answer = await connectionRef.current.createAnswer();
       await connectionRef.current.setLocalDescription(answer);
 
       socketRef.current?.emit("answer", {
-        sessionID,
+        sessionId,
         username: user?.username,
         answer,
       });
@@ -286,24 +344,26 @@ export default function VoiceChatComponent() {
   }
 
   return (
-    <div className="bg-stone-900 p-2 rounded-lg flex-shrink-0">
-      <div className="flex w-full gap-2 mb-2">
+    <div className="bg-stone-900 p-2 rounded-lg flex flex-col min-h-0">
+      <div className="flex w-full gap-2 mb-2 min-h-0">
         <video
           ref={currentVideoRef}
           autoPlay
           playsInline
           muted
-          className="w-[50%] rounded aspect-video"
+          className="w-[50%] rounded aspect-video object-cover"
         />
-        <video
-          ref={remoteVideoRef}
-          autoPlay
-          playsInline
-          className="w-[50%] rounded aspect-video"
-        />
+        {remoteConnectionStatus && (
+          <video
+            ref={remoteVideoRef}
+            autoPlay
+            playsInline
+            className="w-[50%] rounded aspect-video object-cover"
+          />
+        )}
       </div>
 
-      <div className="flex w-full gap-2">
+      <div className="flex w-full gap-2 flex-shrink-0">
         {/* Button for local stream */}
         <div className="flex gap-2 w-[50%]">
           <Button
@@ -314,9 +374,10 @@ export default function VoiceChatComponent() {
             bg-stone-900
             border
             border-white
-            hover:bg-stone-500"
+            hover:bg-stone-500
+            py-1"
           >
-            {localAudioStatus ? <Mic /> : <MicOff />}
+            {localAudioStatus ? <Mic size={16} /> : <MicOff size={16} />}
           </Button>
           <Button
             onClick={() => muteLocalVideo()}
@@ -326,9 +387,10 @@ export default function VoiceChatComponent() {
             bg-stone-900
             border
             border-white
-            hover:bg-stone-500"
+            hover:bg-stone-500
+            py-1"
           >
-            {localVideoStatus ? <Video /> : <VideoOff />}
+            {localVideoStatus ? <Video size={16} /> : <VideoOff size={16} />}
           </Button>
         </div>
 
@@ -342,9 +404,10 @@ export default function VoiceChatComponent() {
             bg-stone-900
             border
             border-white
-            hover:bg-stone-500"
+            hover:bg-stone-500
+            py-1"
           >
-            {remoteAudioStatus ? <Mic /> : <MicOff />}
+            {remoteAudioStatus ? <Mic size={16} /> : <MicOff size={16} />}
           </Button>
         </div>
       </div>

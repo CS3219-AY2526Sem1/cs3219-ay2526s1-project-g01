@@ -5,6 +5,12 @@
  * Author Review: I validated correctness, security, and performance of the code.
  */
 
+/* AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-10
+ * Purpose: Updated the styling of TopicsComponent to make it dynamic and responsive
+ * Author Review: I validated correctness and performance of the code.
+ */
+
 "use client";
 import { IoIosSettings } from "react-icons/io";
 import { IoCheckmark } from "react-icons/io5";
@@ -76,7 +82,7 @@ export default function TopicsComponent({ setTopics }: TopicsProps) {
           </CardDescription>
         </CardHeader>
       </div>
-      <CardContent className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 p-6">
+      <CardContent className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 p-6">
         {isLoading && (
           <div className="col-span-full text-white text-center py-8">
             Loading topics...
@@ -98,12 +104,6 @@ export default function TopicsComponent({ setTopics }: TopicsProps) {
         {!isLoading &&
           !error &&
           availableTopics.map((topicName) => {
-            // Find the matching topic config from ALL_TOPICS for icon and color
-            const topicConfig = ALL_TOPICS.find(
-              (t) => t.name.toLowerCase() === topicName.toLowerCase(),
-            );
-            const Icon = topicConfig?.icon;
-            const color = topicConfig?.color || "text-gray-500";
             const displayName = capitalizeWords(topicName);
 
             return (
@@ -118,12 +118,9 @@ export default function TopicsComponent({ setTopics }: TopicsProps) {
               }
               flex items-center justify-center rounded-xl transition-all duration-200`}
               >
-                <div className="flex items-center gap-2">
-                  {Icon && <Icon className={color} size={20} />}
-                  <span className="whitespace-normal break-words text-center leading-snug">
-                    {displayName}
-                  </span>
-                </div>
+                <span className="whitespace-normal break-words text-center leading-snug">
+                  {displayName}
+                </span>
                 <IoCheckmark
                   strokeWidth={3}
                   className={`absolute right-3 top-1/2 -translate-y-1/2 text-black text-4xl flex-shrink-0 ${

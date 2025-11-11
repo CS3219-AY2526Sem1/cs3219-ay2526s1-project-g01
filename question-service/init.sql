@@ -9,6 +9,7 @@ DROP VIEW IF EXISTS question_difficulties_view;
 DROP TABLE IF EXISTS test_cases;
 DROP TABLE IF EXISTS question_topics;
 DROP TABLE IF EXISTS topics;
+DROP TABLE IF EXISTS attempts;
 DROP TABLE IF EXISTS questions;
 
 -- Questions table (one difficulty per question)
@@ -44,9 +45,18 @@ CREATE TABLE test_cases (
     PRIMARY KEY (question_id, index)
 );
 
+CREATE TABLE attempts (
+    id SERIAL,
+    question_id INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL,
+    attempted_date DATE,
+    PRIMARY KEY (id),
+    UNIQUE (user_id, question_id)
+);
+
 
 -- Insert the sorting topic
-INSERT INTO topics (name) VALUES ('sorting');
+INSERT INTO topics (name) VALUES ('Sorting');
 
 -- EASY QUESTIONS (1-10)
 
@@ -1061,18 +1071,18 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 --------------------
 
 
--- First, insert the hash table topic if it doesn't exist
-INSERT INTO topics (name) VALUES ('hash table') ON CONFLICT (name) DO NOTHING;
+-- First, insert the Hash Table topic if it doesn't exist
+INSERT INTO topics (name) VALUES ('Hash Table') ON CONFLICT (name) DO NOTHING;
 
 -- EASY QUESTIONS (91-100)
 
 -- Question 91: Character Frequency Counter
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(91, 'Character Frequency Counter', 'easy', 'Write a function that takes a string and returns a hash table (dictionary/map) containing the frequency of each character in the string. Ignore case sensitivity.', '1 <= string length <= 1000
+(91, 'Character Frequency Counter', 'easy', 'Write a function that takes a string and returns a Hash Table (dictionary/map) containing the frequency of each character in the string. Ignore case sensitivity.', '1 <= string length <= 1000
 String contains only alphabetic characters and spaces');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(91, (SELECT id FROM topics WHERE name = 'hash table'));
+(91, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (91, 1, '{"s": "hello"}', '{"h": 1, "e": 1, "l": 2, "o": 1}'),
@@ -1080,11 +1090,11 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 92: First Unique Character
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(92, 'First Unique Character', 'easy', 'Given a string, find the first non-repeating character and return its index. If it doesn''t exist, return -1. Use a hash table to track character frequencies.', '1 <= string length <= 10^5
+(92, 'First Unique Character', 'easy', 'Given a string, find the first non-repeating character and return its index. If it doesn''t exist, return -1. Use a Hash Table to track character frequencies.', '1 <= string length <= 10^5
 String contains only lowercase English letters');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(92, (SELECT id FROM topics WHERE name = 'hash table'));
+(92, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (92, 1, '{"s": "leetcode"}', '0'),
@@ -1092,11 +1102,11 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 93: Check Anagram
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(93, 'Check Anagram', 'easy', 'Determine if two strings are anagrams of each other using a hash table. Two strings are anagrams if they contain the same characters with the same frequencies.', '1 <= string length <= 5000
+(93, 'Check Anagram', 'easy', 'Determine if two strings are anagrams of each other using a Hash Table. Two strings are anagrams if they contain the same characters with the same frequencies.', '1 <= string length <= 5000
 Strings contain only lowercase English letters');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(93, (SELECT id FROM topics WHERE name = 'hash table'));
+(93, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (93, 1, '{"s1": "listen", "s2": "silent"}', 'true'),
@@ -1104,12 +1114,12 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 94: Sum Pair Exists
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(94, 'Sum Pair Exists', 'easy', 'Given an array of integers and a target sum, determine if there exist two distinct elements in the array that sum to the target. Use a hash table for O(n) time complexity.', '2 <= array length <= 10^4
+(94, 'Sum Pair Exists', 'easy', 'Given an array of integers and a target sum, determine if there exist two distinct elements in the array that sum to the target. Use a Hash Table for O(n) time complexity.', '2 <= array length <= 10^4
 -10^9 <= array elements <= 10^9
 -10^9 <= target <= 10^9');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(94, (SELECT id FROM topics WHERE name = 'hash table'));
+(94, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (94, 1, '{"arr": [2, 7, 11, 15], "target": 9}', 'true'),
@@ -1117,11 +1127,11 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 95: Remove Duplicates from Array
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(95, 'Remove Duplicates from Array', 'easy', 'Given an array of integers, return a new array with all duplicate elements removed, preserving the original order. Use a hash table to track seen elements.', '1 <= array length <= 10^4
+(95, 'Remove Duplicates from Array', 'easy', 'Given an array of integers, return a new array with all duplicate elements removed, preserving the original order. Use a Hash Table to track seen elements.', '1 <= array length <= 10^4
 -10^6 <= array elements <= 10^6');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(95, (SELECT id FROM topics WHERE name = 'hash table'));
+(95, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (95, 1, '{"arr": [1, 2, 2, 3, 4, 4, 5]}', '[1, 2, 3, 4, 5]'),
@@ -1135,7 +1145,7 @@ Pattern contains only lowercase letters
 Words contain only lowercase letters');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(96, (SELECT id FROM topics WHERE name = 'hash table'));
+(96, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (96, 1, '{"pattern": "abba", "words": "dog cat cat dog"}', 'true'),
@@ -1143,11 +1153,11 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 97: Intersection of Two Arrays
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(97, 'Intersection of Two Arrays', 'easy', 'Given two arrays, return their intersection (elements that appear in both arrays). Each element in the result should appear only once. Use a hash table for efficient lookup.', '1 <= array length <= 1000
+(97, 'Intersection of Two Arrays', 'easy', 'Given two arrays, return their intersection (elements that appear in both arrays). Each element in the result should appear only once. Use a Hash Table for efficient lookup.', '1 <= array length <= 1000
 0 <= array elements <= 1000');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(97, (SELECT id FROM topics WHERE name = 'hash table'));
+(97, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (97, 1, '{"arr1": [1, 2, 2, 3], "arr2": [2, 2, 3, 4]}', '[2, 3]'),
@@ -1155,11 +1165,11 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 98: Group Numbers by Frequency
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(98, 'Group Numbers by Frequency', 'easy', 'Given an array of integers, return a hash table where keys are the frequencies and values are arrays of numbers that appear that many times.', '1 <= array length <= 1000
+(98, 'Group Numbers by Frequency', 'easy', 'Given an array of integers, return a Hash Table where keys are the frequencies and values are arrays of numbers that appear that many times.', '1 <= array length <= 1000
 -100 <= array elements <= 100');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(98, (SELECT id FROM topics WHERE name = 'hash table'));
+(98, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (98, 1, '{"arr": [1, 2, 2, 3, 3, 3]}', '{"1": [1], "2": [2], "3": [3]}'),
@@ -1167,12 +1177,12 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 99: Count Distinct Elements in Window
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(99, 'Count Distinct Elements in Window', 'easy', 'Given an array and a window size k, return an array containing the count of distinct elements in each window of size k. Use a hash table to track elements in the current window.', '1 <= array length <= 10^5
+(99, 'Count Distinct Elements in Window', 'easy', 'Given an array and a window size k, return an array containing the count of distinct elements in each window of size k. Use a Hash Table to track elements in the current window.', '1 <= array length <= 10^5
 1 <= k <= array length
 0 <= array elements <= 10^6');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(99, (SELECT id FROM topics WHERE name = 'hash table'));
+(99, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (99, 1, '{"arr": [1, 2, 1, 3, 4, 2, 3], "k": 3}', '[2, 3, 3, 3, 3]'),
@@ -1180,11 +1190,11 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 100: Check Subset
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(100, 'Check Subset', 'easy', 'Given two arrays, determine if the second array is a subset of the first array (all elements of the second array exist in the first array). Use a hash table for efficient checking.', '1 <= array length <= 10^5
+(100, 'Check Subset', 'easy', 'Given two arrays, determine if the second array is a subset of the first array (all elements of the second array exist in the first array). Use a Hash Table for efficient checking.', '1 <= array length <= 10^5
 -10^9 <= array elements <= 10^9');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(100, (SELECT id FROM topics WHERE name = 'hash table'));
+(100, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (100, 1, '{"arr1": [1, 2, 3, 4, 5], "arr2": [2, 4]}', 'true'),
@@ -1194,12 +1204,12 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 101: Group Anagrams
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(101, 'Group Anagrams', 'medium', 'Given an array of strings, group the anagrams together. Return a list of groups where each group contains strings that are anagrams of each other. Use a hash table with sorted strings as keys.', '1 <= array length <= 10^4
+(101, 'Group Anagrams', 'medium', 'Given an array of strings, group the anagrams together. Return a list of groups where each group contains strings that are anagrams of each other. Use a Hash Table with sorted strings as keys.', '1 <= array length <= 10^4
 1 <= string length <= 100
 Strings contain only lowercase English letters');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(101, (SELECT id FROM topics WHERE name = 'hash table'));
+(101, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (101, 1, '{"strs": ["eat", "tea", "tan", "ate", "nat", "bat"]}', '[["eat", "tea", "ate"], ["tan", "nat"], ["bat"]]'),
@@ -1207,11 +1217,11 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 102: Longest Consecutive Sequence
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(102, 'Longest Consecutive Sequence', 'medium', 'Given an unsorted array of integers, find the length of the longest consecutive elements sequence. Your algorithm should run in O(n) time using a hash table.', '0 <= array length <= 10^5
+(102, 'Longest Consecutive Sequence', 'medium', 'Given an unsorted array of integers, find the length of the longest consecutive elements sequence. Your algorithm should run in O(n) time using a Hash Table.', '0 <= array length <= 10^5
 -10^9 <= array elements <= 10^9');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(102, (SELECT id FROM topics WHERE name = 'hash table'));
+(102, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (102, 1, '{"arr": [100, 4, 200, 1, 3, 2]}', '4'),
@@ -1219,12 +1229,12 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 103: Subarray Sum Equals K
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(103, 'Subarray Sum Equals K', 'medium', 'Given an array of integers and an integer k, find the total number of continuous subarrays whose sum equals k. Use a hash table to store cumulative sums for O(n) time complexity.', '1 <= array length <= 2 * 10^4
+(103, 'Subarray Sum Equals K', 'medium', 'Given an array of integers and an integer k, find the total number of continuous subarrays whose sum equals k. Use a Hash Table to store cumulative sums for O(n) time complexity.', '1 <= array length <= 2 * 10^4
 -1000 <= array elements <= 1000
 -10^7 <= k <= 10^7');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(103, (SELECT id FROM topics WHERE name = 'hash table'));
+(103, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (103, 1, '{"arr": [1, 1, 1], "k": 2}', '2'),
@@ -1232,12 +1242,12 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 104: Top K Frequent Elements
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(104, 'Top K Frequent Elements', 'medium', 'Given an array of integers, return the k most frequent elements. Use a hash table to count frequencies and return elements in any order.', '1 <= array length <= 10^5
+(104, 'Top K Frequent Elements', 'medium', 'Given an array of integers, return the k most frequent elements. Use a Hash Table to count frequencies and return elements in any order.', '1 <= array length <= 10^5
 1 <= k <= number of distinct elements
 -10^4 <= array elements <= 10^4');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(104, (SELECT id FROM topics WHERE name = 'hash table'));
+(104, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (104, 1, '{"arr": [1, 1, 1, 2, 2, 3], "k": 2}', '[1, 2]'),
@@ -1245,11 +1255,11 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 105: Four Sum Count
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(105, 'Four Sum Count', 'medium', 'Given four arrays A, B, C, D of equal length, compute how many tuples (i, j, k, l) exist such that A[i] + B[j] + C[k] + D[l] = 0. Use hash tables to achieve O(n^2) time complexity.', '1 <= array length <= 200
+(105, 'Four Sum Count', 'medium', 'Given four arrays A, B, C, D of equal length, compute how many tuples (i, j, k, l) exist such that A[i] + B[j] + C[k] + D[l] = 0. Use Hash Tables to achieve O(n^2) time complexity.', '1 <= array length <= 200
 -2^28 <= array elements <= 2^28');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(105, (SELECT id FROM topics WHERE name = 'hash table'));
+(105, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (105, 1, '{"A": [1, 2], "B": [-2, -1], "C": [-1, 2], "D": [0, 2]}', '2'),
@@ -1257,13 +1267,13 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 106: Clone Graph with Hash Table
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(106, 'Clone Graph with Hash Table', 'medium', 'Given a reference to a node in a connected undirected graph, return a deep copy of the graph. Use a hash table to map original nodes to their clones to handle cycles.', '1 <= number of nodes <= 100
+(106, 'Clone Graph with Hash Table', 'medium', 'Given a reference to a node in a connected undirected graph, return a deep copy of the graph. Use a Hash Table to map original nodes to their clones to handle cycles.', '1 <= number of nodes <= 100
 Each node value is unique
 0 <= node.val <= 99
 Graph is connected');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(106, (SELECT id FROM topics WHERE name = 'hash table'));
+(106, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (106, 1, '{"adjList": [[2, 4], [1, 3], [2, 4], [1, 3]]}', '[[2, 4], [1, 3], [2, 4], [1, 3]]'),
@@ -1271,11 +1281,11 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 107: Design Hash Map with Chaining
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(107, 'Design Hash Map with Chaining', 'medium', 'Design a HashMap without using any built-in hash table libraries. Implement put(key, value), get(key), and remove(key) methods. Use an array with linked list chaining for collision resolution.', '0 <= key, value <= 10^6
+(107, 'Design Hash Map with Chaining', 'medium', 'Design a HashMap without using any built-in Hash Table libraries. Implement put(key, value), get(key), and remove(key) methods. Use an array with linked list chaining for collision resolution.', '0 <= key, value <= 10^6
 At most 10^4 calls will be made to put, get, and remove');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(107, (SELECT id FROM topics WHERE name = 'hash table'));
+(107, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (107, 1, '{"operations": ["put", "get", "remove", "get"], "params": [[1, 1], [1], [1], [1]]}', '[null, 1, null, -1]'),
@@ -1283,12 +1293,12 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 108: Minimum Window Substring Frequency
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(108, 'Minimum Window Substring Frequency', 'medium', 'Given two strings s and t, find the minimum window in s that contains all characters of t with their required frequencies. Use hash tables to track character counts.', '1 <= s.length, t.length <= 10^5
+(108, 'Minimum Window Substring Frequency', 'medium', 'Given two strings s and t, find the minimum window in s that contains all characters of t with their required frequencies. Use Hash Tables to track character counts.', '1 <= s.length, t.length <= 10^5
 s and t consist of uppercase and lowercase English letters
 Answer is guaranteed to be unique');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(108, (SELECT id FROM topics WHERE name = 'hash table'));
+(108, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (108, 1, '{"s": "ADOBECODEBANC", "t": "ABC"}', '"BANC"'),
@@ -1296,11 +1306,11 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 109: Find Duplicate Subtrees
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(109, 'Find Duplicate Subtrees', 'medium', 'Given the root of a binary tree, return all duplicate subtrees. Use a hash table to store serialized subtree structures and count their occurrences.', '1 <= number of nodes <= 5000
+(109, 'Find Duplicate Subtrees', 'medium', 'Given the root of a binary tree, return all duplicate subtrees. Use a Hash Table to store serialized subtree structures and count their occurrences.', '1 <= number of nodes <= 5000
 -200 <= node.val <= 200');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(109, (SELECT id FROM topics WHERE name = 'hash table'));
+(109, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (109, 1, '{"tree": [1, 2, 3, 4, null, 2, 4, null, null, 4]}', '[[2, 4], [4]]'),
@@ -1308,13 +1318,13 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 110: Brick Wall Least Cuts
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(110, 'Brick Wall Least Cuts', 'medium', 'A wall consists of rows of bricks of various widths. Find a vertical line that cuts through the fewest bricks. Use a hash table to count edge positions across all rows.', '1 <= wall.length <= 10^4
+(110, 'Brick Wall Least Cuts', 'medium', 'A wall consists of rows of bricks of various widths. Find a vertical line that cuts through the fewest bricks. Use a Hash Table to count edge positions across all rows.', '1 <= wall.length <= 10^4
 1 <= wall[i].length <= 10^4
 1 <= wall[i][j] <= 2^31 - 1
 Sum of each row width is the same');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(110, (SELECT id FROM topics WHERE name = 'hash table'));
+(110, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (110, 1, '{"wall": [[1, 2, 2, 1], [3, 1, 2], [1, 3, 2], [2, 4], [3, 1, 2], [1, 3, 1, 1]]}', '2'),
@@ -1324,13 +1334,13 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 111: LRU Cache Implementation
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(111, 'LRU Cache Implementation', 'hard', 'Design a data structure that implements a Least Recently Used (LRU) cache with O(1) time complexity for both get and put operations. Use a hash table combined with a doubly linked list.', '1 <= capacity <= 3000
+(111, 'LRU Cache Implementation', 'hard', 'Design a data structure that implements a Least Recently Used (LRU) cache with O(1) time complexity for both get and put operations. Use a Hash Table combined with a doubly linked list.', '1 <= capacity <= 3000
 0 <= key <= 10^4
 0 <= value <= 10^5
 At most 2 * 10^5 calls to get and put');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(111, (SELECT id FROM topics WHERE name = 'hash table'));
+(111, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (111, 1, '{"capacity": 2, "operations": ["put", "put", "get", "put", "get", "get"], "params": [[1, 1], [2, 2], [1], [3, 3], [2], [3]]}', '[null, null, 1, null, -1, 3]'),
@@ -1338,13 +1348,13 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 112: Alien Dictionary Order
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(112, 'Alien Dictionary Order', 'hard', 'Given a sorted dictionary of an alien language, derive the order of characters in this language. Use hash tables to build a graph of character dependencies and perform topological sort.', '1 <= words.length <= 100
+(112, 'Alien Dictionary Order', 'hard', 'Given a sorted dictionary of an alien language, derive the order of characters in this language. Use Hash Tables to build a graph of character dependencies and perform topological sort.', '1 <= words.length <= 100
 1 <= words[i].length <= 20
 words[i] consists of only lowercase English letters
 words are sorted lexicographically');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(112, (SELECT id FROM topics WHERE name = 'hash table'));
+(112, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (112, 1, '{"words": ["wrt", "wrf", "er", "ett", "rftt"]}', '"wertf"'),
@@ -1352,12 +1362,12 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 113: Longest Substring with K Distinct Characters
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(113, 'Longest Substring with K Distinct Characters', 'hard', 'Find the length of the longest substring that contains at most k distinct characters. Use a hash table with a sliding window approach to track character frequencies.', '1 <= s.length <= 5 * 10^4
+(113, 'Longest Substring with K Distinct Characters', 'hard', 'Find the length of the longest substring that contains at most k distinct characters. Use a Hash Table with a sliding window approach to track character frequencies.', '1 <= s.length <= 5 * 10^4
 0 <= k <= 50
 s consists of English letters');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(113, (SELECT id FROM topics WHERE name = 'hash table'));
+(113, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (113, 1, '{"s": "eceba", "k": 2}', '3'),
@@ -1365,11 +1375,11 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 114: All Anagrams in String
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(114, 'All Anagrams in String', 'hard', 'Given strings s and p, find all start indices of p''s anagrams in s. Use hash tables with a sliding window to achieve O(n) time complexity.', '1 <= s.length, p.length <= 3 * 10^4
+(114, 'All Anagrams in String', 'hard', 'Given strings s and p, find all start indices of p''s anagrams in s. Use Hash Tables with a sliding window to achieve O(n) time complexity.', '1 <= s.length, p.length <= 3 * 10^4
 s and p consist of lowercase English letters');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(114, (SELECT id FROM topics WHERE name = 'hash table'));
+(114, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (114, 1, '{"s": "cbaebabacd", "p": "abc"}', '[0, 6]'),
@@ -1377,14 +1387,14 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 115: Substring Concatenation of All Words
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(115, 'Substring Concatenation of All Words', 'hard', 'Given a string s and an array of words, find all starting indices where a substring is a concatenation of each word exactly once. Use hash tables to track word frequencies and matches.', '1 <= s.length <= 10^4
+(115, 'Substring Concatenation of All Words', 'hard', 'Given a string s and an array of words, find all starting indices where a substring is a concatenation of each word exactly once. Use Hash Tables to track word frequencies and matches.', '1 <= s.length <= 10^4
 1 <= words.length <= 5000
 1 <= words[i].length <= 30
 s and words[i] consist of lowercase English letters
 All words[i] have the same length');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(115, (SELECT id FROM topics WHERE name = 'hash table'));
+(115, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (115, 1, '{"s": "barfoothefoobarman", "words": ["foo", "bar"]}', '[0, 9]'),
@@ -1392,13 +1402,13 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 116: Max Points on a Line
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(116, 'Max Points on a Line', 'hard', 'Given n points on a 2D plane, find the maximum number of points that lie on the same straight line. Use a hash table to group points by slope for each point.', '1 <= points.length <= 300
+(116, 'Max Points on a Line', 'hard', 'Given n points on a 2D plane, find the maximum number of points that lie on the same straight line. Use a Hash Table to group points by slope for each point.', '1 <= points.length <= 300
 points[i].length == 2
 -10^4 <= xi, yi <= 10^4
 All points are unique');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(116, (SELECT id FROM topics WHERE name = 'hash table'));
+(116, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (116, 1, '{"points": [[1, 1], [2, 2], [3, 3]]}', '3'),
@@ -1406,14 +1416,14 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 117: Optimal Account Balancing
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(117, 'Optimal Account Balancing', 'hard', 'Given transactions between people, find the minimum number of transactions required to settle all debts. Use hash tables to track net balances and backtracking to find optimal settlement.', '1 <= transactions.length <= 8
+(117, 'Optimal Account Balancing', 'hard', 'Given transactions between people, find the minimum number of transactions required to settle all debts. Use Hash Tables to track net balances and backtracking to find optimal settlement.', '1 <= transactions.length <= 8
 transactions[i].length == 3
 0 <= from, to < 12
 from != to
 1 <= amount <= 100');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(117, (SELECT id FROM topics WHERE name = 'hash table'));
+(117, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (117, 1, '{"transactions": [[0, 1, 10], [2, 0, 5]]}', '2'),
@@ -1421,13 +1431,13 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 118: Employee Free Time
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(118, 'Employee Free Time', 'hard', 'Given a list of employee schedules representing working intervals, find all common free time intervals for all employees. Use hash tables to merge and track intervals efficiently.', '1 <= schedule.length <= 50
+(118, 'Employee Free Time', 'hard', 'Given a list of employee schedules representing working intervals, find all common free time intervals for all employees. Use Hash Tables to merge and track intervals efficiently.', '1 <= schedule.length <= 50
 1 <= schedule[i].length <= 50
 0 <= schedule[i][j].start < schedule[i][j].end <= 10^8
 Intervals are sorted in each schedule');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(118, (SELECT id FROM topics WHERE name = 'hash table'));
+(118, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (118, 1, '{"schedule": [[[1, 2], [5, 6]], [[1, 3]], [[4, 10]]]}', '[[3, 4]]'),
@@ -1435,13 +1445,13 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 119: Number of Matching Subsequences
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(119, 'Number of Matching Subsequences', 'hard', 'Given a string s and an array of words, return the number of words that are subsequences of s. Use hash tables to preprocess character positions in s for efficient matching.', '1 <= s.length <= 5 * 10^4
+(119, 'Number of Matching Subsequences', 'hard', 'Given a string s and an array of words, return the number of words that are subsequences of s. Use Hash Tables to preprocess character positions in s for efficient matching.', '1 <= s.length <= 5 * 10^4
 1 <= words.length <= 5000
 1 <= words[i].length <= 50
 s and words[i] consist of only lowercase English letters');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(119, (SELECT id FROM topics WHERE name = 'hash table'));
+(119, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (119, 1, '{"s": "abcde", "words": ["a", "bb", "acd", "ace"]}', '3'),
@@ -1449,14 +1459,14 @@ INSERT INTO test_cases (question_id, index, input, output) VALUES
 
 -- Question 120: Design Time-Based Key-Value Store
 INSERT INTO questions (id, title, difficulty, description, question_constraints) VALUES
-(120, 'Design Time-Based Key-Value Store', 'hard', 'Design a time-based key-value data structure that can store multiple values for the same key at different timestamps and retrieve the value at a given timestamp. Use hash tables with binary search.', '1 <= key.length, value.length <= 100
+(120, 'Design Time-Based Key-Value Store', 'hard', 'Design a time-based key-value data structure that can store multiple values for the same key at different timestamps and retrieve the value at a given timestamp. Use Hash Tables with binary search.', '1 <= key.length, value.length <= 100
 key and value consist of lowercase English letters and digits
 1 <= timestamp <= 10^7
 All timestamps are strictly increasing
 At most 2 * 10^5 calls to set and get');
 
 INSERT INTO question_topics (question_id, topic_id) VALUES
-(120, (SELECT id FROM topics WHERE name = 'hash table'));
+(120, (SELECT id FROM topics WHERE name = 'Hash Table'));
 
 INSERT INTO test_cases (question_id, index, input, output) VALUES
 (120, 1, '{"operations": ["set", "get", "get", "set", "get"], "params": [["foo", "bar", 1], ["foo", 1], ["foo", 3], ["foo", "bar2", 4], ["foo", 4]]}', '[null, "bar", "bar", null, "bar2"]'),
