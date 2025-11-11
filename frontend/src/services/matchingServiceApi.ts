@@ -10,6 +10,12 @@
  * Purpose: To integrate question data retrieval and display in the collaboration page.
  * Author Review: Verified correctness and functionality of the code.
  */
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2025-01-12
+ * Purpose: Added "timeout" status type to MatchStatusResponse for handling disconnected partner scenarios
+ * Author Review: TypeScript types validated
+ */
 
 import axios from "axios";
 import { getToken } from "./userServiceCookies";
@@ -63,7 +69,7 @@ export interface Question {
 
 export interface MatchStatusResponse {
   success: boolean;
-  status: "idle" | "searching" | "matched" | "active" | "failed";
+  status: "idle" | "searching" | "matched" | "active" | "failed" | "timeout";
   sessionId?: string;
   elapsedTime?: number;
   remainingTime?: number;
@@ -79,6 +85,7 @@ export interface MatchStatusResponse {
     topics: string[];
   };
   canDelete?: boolean;
+  message?: string;
 }
 
 export interface TerminateResponse {

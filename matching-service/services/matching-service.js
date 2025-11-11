@@ -3,6 +3,15 @@
  * Tool: Claude Sonnet 4.5, date: 2025-11-03
  * Purpose: To integrate question data retrieval and display in the collaboration page.
  * Author Review: Verified correctness and functionality of the code.
+ *
+ * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2025-01-12
+ * Purpose: Implemented disconnected user detection and cleanup:
+ *   - Added lastPolled timestamp tracking for users in queue
+ *   - Implemented stale user removal (5s threshold) before matching
+ *   - Added match acknowledgment system to prevent room creation for disconnected users
+ *   - Room creation now delayed until both users acknowledge match (within 5s)
+ *   - Added timeout status for failed matches due to partner disconnect
+ * Author Review: Logic validated, timeout thresholds reviewed, edge cases tested
  */
 
 require("dotenv").config();
@@ -61,6 +70,7 @@ class MatchingService {
         difficulty,
         topics,
         joinedAt: Date.now(),
+        lastPolled: Date.now(),
       };
 
       await redisClient.rPush(queueKey, JSON.stringify(userQueueData));
@@ -92,11 +102,29 @@ class MatchingService {
   async findMatch(newUser, queueKey) {
     try {
       const waitingUsers = await redisClient.lRange(queueKey, 0, -1);
+      const STALE_THRESHOLD = 5 * 1000; // 5 seconds in ms
 
       for (const waitingUserData of waitingUsers) {
         const waitingUser = JSON.parse(waitingUserData);
 
         if (waitingUser.userId === newUser.userId) continue;
+
+        // Check if user is stale (hasn't polled in 5 seconds)
+        const timeSinceLastPoll = Date.now() - (waitingUser.lastPolled || waitingUser.joinedAt);
+        if (timeSinceLastPoll > STALE_THRESHOLD) {
+          console.log(
+            `[STALE USER] Removing ${waitingUser.userId} from queue (no poll for ${Math.round(timeSinceLastPoll / 1000)}s)`
+          );
+          // Remove stale user from queue
+          await redisClient.lRem(queueKey, 1, waitingUserData);
+          // Clean up active search
+          await redisClient.del(
+            `${this.ACTIVE_SEARCH_PREFIX}${waitingUser.userId}`
+          );
+          // Cancel timeout
+          this.cancelTimeout(waitingUser.userId);
+          continue;
+        }
 
         // check if there's any overlap in difficulty preferences (subset matching)
         const difficultyMatch = this.hasIntersection(
@@ -143,6 +171,7 @@ class MatchingService {
             matchedAt: new Date().toISOString(),
             status: "matched",
             polled_users: [],
+            acknowledged_users: [], // Track which users have polled after match
           };
 
           // store session (1 hour expiry - change in future iteration if necessary)
@@ -180,9 +209,11 @@ class MatchingService {
             `[MATCH FOUND] ${waitingUser.userId} ↔ ${newUser.userId} | Session: ${sessionId}`
           );
 
-          // Second user will call collab service endpoint to create a room, function runs in the background so there
-          // wont be delay in returning a response to user2's matching request
-          this.triggerRoomCreation(matchData);
+          // Don't create room immediately - wait for both users to acknowledge
+          // Room will be created when both users poll and acknowledge the match
+          console.log(
+            `[MATCH] Waiting for both users to acknowledge before creating room`
+          );
           return matchData;
         }
       }
@@ -273,6 +304,53 @@ class MatchingService {
       );
       if (sessionId) {
         const matchData = await this.getSession(sessionId);
+
+        // If match status is "matched", check for stale partner before proceeding
+        if (matchData.status === "matched") {
+          const MATCH_ACK_TIMEOUT = 5 * 1000; // 5 seconds to acknowledge match
+          const matchAge = Date.now() - new Date(matchData.matchedAt).getTime();
+
+          // Track that this user has acknowledged the match
+          if (!matchData.acknowledged_users.includes(userId)) {
+            matchData.acknowledged_users.push(userId);
+            await redisClient.setEx(
+              `${this.SESSION_PREFIX}${sessionId}`,
+              3600,
+              JSON.stringify(matchData)
+            );
+
+            // If both users have now acknowledged, trigger room creation
+            if (matchData.acknowledged_users.length === 2) {
+              console.log(
+                `[MATCH ACK] Both users acknowledged ${sessionId}, creating room`
+              );
+              this.triggerRoomCreation(matchData);
+            }
+          }
+
+          // If match is older than timeout and partner hasn't acknowledged, cancel match
+          if (matchAge > MATCH_ACK_TIMEOUT && matchData.acknowledged_users.length < 2) {
+            const partnerId = matchData.user1.userId === userId
+              ? matchData.user2.userId
+              : matchData.user1.userId;
+            const partnerAcknowledged = matchData.acknowledged_users.includes(partnerId);
+
+            if (!partnerAcknowledged) {
+              console.log(
+                `[MATCH TIMEOUT] ${partnerId} didn't acknowledge match ${sessionId} within ${MATCH_ACK_TIMEOUT/1000}s`
+              );
+
+              // Clean up the failed match
+              await this.endSession(userId);
+
+              return {
+                status: "timeout",
+                message: "Match failed - partner disconnected",
+              };
+            }
+          }
+        }
+
         let response = {
           status: matchData.status,
           sessionId,
@@ -318,6 +396,35 @@ class MatchingService {
         const searchData = JSON.parse(activeSearch);
         const elapsedTime = Date.now() - searchData.joinedAt;
         const remainingTime = Math.max(0, this.MATCH_TIMEOUT - elapsedTime);
+
+        // Update lastPolled timestamp to indicate user is still active
+        const currentTime = Date.now();
+        searchData.lastPolled = currentTime;
+        await redisClient.setEx(
+          `${this.ACTIVE_SEARCH_PREFIX}${userId}`,
+          this.MATCH_TIMEOUT / 1000,
+          JSON.stringify(searchData)
+        );
+
+        // Also update the lastPolled in the queue entry
+        const queueKey = searchData.queueKey;
+
+        // Find and update the user's entry in the queue
+        const waitingUsers = await redisClient.lRange(queueKey, 0, -1);
+        for (const waitingUserData of waitingUsers) {
+          const waitingUser = JSON.parse(waitingUserData);
+          if (waitingUser.userId === userId) {
+            // Remove old entry
+            await redisClient.lRem(queueKey, 1, waitingUserData);
+            // Add updated entry with new lastPolled
+            const updatedUserQueueData = {
+              ...waitingUser,
+              lastPolled: currentTime,
+            };
+            await redisClient.rPush(queueKey, JSON.stringify(updatedUserQueueData));
+            break;
+          }
+        }
 
         return {
           status: "searching",
