@@ -13,6 +13,7 @@ import AiAssistPanel from "./AiAssistPanel";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Sparkles } from "lucide-react";
 import * as monaco from "monaco-editor";
+import { ChatMessage } from "@/services/aiServiceApi";
 
 interface ChatPanelWrapperProps {
   editorInstance?: monaco.editor.IStandaloneCodeEditor;
@@ -24,6 +25,7 @@ export default function ChatPanelWrapper({
   language,
 }: ChatPanelWrapperProps) {
   const [showAiAssist, setShowAiAssist] = useState(false);
+  const [aiMessages, setAiMessages] = useState<ChatMessage[]>([]);
 
   return (
     <div className="flex-1 min-h-0 flex flex-col">
@@ -56,7 +58,12 @@ export default function ChatPanelWrapper({
       {/* Content */}
       <div className="flex-1 overflow-hidden min-h-0">
         {showAiAssist ? (
-          <AiAssistPanel editorInstance={editorInstance} language={language} />
+          <AiAssistPanel
+            editorInstance={editorInstance}
+            language={language}
+            messages={aiMessages}
+            setMessages={setAiMessages}
+          />
         ) : (
           <ChatComponent />
         )}
