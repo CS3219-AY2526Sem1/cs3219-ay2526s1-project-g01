@@ -22,6 +22,12 @@
  * Author Review: I validated correctness and performance of the code.
  */
 
+/* AI Assistance Disclosure:
+ * Tool: ChatGPT [GPT-5], date: 2025-11-12
+ * Purpose: Add ability to reconnect video/voice chat after user disconnects unexpectedly
+ * Author Review: I validated correctness and performance of the code.
+ */
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -115,6 +121,10 @@ export default function VoiceChatComponent({
           process.env.NEXT_PUBLIC_API_GATEWAY_BASE_URL as string,
           {
             path: "/communication-socket/",
+            autoConnect: true,
+            reconnection: true,
+            reconnectionAttempts: 10,
+            reconnectionDelay: 1000,
           },
         );
         console.log("Connected to Signalling server successfully");
@@ -187,6 +197,14 @@ export default function VoiceChatComponent({
 
         socket.on("peer-left", () => {
           setRemoteConnectionStatus(false);
+        });
+
+        // Handle reconnection
+        socket.on("connect", () => {
+          socket.emit("join-session", {
+            sessionId: sessionId,
+            username: user?.username || "anonymous",
+          });
         });
 
         // Join session after all listeners are set up
