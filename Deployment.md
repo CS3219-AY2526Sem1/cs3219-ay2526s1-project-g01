@@ -35,7 +35,7 @@ Before deploying PeerPrep, ensure you have the following services and accounts s
 1. As Next.js frontend is built on compile time, environment variables need to be set during build time.
 2. Update the .env.production.no-sensitive file with the appropriate environment variables for production.(after u get the links for the services deployed on GCP)
 3. Go to `https://console.cloud.google.com/cloud-build` and select "Triggers".
-4. Change the in line CLoudbuild configurations to this
+4. Change the in line Cloudbuild configurations to this
 ```
 steps:
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
