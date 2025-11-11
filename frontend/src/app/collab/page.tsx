@@ -19,6 +19,11 @@
  * Author Review: Component structure and WebRTC persistence validated
  */
 
+/** AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-08
+ * Purpose: Added shared Yjs document management for editor and chat synchronization
+ * Author Review: Yjs document sharing and lifecycle management validated
+ * 
 /* AI Assistance Disclosure:
  * Tool: Claude Sonnet 4.5, date: 2025-10-10
  * Purpose: Updated the styling of Collab Page to make it dynamic and responsive
@@ -30,12 +35,6 @@
  * Tool: ChatGPT (model: Claude Sonnet 4.0), date: 2025-11-10
  * Purpose: To implement session creation and retrieval for users who rejoin sessions
  * Author Review: I validated correctness and performance of the code.
- */
-
-/** AI Assistance Disclosure:
- * Tool: Claude Sonnet 4.5, date: 2025-11-08
- * Purpose: Added shared Yjs document management for editor and chat synchronization
- * Author Review: Yjs document sharing and lifecycle management validated
  */
 
 "use client";
@@ -231,7 +230,8 @@ function CollabPageContent() {
           />
         </div>
 
-        <div className="flex-1 p-5 min-h-0 overflow-hidden flex flex-col gap-4">
+        {/* Right Column - Video Chat & Chat/AI Panel */}
+        <div className="flex-1 min-w-[250px] p-3 sm:p-4 md:p-5 min-h-0 overflow-hidden flex flex-col gap-3 sm:gap-4">
           {/* Voice/Video Chat - stays mounted */}
           <VoiceChatComponent />
 
