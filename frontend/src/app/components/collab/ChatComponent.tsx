@@ -90,7 +90,7 @@ export default function ChatComponent({ ydoc }: ChatComponentProps) {
   return (
     <div className="flex flex-col h-full bg-stone-900 rounded-lg p-2">
       {/* Chat messages area */}
-      <div className="flex bg-stone-500 h-full mb-2 rounded-lg overflow-auto scrollbar-hide">
+      <div className="flex flex-col bg-stone-500 h-full mb-2 rounded-lg overflow-auto scrollbar-hide">
         {messages.map((message) => {
           const isCurrentUser = message.userId === user_id;
           return (
