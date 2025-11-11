@@ -109,7 +109,8 @@ export function useMatchingService(userId: string | undefined) {
               setSessionId(null);
               setTimeRemaining(null);
               setErrorMessage(
-                data.message || "Match failed - your partner disconnected before the session could start.",
+                data.message ||
+                  "Match failed - your partner disconnected before the session could start.",
               );
             } else if (data.status === "idle") {
               clearPolling();
