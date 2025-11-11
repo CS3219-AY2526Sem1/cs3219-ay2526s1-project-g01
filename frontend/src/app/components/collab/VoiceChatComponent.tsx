@@ -1,8 +1,8 @@
 /**
  * References / Credits:
  * 1. Video SDK WebRTC guide: https://www.videosdk.live/developer-hub/webrtc/webrtc-project
- * 2. YouTube tutorial: https://youtu.be/QsH8FL0952k
- * 3. YouTube tutorial: https://youtu.be/WmR9IMUD_CY
+ * 2. Web RTC Full Course & More: https://youtu.be/QsH8FL0952k
+ * 3. WebRTC in 100 Seconds // Build a Video Chat app from Scratch: https://youtu.be/WmR9IMUD_CY
  *
  * These resources were referenced for both the server and frontend implementation.
  * Code has been modified to support a session-based setup where users must join

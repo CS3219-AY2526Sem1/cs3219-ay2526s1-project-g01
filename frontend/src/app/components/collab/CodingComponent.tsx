@@ -247,6 +247,11 @@ export default function CodingComponent({
                 <DropdownMenuItem onClick={() => setSeletedLanguage("Java")}>
                   Java
                 </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setSeletedLanguage("Pseudo Code")}
+                >
+                  Pseudo Code
+                </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
