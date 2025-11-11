@@ -98,7 +98,12 @@ export default function ChatComponent({ ydoc }: ChatComponentProps) {
               key={message.id}
               className={"flex m-2" + (isCurrentUser ? " ml-auto" : " mr-auto")}
             >
-              <div className="bg-white rounded-lg text-black p-2 max-w-xs break-words whitespace-pre-wrap">
+              <div
+                className={
+                  "bg-white rounded-lg text-black p-2 max-w-xs break-words whitespace-pre-wrap" +
+                  (isCurrentUser ? " text-blue-400" : " text-red-400")
+                }
+              >
                 {message.content}
               </div>
             </div>
