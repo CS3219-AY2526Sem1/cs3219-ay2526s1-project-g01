@@ -91,7 +91,7 @@ export default function HistoryPage() {
   };
 
   return (
-    <Card className="w-full lg:w-[60%] lg:mr-3 flex flex-col">
+    <Card className="w-full lg:mr-3 flex flex-col">
       <CardHeader>
         <CardTitle className="text-xl sm:text-2xl font-bold break-words">
           Recent Sessions
