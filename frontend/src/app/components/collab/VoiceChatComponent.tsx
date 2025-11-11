@@ -115,6 +115,9 @@ export default function VoiceChatComponent({
           process.env.NEXT_PUBLIC_API_GATEWAY_BASE_URL as string,
           {
             path: "/communication-socket/",
+            reconnection: true,
+            reconnectionAttempts: 10,
+            reconnectionDelay: 1000,
           },
         );
         console.log("Connected to Signalling server successfully");
@@ -187,6 +190,13 @@ export default function VoiceChatComponent({
 
         socket.on("peer-left", () => {
           setRemoteConnectionStatus(false);
+        });
+
+        socket.on("connect", () => {
+          socket.emit("join-session", {
+            sessionId: sessionId,
+            username: user?.username || "anonymous",
+          });
         });
 
         // Join session after all listeners are set up
