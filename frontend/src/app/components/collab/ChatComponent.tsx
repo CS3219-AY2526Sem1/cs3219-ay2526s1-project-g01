@@ -105,10 +105,9 @@ export default function ChatComponent({ ydoc }: ChatComponentProps) {
             >
               <div
                 className={
-                  "bg-white rounded-lg text-black p-2 max-w-[70%] w-fit break-words whitespace-pre-wrap " +
+                  "bg-white rounded-lg text-black p-2 max-w-xs break-words whitespace-pre-wrap" +
                   (isCurrentUser ? " text-blue-400" : " text-red-400")
                 }
-                style={{ wordBreak: "break-word" }}
               >
                 {message.content}
               </div>
