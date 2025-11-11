@@ -22,6 +22,12 @@
  * Author Review: I validated correctness and performance of the code.
  */
 
+/* AI Assistance Disclosure:
+ * Tool: ChatGPT [GPT5], date: 2025-11-12
+ * Purpose: Fix reconnection issue for voice/video chat by adding reconnection logic to socket.io client
+ * Author Review: I validated correctness and performance of the code.
+ */
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -116,7 +122,7 @@ export default function VoiceChatComponent({
           {
             path: "/communication-socket/",
             reconnection: true,
-            reconnectionAttempts: 10,
+            reconnectionAttempts: Infinity,
             reconnectionDelay: 1000,
           },
         );
