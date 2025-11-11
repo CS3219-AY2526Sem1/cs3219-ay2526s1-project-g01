@@ -1,8 +1,8 @@
 /**
  * References / Credits:
  * 1. Video SDK WebRTC guide: https://www.videosdk.live/developer-hub/webrtc/webrtc-project
- * 2. YouTube tutorial: https://youtu.be/QsH8FL0952k
- * 3. YouTube tutorial: https://youtu.be/WmR9IMUD_CY
+ * 2. Web RTC Full Course & More: https://youtu.be/QsH8FL0952k
+ * 3. WebRTC in 100 Seconds // Build a Video Chat app from Scratch: https://youtu.be/WmR9IMUD_CY
  *
  * These resources were referenced for both the server and frontend implementation.
  * Code has been modified to support a session-based setup where users must join
@@ -30,7 +30,11 @@ import { Mic, MicOff, Video, VideoOff } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 
-export default function VoiceChatComponent() {
+export default function VoiceChatComponent({
+  sessionId,
+}: {
+  sessionId: string | null;
+}) {
   const { user } = useUser();
 
   const socketRef = useRef<Socket | null>(null);
@@ -51,9 +55,6 @@ export default function VoiceChatComponent() {
   // Remote user's connection status
   const [remoteConnectionStatus, setRemoteConnectionStatus] =
     useState<boolean>(false);
-
-  // Hardcode session id
-  const sessionID = "98r4389r43r894389";
 
   useEffect(() => {
     // Prevent the same user from entering the session twice if its username is undefined
@@ -102,7 +103,7 @@ export default function VoiceChatComponent() {
         pc.onicecandidate = (event) => {
           if (event.candidate) {
             socketRef.current?.emit("ice-candidate", {
-              sessionID,
+              sessionId,
               username: user?.username,
               candidate: event.candidate,
             });
@@ -190,7 +191,7 @@ export default function VoiceChatComponent() {
 
         // Join session after all listeners are set up
         socket.emit("join-session", {
-          sessionID: sessionID,
+          sessionId: sessionId,
           username: user?.username || "anonymous",
         });
       } catch (error) {
@@ -202,7 +203,7 @@ export default function VoiceChatComponent() {
 
     return () => {
       socketRef.current?.emit("leave-session", {
-        sessionID,
+        sessionId,
         username: user?.username,
       });
 
@@ -230,7 +231,7 @@ export default function VoiceChatComponent() {
       await connectionRef.current.setLocalDescription(offer);
 
       socketRef.current?.emit("offer", {
-        sessionID,
+        sessionId,
         username: user?.username,
         offer,
       });
@@ -273,7 +274,7 @@ export default function VoiceChatComponent() {
       await connectionRef.current.setLocalDescription(answer);
 
       socketRef.current?.emit("answer", {
-        sessionID,
+        sessionId,
         username: user?.username,
         answer,
       });

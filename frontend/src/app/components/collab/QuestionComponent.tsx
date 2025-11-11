@@ -79,9 +79,9 @@ export default function QuestionComponent({
         {/* Test Cases Section */}
         <div className="mb-5">
           <h3 className="font-semibold text-white mb-2">Examples</h3>
-          {question.test_cases.map((testCase) => (
+          {question.test_cases.map((testCase, index) => (
             <div
-              key={testCase.index}
+              key={index}
               className="mb-3 p-3 bg-black text-white rounded-lg text-sm"
             >
               <p className="mb-1">

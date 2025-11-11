@@ -9,6 +9,14 @@
  * Purpose: Added props interface and callbacks to expose editor instance and language for AI assistant
  * Author Review: Callback integration and useEffect dependencies validated
  */
+
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-08
+ * Purpose: Modified to accept shared Yjs document instead of creating new one
+ * Author Review: Yjs document sharing and binding validated
+ */
+
 "use client";
 import * as Y from "yjs";
 import Editor from "@monaco-editor/react";
@@ -23,7 +31,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, CircleUser } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { useConnectionContext } from "@/contexts/ConnectionContext";
 import { useRouter } from "next/navigation";
@@ -41,16 +49,17 @@ import {
 import { toast } from "sonner";
 
 interface CodingComponentProps {
+  ydoc: Y.Doc | null;
   isOpen: boolean;
   closeDialog: () => void;
   openDialog: () => void;
-
   onLeave: () => void;
   onEditorMount?: (editor: monaco.editor.IStandaloneCodeEditor) => void;
   onLanguageChange?: (language: string) => void;
 }
 
 export default function CodingComponent({
+  ydoc,
   isOpen,
   closeDialog,
   openDialog,
@@ -67,7 +76,6 @@ export default function CodingComponent({
   const user_name: string = user?.username || "Unknown";
   const { isConnected, setIsConnected } = useConnectionContext();
 
-  const ydocRef = useRef<Y.Doc | null>(null);
   const yTextRef = useRef<Y.Text | null>(null);
   const bindingRef = useRef<MonacoBinding | null>(null);
   const cursorCollectionsRef = useRef<Record<
@@ -76,6 +84,7 @@ export default function CodingComponent({
   > | null>(null);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [editorReady, setEditorReady] = useState(false);
+  const isInitialConnectionRef = useRef(true);
 
   // Notify parent when language changes
   useEffect(() => {
@@ -114,19 +123,23 @@ export default function CodingComponent({
     delete cursorCollections[userId];
   }
 
-  //Sets up local editor state, socket event listenr and syncrhonise editor state with backend ydoc version
-  //This useEffect runs again when user connects to wifi after loosing internet connection
+  // Sets up local editor state, socket event listener and synchronise editor state with backend ydoc version
+  // This useEffect runs again when user connects to wifi after losing internet connection
   useEffect(() => {
-    if (!editorReady || !isConnected || !editorRef.current) {
+    if (!editorReady || !isConnected || !editorRef.current || !ydoc) {
       return;
     }
+
     const editorInstance = editorRef.current;
-    let isOnline = true;
+    const isOnline = !isInitialConnectionRef.current;
     openDialog();
 
-    //On Initial connection, set up variables
-    if (!ydocRef.current || !cursorCollectionsRef.current) {
-      const ydoc = new Y.Doc();
+    // On initial connection, set up variables
+    if (
+      !yTextRef.current ||
+      !bindingRef.current ||
+      !cursorCollectionsRef.current
+    ) {
       const yText = ydoc.getText("monaco");
       editorInstance.getModel()?.setEOL(monaco.editor.EndOfLineSequence.LF);
       const binding = new MonacoBinding(
@@ -138,14 +151,12 @@ export default function CodingComponent({
         string,
         monaco.editor.IEditorDecorationsCollection
       > = {};
-      ydocRef.current = ydoc;
+
       yTextRef.current = yText;
       bindingRef.current = binding;
       cursorCollectionsRef.current = cursorCollections;
-      isOnline = false;
+      isInitialConnectionRef.current = false;
     }
-
-    const ydoc = ydocRef.current!;
 
     const clientWS: ReconnectingWebSocket = editorWebSocketManager.getSocket()!;
     const cursorCollections: Record<
@@ -155,7 +166,7 @@ export default function CodingComponent({
 
     handleEditorUnmount(user_id, cursorCollections);
 
-    //set up message event listener on socket
+    // Set up message event listener on socket
     configureCollabWebsocket(
       user_id,
       ydoc,
@@ -178,10 +189,10 @@ export default function CodingComponent({
 
     registerEditorUpdateHandler(ydoc, clientWS);
 
-    //add cursor decorator
+    // Add cursor decorator
     initEditor(user_id, cursorCollections, editorInstance);
 
-    //send initial editor state
+    // Send initial editor state
     sendEditorState(user_id, ydoc, clientWS);
 
     setTimeout(() => {
@@ -194,15 +205,16 @@ export default function CodingComponent({
     return () => {
       handleEditorUnmount(user_id, cursorCollections);
     };
-  }, [editorReady, isConnected]);
+  }, [editorReady, isConnected, ydoc]);
 
-  //Clean up variables
+  // Clean up binding only (ydoc is managed by parent)
   useEffect(() => {
     return () => {
-      console.log("remove client binding and ydoc");
-
+      console.log("remove client binding");
       bindingRef.current?.destroy();
-      ydocRef.current?.destroy();
+      bindingRef.current = null;
+      yTextRef.current = null;
+      cursorCollectionsRef.current = null;
     };
   }, []);
 
@@ -235,6 +247,11 @@ export default function CodingComponent({
                 <DropdownMenuItem onClick={() => setSeletedLanguage("Java")}>
                   Java
                 </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setSeletedLanguage("Pseudo Code")}
+                >
+                  Pseudo Code
+                </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -247,6 +264,7 @@ export default function CodingComponent({
           onChange={(value) => setInitialContent(value)}
           options={{ scrollBeyondLastLine: false }}
           onMount={handleEditorMount}
+          className="z-0"
         ></Editor>
       </div>
       <LoadingDialog

@@ -19,6 +19,11 @@
  * Author Review: Component structure and WebRTC persistence validated
  */
 
+/** AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-08
+ * Purpose: Added shared Yjs document management for editor and chat synchronization
+ * Author Review: Yjs document sharing and lifecycle management validated
+ * 
 /* AI Assistance Disclosure:
  * Tool: Claude Sonnet 4.5, date: 2025-10-10
  * Purpose: Updated the styling of Collab Page to make it dynamic and responsive
@@ -34,7 +39,7 @@
 
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useRef } from "react";
 import VoiceChatComponent from "../components/collab/VoiceChatComponent";
 import ChatPanelWrapper from "../components/collab/ChatPanelWrapper";
 import CodingComponentWrapper from "../components/collab/CodingComponentWrapper";
@@ -52,6 +57,7 @@ import {
 } from "@/services/collabServiceApi";
 import * as monaco from "monaco-editor";
 import { Question } from "@/services/matchingServiceApi";
+import * as Y from "yjs";
 
 function CollabPageContent() {
   const [showConfirmationAlert, setshowConfirmationAlert] =
@@ -67,6 +73,23 @@ function CollabPageContent() {
   const [partnerUserId, setPartnerUserId] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("sessionId");
+
+  // Shared Yjs document for both editor and chat
+  const ydocRef = useRef<Y.Doc | null>(null);
+
+  // Initialize Yjs document once
+  useEffect(() => {
+    if (!ydocRef.current) {
+      ydocRef.current = new Y.Doc();
+    }
+
+    return () => {
+      if (ydocRef.current) {
+        ydocRef.current.destroy();
+        ydocRef.current = null;
+      }
+    };
+  }, []);
 
   //Delete userId to {sessionId, parternId} mapping in backend server
   async function directToMatch() {
@@ -197,6 +220,7 @@ function CollabPageContent() {
         {/* Center Column - Code Editor */}
         <div className="flex-[2] min-w-[300px] min-h-0">
           <CodingComponentWrapper
+            ydoc={ydocRef.current}
             onEditorMount={setEditorInstance}
             onLanguageChange={setLanguage}
             isOpen={showLoadingDialog}
@@ -209,10 +233,11 @@ function CollabPageContent() {
         {/* Right Column - Video Chat & Chat/AI Panel */}
         <div className="flex-1 min-w-[250px] p-3 sm:p-4 md:p-5 min-h-0 overflow-hidden flex flex-col gap-3 sm:gap-4">
           {/* Voice/Video Chat - stays mounted */}
-          <VoiceChatComponent />
+          <VoiceChatComponent sessionId={sessionId} />
 
           {/* Chat and AI Assist Toggle Panel */}
           <ChatPanelWrapper
+            ydoc={ydocRef.current}
             editorInstance={editorInstance}
             language={language}
           />

@@ -14,6 +14,13 @@
  * Author Review: Props interface and forwarding pattern validated
  */
 
+/**
+ * AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-08
+ * Purpose: Added ydoc prop to share Yjs document with chat component
+ * Author Review: Props interface and forwarding validated
+ */
+
 /* AI Assistance Disclosure:
  * Tool: Claude Sonnet 4.5, date: 2025-11-10
  * Purpose: Updated the styling of CodingComponentWrapper to make it dynamic and responsive
@@ -23,17 +30,14 @@
 
 import dynamic from "next/dynamic";
 import * as monaco from "monaco-editor";
-
-interface CodingComponentProps {
-  onEditorMount?: (editor: monaco.editor.IStandaloneCodeEditor) => void;
-  onLanguageChange?: (language: string) => void;
-}
+import * as Y from "yjs";
 
 const CodingComponent = dynamic(() => import("./CodingComponent"), {
   ssr: false,
 });
 
 interface CodingComponentWrapperProps {
+  ydoc: Y.Doc | null;
   isOpen: boolean;
   closeDialog: () => void;
   openDialog: () => void;
@@ -43,6 +47,7 @@ interface CodingComponentWrapperProps {
 }
 
 export default function CodingComponentWrapper({
+  ydoc,
   isOpen,
   closeDialog,
   openDialog,
@@ -52,6 +57,7 @@ export default function CodingComponentWrapper({
 }: CodingComponentWrapperProps) {
   return (
     <CodingComponent
+      ydoc={ydoc}
       isOpen={isOpen}
       closeDialog={closeDialog}
       openDialog={openDialog}
