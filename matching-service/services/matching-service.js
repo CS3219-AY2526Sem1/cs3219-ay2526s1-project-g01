@@ -20,15 +20,9 @@ class MatchingService {
     this.timeouts = new Map(); // store timeout references
   }
 
-  // separate queue key per criteria combo (difficulty + topics)
+  // use a single global queue for all matching requests (subset matching)
   generateQueueKey(difficulty, topics) {
-    const sortedDifficulty = Array.isArray(difficulty)
-      ? difficulty.sort().join(",")
-      : difficulty;
-    const sortedTopics = Array.isArray(topics)
-      ? topics.sort().join(",")
-      : topics;
-    return `${this.QUEUE_PREFIX}${sortedDifficulty}:${sortedTopics}`;
+    return `${this.QUEUE_PREFIX}global`;
   }
 
   // start matching process
@@ -104,14 +98,14 @@ class MatchingService {
 
         if (waitingUser.userId === newUser.userId) continue;
 
-        // same exact difficulty (can change to subsets in future iterations)
-        const difficultyMatch = this.arraysEqual(
+        // check if there's any overlap in difficulty preferences (subset matching)
+        const difficultyMatch = this.hasIntersection(
           waitingUser.difficulty,
           newUser.difficulty
         );
 
-        // same exact topics (can change to subsets in future iterations)
-        const topicsMatch = this.arraysEqual(
+        // check if there's any overlap in topics (subset matching)
+        const topicsMatch = this.hasIntersection(
           waitingUser.topics,
           newUser.topics
         );
@@ -119,6 +113,16 @@ class MatchingService {
         if (difficultyMatch && topicsMatch) {
           // remove from queue
           await redisClient.lRem(queueKey, 1, waitingUserData);
+
+          // find the intersection of preferences for the match criteria
+          const matchedDifficulty = this.getIntersection(
+            waitingUser.difficulty,
+            newUser.difficulty
+          );
+          const matchedTopics = this.getIntersection(
+            waitingUser.topics,
+            newUser.topics
+          );
 
           // create session
           const sessionId = uuidv4();
@@ -133,8 +137,8 @@ class MatchingService {
               username: newUser.username,
             },
             criteria: {
-              difficulty: newUser.difficulty,
-              topics: newUser.topics,
+              difficulty: matchedDifficulty,
+              topics: matchedTopics,
             },
             matchedAt: new Date().toISOString(),
             status: "matched",
@@ -456,12 +460,16 @@ class MatchingService {
     }
   }
 
-  arraysEqual(arr1, arr2) {
-    if (!Array.isArray(arr1) || !Array.isArray(arr2)) return arr1 === arr2;
-    if (arr1.length !== arr2.length) return false;
-    const sorted1 = [...arr1].sort();
-    const sorted2 = [...arr2].sort();
-    return sorted1.every((val, idx) => val === sorted2[idx]);
+  // helper method to find intersection between two arrays
+  getIntersection(arr1, arr2) {
+    if (!Array.isArray(arr1) || !Array.isArray(arr2)) return [];
+    return arr1.filter(item => arr2.includes(item));
+  }
+
+  // check if two arrays have any common elements (subset match)
+  hasIntersection(arr1, arr2) {
+    if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
+    return arr1.some(item => arr2.includes(item));
   }
 
   // for future iteration if necessary - get stats of all queues
