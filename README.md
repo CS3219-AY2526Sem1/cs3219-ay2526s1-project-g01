@@ -74,6 +74,16 @@
 1. Change the .env file at user-service to `ENV=PROD`
 2. Ensure that you have set the correct `MONGODB_URI` in the .env file at user-service
 
+#### AI Service Setup
+
+1. Set up the `.env` file in `ai-service` directory by referring to `.env.sample`
+2. Configure the required API keys for your AI provider (e.g., OpenAI, Claude, etc.)
+
+#### TURN/STUN Server Setup
+
+1. For WebRTC video chat functionality, configure TURN/STUN server credentials in `frontend/.env.local`
+2. Refer to the `.env.local.sample` file for required TURN server configuration variables
+
 #### Running the project (development)
 
 1. Run `npm run dev` to start up all microservices (user-service, matching-service, collab-service, question-service) in Docker with live reload, and the frontend on your host machine
