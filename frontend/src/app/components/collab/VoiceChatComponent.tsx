@@ -30,9 +30,11 @@ import { Mic, MicOff, Video, VideoOff } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 
-export default function VoiceChatComponent(
-  { sessionId }: { sessionId: string | null },
-) {
+export default function VoiceChatComponent({
+  sessionId,
+}: {
+  sessionId: string | null;
+}) {
   const { user } = useUser();
 
   const socketRef = useRef<Socket | null>(null);
