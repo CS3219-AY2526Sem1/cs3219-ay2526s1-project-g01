@@ -58,7 +58,7 @@ export default function SearchComponent({
             onClick={onSearch}
             disabled={isMatched || isSearching}
           >
-            Start Searching!!!
+            Start Searching
           </Button>
         </DialogTrigger>
         <DialogContent
