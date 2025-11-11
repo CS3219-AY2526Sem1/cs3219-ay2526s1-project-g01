@@ -36,6 +36,38 @@
 
 ## User Service API Guide
 
+### API Endpoints Summary
+
+The User Service provides comprehensive user management and authentication functionality through the following endpoints:
+
+#### User Management
+- **POST /users** - Create a new user (registration)
+- **GET /users** - Get all users (admin only)
+- **GET /users/{userId}** - Get a specific user's data
+- **PATCH /users/{userId}** - Update user information
+- **PATCH /users/{userId}/privilege** - Update user admin privilege (admin only)
+- **PATCH /users/{userId}/password** - Update user password (authenticated)
+- **PATCH /users/{userId}/username** - Update username (authenticated)
+- **DELETE /users/{userId}** - Delete a user
+
+#### Authentication
+- **POST /auth/login** - User login with email and password
+- **GET /auth/verify-token** - Verify JWT access token validity
+
+#### Password Reset
+- **POST /auth/password/request-reset** - Request password reset email
+- **GET /auth/password/validate-token** - Validate password reset token
+- **POST /auth/password/confirm-reset** - Confirm password reset with new password
+
+#### Email Verification & Change
+- **GET /verification/verify** - Verify email address with token
+- **POST /verification/resend** - Resend verification email
+- **POST /verification/request-email-change-code** - Request 6-digit code for email change
+- **POST /verification/verify-email-change-code** - Verify 6-digit email change code
+- **POST /verification/change-email** - Complete email change process
+
+---
+
 ### Create User
 
 - This endpoint allows adding a new user to the database (i.e., user registration).
@@ -259,3 +291,255 @@
   | 200 (OK)                    | Token verified, authenticated user's data returned |
   | 401 (Unauthorized)          | Missing/invalid/expired JWT                        |
   | 500 (Internal Server Error) | Database or server error                           |
+
+### Request Password Reset
+
+- This endpoint initiates the password reset process by sending a reset email to the user.
+- HTTP Method: `POST`
+- Endpoint: http://localhost:3001/auth/password/request-reset
+- Body
+  - Required: `email` (string)
+
+    ```json
+    {
+      "email": "sample@gmail.com"
+    }
+    ```
+
+- Responses:
+
+  | Response Code               | Explanation                              |
+  | --------------------------- | ---------------------------------------- |
+  | 200 (OK)                    | Password reset email sent successfully   |
+  | 400 (Bad Request)           | Missing email field                      |
+  | 404 (Not Found)             | User with specified email not found      |
+  | 500 (Internal Server Error) | Database or server error                 |
+
+### Validate Password Reset Token
+
+- This endpoint validates a password reset token without changing the password.
+- HTTP Method: `GET`
+- Endpoint: http://localhost:3001/auth/password/validate-token
+- Query Parameters
+  - Required: `username` (string), `email` (string), `token` (string)
+  - Example: `http://localhost:3001/auth/password/validate-token?username=SampleUserName&email=sample@gmail.com&token=abc123`
+
+- Responses:
+
+  | Response Code               | Explanation                              |
+  | --------------------------- | ---------------------------------------- |
+  | 200 (OK)                    | Token is valid                           |
+  | 400 (Bad Request)           | Missing parameters                       |
+  | 401 (Unauthorized)          | Invalid or expired token                 |
+  | 404 (Not Found)             | User not found                           |
+  | 500 (Internal Server Error) | Database or server error                 |
+
+### Confirm Password Reset
+
+- This endpoint confirms the password reset using the token and sets a new password.
+- HTTP Method: `POST`
+- Endpoint: http://localhost:3001/auth/password/confirm-reset
+- Query Parameters
+  - Required: `username` (string), `email` (string), `token` (string)
+- Body
+  - Required: `newPassword` (string)
+
+    ```json
+    {
+      "newPassword": "NewSecurePassword123!"
+    }
+    ```
+
+- Responses:
+
+  | Response Code               | Explanation                              |
+  | --------------------------- | ---------------------------------------- |
+  | 200 (OK)                    | Password reset successful                |
+  | 400 (Bad Request)           | Missing parameters or new password       |
+  | 401 (Unauthorized)          | Invalid or expired token                 |
+  | 404 (Not Found)             | User not found                           |
+  | 500 (Internal Server Error) | Database or server error                 |
+
+### Update User Password
+
+- This endpoint allows a user to update their password while authenticated.
+- HTTP Method: `PATCH`
+- Endpoint: http://localhost:3001/users/{userId}/password
+- Parameters
+  - Required: `userId` path parameter
+- Body
+  - Required: `currentPassword` (string), `newPassword` (string)
+
+    ```json
+    {
+      "currentPassword": "OldPassword123!",
+      "newPassword": "NewSecurePassword123!"
+    }
+    ```
+
+- Headers
+  - Required: `Authorization: Bearer <JWT_ACCESS_TOKEN>`
+  - Auth Rules:
+    - Admin users: Can update any user's password
+    - Non-admin users: Can only update their own password
+
+- Responses:
+
+  | Response Code               | Explanation                                             |
+  | --------------------------- | ------------------------------------------------------- |
+  | 200 (OK)                    | Password updated successfully                           |
+  | 400 (Bad Request)           | Missing fields or incorrect current password            |
+  | 401 (Unauthorized)          | Access denied due to missing/invalid/expired JWT        |
+  | 403 (Forbidden)             | Access denied for non-admin users updating others' data |
+  | 404 (Not Found)             | User with the specified ID not found                    |
+  | 500 (Internal Server Error) | Database or server error                                |
+
+### Update Username
+
+- This endpoint allows a user to update their username while authenticated.
+- HTTP Method: `PATCH`
+- Endpoint: http://localhost:3001/users/{userId}/username
+- Parameters
+  - Required: `userId` path parameter
+- Body
+  - Required: `username` (string)
+
+    ```json
+    {
+      "username": "NewUsername"
+    }
+    ```
+
+- Headers
+  - Required: `Authorization: Bearer <JWT_ACCESS_TOKEN>`
+  - Auth Rules:
+    - Admin users: Can update any user's username
+    - Non-admin users: Can only update their own username
+
+- Responses:
+
+  | Response Code               | Explanation                                             |
+  | --------------------------- | ------------------------------------------------------- |
+  | 200 (OK)                    | Username updated successfully                           |
+  | 400 (Bad Request)           | Missing username field                                  |
+  | 401 (Unauthorized)          | Access denied due to missing/invalid/expired JWT        |
+  | 403 (Forbidden)             | Access denied for non-admin users updating others' data |
+  | 404 (Not Found)             | User with the specified ID not found                    |
+  | 409 (Conflict)              | Username already taken                                  |
+  | 500 (Internal Server Error) | Database or server error                                |
+
+### Verify Email
+
+- This endpoint verifies a user's email address using a verification token sent via email.
+- HTTP Method: `GET`
+- Endpoint: http://localhost:3001/verification/verify
+- Query Parameters
+  - Required: `username` (string), `email` (string), `token` (string)
+  - Optional: `purpose` (string, defaults to 'signup')
+  - Example: `http://localhost:3001/verification/verify?username=SampleUserName&email=sample@gmail.com&token=abc123&purpose=signup`
+
+- Responses:
+
+  | Response Code               | Explanation                              |
+  | --------------------------- | ---------------------------------------- |
+  | 200 (OK)                    | Email verified successfully              |
+  | 400 (Bad Request)           | Missing parameters                       |
+  | 401 (Unauthorized)          | Invalid or expired token                 |
+  | 404 (Not Found)             | User not found                           |
+  | 500 (Internal Server Error) | Database or server error                 |
+
+### Resend Verification Email
+
+- This endpoint resends the verification email to the user.
+- HTTP Method: `POST`
+- Endpoint: http://localhost:3001/verification/resend
+- Query Parameters
+  - Required: `username` (string), `email` (string)
+  - Optional: `purpose` (string, defaults to 'signup')
+  - Example: `http://localhost:3001/verification/resend?username=SampleUserName&email=sample@gmail.com&purpose=signup`
+
+- Responses:
+
+  | Response Code               | Explanation                              |
+  | --------------------------- | ---------------------------------------- |
+  | 200 (OK)                    | Verification email sent successfully     |
+  | 400 (Bad Request)           | Missing parameters                       |
+  | 404 (Not Found)             | User not found                           |
+  | 500 (Internal Server Error) | Database or server error                 |
+
+### Request Email Change Code
+
+- This endpoint requests a 6-digit verification code to initiate the email change process (Step 1).
+- HTTP Method: `POST`
+- Endpoint: http://localhost:3001/verification/request-email-change-code
+- Body
+  - Required: `userId` (string)
+
+    ```json
+    {
+      "userId": "60c72b2f9b1d4c3a2e5f8b4c"
+    }
+    ```
+
+- Responses:
+
+  | Response Code               | Explanation                              |
+  | --------------------------- | ---------------------------------------- |
+  | 200 (OK)                    | Verification code sent to current email  |
+  | 400 (Bad Request)           | Missing userId field                     |
+  | 404 (Not Found)             | User not found                           |
+  | 500 (Internal Server Error) | Database or server error                 |
+
+### Verify Email Change Code
+
+- This endpoint verifies the 6-digit code without changing the email (Step 1.5).
+- HTTP Method: `POST`
+- Endpoint: http://localhost:3001/verification/verify-email-change-code
+- Body
+  - Required: `userId` (string), `code` (string)
+
+    ```json
+    {
+      "userId": "60c72b2f9b1d4c3a2e5f8b4c",
+      "code": "123456"
+    }
+    ```
+
+- Responses:
+
+  | Response Code               | Explanation                              |
+  | --------------------------- | ---------------------------------------- |
+  | 200 (OK)                    | Code verified successfully               |
+  | 400 (Bad Request)           | Missing parameters or invalid code       |
+  | 401 (Unauthorized)          | Code expired or incorrect                |
+  | 404 (Not Found)             | User not found                           |
+  | 500 (Internal Server Error) | Database or server error                 |
+
+### Change Email
+
+- This endpoint completes the email change process after validating the 6-digit code (Step 2).
+- HTTP Method: `POST`
+- Endpoint: http://localhost:3001/verification/change-email
+- Body
+  - Required: `userId` (string), `username` (string), `oldEmail` (string), `newEmail` (string), `code` (string)
+
+    ```json
+    {
+      "userId": "60c72b2f9b1d4c3a2e5f8b4c",
+      "username": "SampleUserName",
+      "oldEmail": "old@gmail.com",
+      "newEmail": "new@gmail.com",
+      "code": "123456"
+    }
+    ```
+
+- Responses:
+
+  | Response Code               | Explanation                              |
+  | --------------------------- | ---------------------------------------- |
+  | 200 (OK)                    | Verification link sent to new email      |
+  | 400 (Bad Request)           | Missing parameters or invalid code       |
+  | 401 (Unauthorized)          | Code expired or incorrect                |
+  | 404 (Not Found)             | User not found                           |
+  | 409 (Conflict)              | New email already in use                 |
+  | 500 (Internal Server Error) | Database or server error                 |
