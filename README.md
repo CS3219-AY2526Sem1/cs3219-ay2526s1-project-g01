@@ -107,7 +107,7 @@
 5. To stop the containers run `docker-compose down` or `docker-compose --profile localdb down` if using local DB. You can also run `npm run stop:docker` to stop the containers. This will also stop any other running docker containers.
 
 ### Deployment to GCP Guide
-Refer to the deployment guide at [`DEPLOYMENT.md`](./DEPLOYMENT.md) for detailed instructions on deploying the application to Google Cloud Platform (GCP).
+Refer to the deployment guide at [`Deployment.md`](./Deployment.md) for detailed instructions on deploying the application to Google Cloud Platform (GCP).
 
 ### References:
 
