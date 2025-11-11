@@ -97,7 +97,7 @@ export default function ChatComponent({ ydoc }: ChatComponentProps) {
             <div
               key={message.id}
               className={
-                "flex m-2" +
+                "flex m-1 p-2" +
                 (isCurrentUser
                   ? " ml-auto justify-end"
                   : " mr-auto justify-start")
@@ -108,6 +108,7 @@ export default function ChatComponent({ ydoc }: ChatComponentProps) {
                   "bg-white rounded-lg text-black p-2 max-w-xs break-words whitespace-pre-wrap" +
                   (isCurrentUser ? " text-blue-400" : " text-red-400")
                 }
+                style={{ wordBreak: "break-word" }}
               >
                 {message.content}
               </div>
