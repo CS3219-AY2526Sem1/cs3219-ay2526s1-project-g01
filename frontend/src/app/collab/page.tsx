@@ -233,7 +233,7 @@ function CollabPageContent() {
         {/* Right Column - Video Chat & Chat/AI Panel */}
         <div className="flex-1 min-w-[250px] p-3 sm:p-4 md:p-5 min-h-0 overflow-hidden flex flex-col gap-3 sm:gap-4">
           {/* Voice/Video Chat - stays mounted */}
-          <VoiceChatComponent />
+          <VoiceChatComponent sessionId={sessionId} />
 
           {/* Chat and AI Assist Toggle Panel */}
           <ChatPanelWrapper
