@@ -19,7 +19,6 @@
 - Smart matching based on difficulty (Easy, Medium, Hard) and topics
 - Real-time matching with 5 minutes search timer
 - Session persistence and rejoin capability
-- Automatic pairing with similar preferences
 
 #### Collaborative Code Editor
 - Real-time synchronized code editing using WebSocket and Yjs
@@ -50,7 +49,7 @@
 - JWT-protected API with admin and user authorization
 
 #### Microservices Architecture
-- User Service, Matching Service, Collaboration Service, Question Service, AI Service
+- User Service, Matching Service, Collaboration Service, Question Service, AI Service, Communication Service
 - API Gateway for centralized routing
 - MongoDB, PosgreSQL and Redis databases
 - Full Docker containerization with hot reload support on local development
