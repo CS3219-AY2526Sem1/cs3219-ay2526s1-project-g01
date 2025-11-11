@@ -63,7 +63,7 @@ class MatchingService {
         joinedAt: Date.now(),
       };
 
-      await redisClient.lPush(queueKey, JSON.stringify(userQueueData));
+      await redisClient.rPush(queueKey, JSON.stringify(userQueueData));
 
       // store active search with criteria and expiration time (in s) - deletes key after timeout
       await redisClient.setEx(
