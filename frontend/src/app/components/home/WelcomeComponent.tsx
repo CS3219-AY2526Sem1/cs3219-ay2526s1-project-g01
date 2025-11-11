@@ -15,19 +15,19 @@ export default function WelcomePage() {
 
   return (
     <Card
-      className="m-10 h-[20%] bg-cover bg-center"
+      className="m-10 min-h-[200px] bg-cover bg-center"
       style={{
         backgroundImage: "url('/home/welcome-bg.jpg')",
       }}
     >
       <CardHeader>
-        <CardTitle className="text-4xl flex text-white drop-shadow-md">
+        <CardTitle className="text-2xl sm:text-3xl md:text-4xl flex flex-wrap items-center text-white drop-shadow-md">
           Hello
-          <p className="ml-2 font-bold text-white drop-shadow-md">
+          <p className="ml-2 font-bold text-white drop-shadow-md break-words">
             {user?.username || "Guest"}
           </p>
         </CardTitle>
-        <CardTitle className="text-4xl flex text-white drop-shadow-md">
+        <CardTitle className="text-2xl sm:text-3xl md:text-4xl text-white drop-shadow-md">
           Ready to start coding?
         </CardTitle>
       </CardHeader>

@@ -1,3 +1,17 @@
+/**
+ * AI Assistance Disclosure:
+ * Tool: GitHub Copilot (Claude Sonnet 4.5), date: 2025-11-08
+ * Purpose: Added API function for marking question attempts
+ * Author Review: Validated correctness and error handling
+ */
+
+/**
+ * AI Assistance Disclosure:
+ * Tool: ChatGPT (model: Claude Sonnet 4.0), date: 2025-11-10
+ * Purpose: To implement session creation and retrieval for users who rejoin sessions
+ * Author Review: I validated correctness and performance of the code.
+ */
+
 import { useUser } from "@/contexts/UserContext";
 import { getToken } from "./userServiceCookies";
 import { toast } from "sonner";
@@ -61,5 +75,67 @@ export async function getUserSessionStatus(
     console.log(error);
     console.log("backend down");
     toast.error("Our server is facing some issues, please try again later!");
+  }
+}
+
+//Get partner user ID from the collab service
+export async function getPartnerUserId(userId: string): Promise<string | null> {
+  try {
+    const token = getToken();
+    const response = await fetch(
+      `${baseURL}/api/collab/${encodeURIComponent(userId)}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      console.log("Failed to get partner user ID");
+      return null;
+    }
+    const data = await response.json();
+    if (data.hasSession && data.partnerId) {
+      return data.partnerId;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error getting partner user ID:", error);
+    return null;
+  }
+}
+
+//Get session details including question for reconnection
+export async function getSessionDetails(sessionId: string) {
+  try {
+    const token = getToken();
+    const response = await fetch(
+      `${baseURL}/api/collab/sessions/${encodeURIComponent(sessionId)}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      console.log("Failed to get session details");
+      throw new Error(`Collab service returned ${response.status}`);
+    }
+
+    const data = await response.json();
+    return {
+      sessionId: data.sessionId,
+      question: data.question,
+      message: data.message,
+    };
+  } catch (error) {
+    console.error("Error getting session details:", error);
+    throw error;
   }
 }

@@ -4,11 +4,19 @@
  * Purpose: Database operations for questions including retrieval and creation.
  * Author Review: I checked correctness and performance of the code.
  */
+
 /**
  * AI Assistance Disclosure:
  * Tool: Github Copilot (Claude Sonnet 3.5), date: 2025-10-29
  * Purpose: To implement functions for CRUD operations on questions.
  * Author Review: I modified to add validation and error handling, checked correctness and performance of the code.
+ */
+
+/**
+ * AI Assistance Disclosure:
+ * Tool: Github Copilot (Claude Sonnet 4.5), date: 2025-11-10
+ * Purpose: To fix a bug in the sequence handling when deleting questions, and to improve performance of question retrieval.
+ * Author Review: I validated the correctness and performance of the code.
  */
 
 import pool from '../db.js';
@@ -56,34 +64,13 @@ export async function getQuestionsByIdsFromDb(ids) {
 
 export async function getAllQuestionsFromDb({ topics, difficulties, limit, random }) {
   try {
-    let query = `
-      SELECT 
-        q.id,
-        q.title,
-        q.difficulty,
-        q.description,
-        q.question_constraints,
-        -- Aggregate all topics
-        COALESCE(
-          (
-            SELECT JSON_AGG(JSON_BUILD_OBJECT('id', t.id, 'topic', t.name))
-            FROM question_topics qt
-            JOIN topics t ON qt.topic_id = t.id
-            WHERE qt.question_id = q.id
-          ), '[]'
-        ) AS topics,
-        -- Aggregate all test cases in order
-        COALESCE(
-          (
-            SELECT JSON_AGG(JSON_BUILD_OBJECT('index', tc.index, 'input', tc.input, 'output', tc.output) 
-                            ORDER BY tc.index ASC)
-            FROM test_cases tc
-            WHERE tc.question_id = q.id
-          ), '[]'
-        ) AS test_cases
-      FROM questions q
-    `;
+    // Set default limit to 3 if not specified
+    if (limit === undefined || limit === null) {
+      limit = 3;
+    }
 
+    // Step 1: Get all matching question IDs efficiently (no heavy joins)
+    let idQuery = 'SELECT q.id FROM questions q';
     const conditions = [];
     const values = [];
 
@@ -105,22 +92,45 @@ export async function getAllQuestionsFromDb({ topics, difficulties, limit, rando
     }
 
     if (conditions.length > 0) {
-      query += ' WHERE ' + conditions.join(' AND ');
+      idQuery += ' WHERE ' + conditions.join(' AND ');
     }
 
+    // Always order by ID for consistent results when not random
+    idQuery += ' ORDER BY q.id ASC';
+
+    const { rows: idRows } = await pool.query(idQuery, values);
+    let questionIds = idRows.map(row => row.id);
+
+    // Step 2: If random is requested, shuffle the IDs in JavaScript (much faster than DB ORDER BY RANDOM)
     if (random) {
-      query += ' ORDER BY RANDOM()';
-    } else {
-      query += ' ORDER BY q.id ASC';
+      // Fisher-Yates shuffle algorithm for efficient randomization
+      for (let i = questionIds.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [questionIds[i], questionIds[j]] = [questionIds[j], questionIds[i]];
+      }
     }
 
-    if (limit) {
-      query += ` LIMIT $${values.length + 1}`;
-      values.push(limit);
+    // Step 3: Apply limit to the (possibly shuffled) IDs
+    if (limit && limit < questionIds.length) {
+      questionIds = questionIds.slice(0, limit);
     }
 
-    const { rows } = await pool.query(query, values);
-    return rows;
+    // Step 4: If no IDs match, return empty array
+    if (questionIds.length === 0) {
+      return [];
+    }
+
+    // Step 5: Get full question data for the selected IDs using existing optimized function
+    const questions = await getQuestionsByIdsFromDb(questionIds);
+
+    // Step 6: If random was requested, the order is already randomized by the shuffled IDs
+    // If not random, we want to maintain the original ID order
+    if (!random) {
+      // Sort by ID to maintain consistent ordering
+      questions.sort((a, b) => a.id - b.id);
+    }
+
+    return questions;
   } catch (err) {
     console.error('[ERROR] getAllQuestionsFromDb:', err.message);
     throw err;
@@ -243,6 +253,27 @@ export async function deleteQuestionFromDb(questionId) {
 
     // Delete the question
     await client.query('DELETE FROM questions WHERE id = $1', [questionId]);
+
+    // Prevent ID reuse: Ensure the sequence is advanced past the deleted ID
+    const seqRes = await client.query(
+      `SELECT pg_get_serial_sequence('questions', 'id') AS seqname`
+    );
+    const seqName = seqRes.rows[0] && seqRes.rows[0].seqname;
+    if (seqName) {
+      // Get the current sequence value
+      const currentSeqResult = await client.query(
+        `SELECT last_value FROM ${seqName}`
+      );
+      const currentSeq = currentSeqResult.rows[0].last_value;
+
+      // If the deleted ID is >= current sequence, advance the sequence past it
+      if (questionId >= currentSeq) {
+        await client.query(
+          `SELECT setval($1, $2)`,
+          [seqName, questionId]
+        );
+      }
+    }
 
     // Commit transaction
     await client.query('COMMIT');

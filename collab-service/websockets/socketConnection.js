@@ -25,6 +25,7 @@ import { saveLocalState } from "../utils/sessionDataHandler.js";
 async function initialiseWebSocket(wss, ws, request, redisDb, roomToDataMap) {
   const fullUrl = `ws://host${request.url}`;
   const url = new URL(fullUrl);
+  roomToDataMap;
   logger.info(fullUrl);
   const sessionId = url.searchParams.get("sessionId");
   logger.info(sessionId);
@@ -46,6 +47,24 @@ async function initialiseWebSocket(wss, ws, request, redisDb, roomToDataMap) {
     if (cursorData != null) {
       broadcastToRoom(wss, ws, sessionId, cursorData);
       return;
+    }
+
+    // Handle custom JSON messages (like attempt-marked)
+    try {
+      const text = update.toString();
+      if (text.startsWith("{")) {
+        const data = JSON.parse(text);
+        // Forward custom messages to all clients in the room
+        if (data.type === "attempt-marked") {
+          broadcastToRoom(wss, ws, sessionId, text);
+          logger.info(
+            `Broadcasting attempt-marked message in session ${sessionId}`,
+          );
+          return;
+        }
+      }
+    } catch (e) {
+      // Not a JSON message or parsing failed, continue to Y.js handling
     }
 
     if (handleInitialDocSync(update, ws, doc, wss, sessionId)) {

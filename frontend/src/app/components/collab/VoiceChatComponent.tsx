@@ -16,6 +16,12 @@
  * Author Review: Component isolation and WebRTC lifecycle management validated
  */
 
+/* AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-11-10
+ * Purpose: Updated the styling of VoiceChatComponent to make it dynamic and responsive
+ * Author Review: I validated correctness and performance of the code.
+ */
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -117,6 +123,11 @@ export default function VoiceChatComponent() {
           try {
             if (pc.signalingState === "stable") {
               await answerCall(offer);
+            } else {
+              console.warn(
+                "Ignoring offer - not in stable state:",
+                pc.signalingState,
+              );
             }
           } catch (error) {
             console.error("Error handling offer:", error);
@@ -232,6 +243,18 @@ export default function VoiceChatComponent() {
     if (!connectionRef.current) return;
 
     try {
+      // Check if we're in the right state to set remote description
+      if (
+        connectionRef.current.signalingState !== "stable" &&
+        connectionRef.current.signalingState !== "have-local-offer"
+      ) {
+        console.warn(
+          "Cannot answer call - incorrect signaling state:",
+          connectionRef.current.signalingState,
+        );
+        return;
+      }
+
       await connectionRef.current.setRemoteDescription(offer);
 
       // Process queued ICE candidates
@@ -244,6 +267,7 @@ export default function VoiceChatComponent() {
           console.error("Error adding queued candidate:", err);
         }
       }
+      pendingCandidatesRef.current = [];
 
       const answer = await connectionRef.current.createAnswer();
       await connectionRef.current.setLocalDescription(answer);
@@ -303,26 +327,26 @@ export default function VoiceChatComponent() {
   }
 
   return (
-    <div className="bg-stone-900 p-2 rounded-lg flex-shrink-0">
-      <div className="flex w-full gap-2 mb-2">
+    <div className="bg-stone-900 p-2 rounded-lg flex flex-col min-h-0">
+      <div className="flex w-full gap-2 mb-2 min-h-0">
         <video
           ref={currentVideoRef}
           autoPlay
           playsInline
           muted
-          className="w-[50%] rounded aspect-video"
+          className="w-[50%] rounded aspect-video object-cover"
         />
         {remoteConnectionStatus && (
           <video
             ref={remoteVideoRef}
             autoPlay
             playsInline
-            className="w-[50%]"
+            className="w-[50%] rounded aspect-video object-cover"
           />
         )}
       </div>
 
-      <div className="flex w-full gap-2">
+      <div className="flex w-full gap-2 flex-shrink-0">
         {/* Button for local stream */}
         <div className="flex gap-2 w-[50%]">
           <Button
@@ -333,9 +357,10 @@ export default function VoiceChatComponent() {
             bg-stone-900
             border
             border-white
-            hover:bg-stone-500"
+            hover:bg-stone-500
+            py-1"
           >
-            {localAudioStatus ? <Mic /> : <MicOff />}
+            {localAudioStatus ? <Mic size={16} /> : <MicOff size={16} />}
           </Button>
           <Button
             onClick={() => muteLocalVideo()}
@@ -345,9 +370,10 @@ export default function VoiceChatComponent() {
             bg-stone-900
             border
             border-white
-            hover:bg-stone-500"
+            hover:bg-stone-500
+            py-1"
           >
-            {localVideoStatus ? <Video /> : <VideoOff />}
+            {localVideoStatus ? <Video size={16} /> : <VideoOff size={16} />}
           </Button>
         </div>
 
@@ -361,9 +387,10 @@ export default function VoiceChatComponent() {
             bg-stone-900
             border
             border-white
-            hover:bg-stone-500"
+            hover:bg-stone-500
+            py-1"
           >
-            {remoteAudioStatus ? <Mic /> : <MicOff />}
+            {remoteAudioStatus ? <Mic size={16} /> : <MicOff size={16} />}
           </Button>
         </div>
       </div>

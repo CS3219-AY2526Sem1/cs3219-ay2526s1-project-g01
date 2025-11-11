@@ -5,6 +5,12 @@
  * Author Review: I refactored, then checked correctness and performance of the code.
  */
 
+/* AI Assistance Disclosure:
+ * Tool: Claude Sonnet 4.5, date: 2025-10-10
+ * Purpose: Implemented controllers for homepage question attempts statistics.
+ * Author Review: I validated correctness and performance of the code.
+ */ 
+
 import express from 'express';
 import { 
   getAllQuestions, 
@@ -15,6 +21,15 @@ import {
   getQuestionById
 } from '../controller/question-controller.js';
 import { getTopicNames, addTopic } from '../controller/topic-controller.js';
+import {
+  createAttempt,
+  getUserAttempts,
+  getUserAttemptedTopics,
+  getUserFavoriteTopics,
+  getTotalAttemptsCount,
+  getAttemptsInPastWeek,
+  getRecentAttempts
+} from '../controller/attempts-controller.js';
 
 const router = express.Router();
 
@@ -42,5 +57,26 @@ router.put('/:id', updateQuestion);
 
 // Route to delete a question by ID
 router.delete('/:id', deleteQuestion);
+
+// Route to add a new attempt
+router.post('/attempts', createAttempt);
+
+// Route to get all attempted questions by a user
+router.get('/attempts/:user_id', getUserAttempts);
+
+// Route to get recent attempts by a user (limit via query param)
+router.get('/attempts/:user_id/recent', getRecentAttempts);
+
+// Route to get total count of attempted questions by a user
+router.get('/attempts/:user_id/count', getTotalAttemptsCount);
+
+// Route to get attempts in the past week by a user
+router.get('/attempts/:user_id/week', getAttemptsInPastWeek);
+
+// Route to get all attempted topics and topic count by a user
+router.get('/attempts/:user_id/topics', getUserAttemptedTopics);
+
+// Route to get (all) favourite topic(s) by a user
+router.get('/attempts/:user_id/favourite-topic', getUserFavoriteTopics);
 
 export default router;
