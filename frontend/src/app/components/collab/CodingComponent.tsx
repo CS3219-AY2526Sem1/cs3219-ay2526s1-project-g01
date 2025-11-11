@@ -264,6 +264,7 @@ export default function CodingComponent({
           onChange={(value) => setInitialContent(value)}
           options={{ scrollBeyondLastLine: false }}
           onMount={handleEditorMount}
+          className="z-0"
         ></Editor>
       </div>
       <LoadingDialog
