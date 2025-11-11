@@ -179,7 +179,7 @@ export default function CodingComponent({
     registerEditorUpdateHandler(ydoc, clientWS);
 
     //add cursor decorator
-    initEditor(user_id, cursorCollections, editorInstance);
+    initEditor(user_id, cursorCollections, editorInstance, user_name);
 
     //send initial editor state
     sendEditorState(user_id, ydoc, clientWS);
