@@ -12,6 +12,7 @@
 "use client";
 
 import NotAuthorizedDialog from "@/components/ui/not-authorised-dialog";
+import { usePathname } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 
 interface TabGuardProps {
@@ -19,8 +20,21 @@ interface TabGuardProps {
 }
 
 export default function TabGuard({ children }: TabGuardProps) {
+  const pathname = usePathname();
   const [isDuplicate, setIsDuplicate] = useState<boolean>(false);
+
+  // Don't apply tab guard to authentication/verification routes
+  const isAuthRoute =
+    pathname?.startsWith("/auth/verify") ||
+    pathname?.startsWith("/auth/verification") ||
+    pathname?.startsWith("/auth/error") ||
+    pathname?.startsWith("/auth/reset-password");
+
   useEffect(() => {
+    // Skip tab guard for authentication routes
+    if (isAuthRoute) {
+      return;
+    }
     // Create a channel shared by all tabs of this app
     const channel = new BroadcastChannel("app-tabs");
 
@@ -47,7 +61,7 @@ export default function TabGuard({ children }: TabGuardProps) {
     };
 
     return () => channel.close();
-  }, [isDuplicate]);
+  }, [isDuplicate, isAuthRoute]);
 
   if (isDuplicate) {
     return (

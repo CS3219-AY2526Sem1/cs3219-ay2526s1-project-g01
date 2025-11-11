@@ -65,6 +65,16 @@ export async function createAttempt(req, res) {
       });
     }
 
+    // ensure that at least one of userId match that in req.user.id when not admin
+    if (!req.user.isAdmin) {
+      const userIdSet = new Set(user_id.map(id => id.trim()));
+      if (!userIdSet.has(req.user.id)) {
+        return res.status(403).json({
+          message: 'Forbidden: Cannot create attempt for another user'
+        });
+      }
+    }
+
     // Validate array length (1-2 users)
     if (user_id.length < 1 || user_id.length > 2) {
       return res.status(400).json({
