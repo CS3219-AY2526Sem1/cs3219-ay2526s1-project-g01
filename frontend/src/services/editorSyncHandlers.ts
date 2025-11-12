@@ -30,6 +30,7 @@ interface CursorSelection {
 interface CursorUpdatePayload extends BasePayload {
   type: "cursor";
   selection: CursorSelection;
+  userName: string;
 }
 
 interface editorSyncPayload extends BasePayload {
@@ -183,6 +184,7 @@ function initEditor(
   userId: string,
   cursorCollections: Record<string, monaco.editor.IEditorDecorationsCollection>,
   editorInstance: monaco.editor.IStandaloneCodeEditor,
+  userName: string,
 ) {
   cursorCollections[userId] = editorInstance.createDecorationsCollection([]);
 
@@ -191,7 +193,7 @@ function initEditor(
       range: new monaco.Range(1, 1, 1, 1),
       options: {
         className: "local-cursor",
-        hoverMessage: { value: `User ${userId}` },
+        hoverMessage: { value: `User ${userName}` },
       },
     },
   ]);
@@ -241,6 +243,7 @@ function onCursorChangeHandler(
     const cursorUpdate: CursorUpdatePayload = {
       type: "cursor",
       userId: userId,
+      userName: userName,
       selection: {
         startLineNumber: startLineNumber,
         startColumn: startColumn,
@@ -295,7 +298,7 @@ function onPartnerCursorChangeHandler(
         ),
         options: {
           className: "remote-cursor",
-          hoverMessage: { value: `User ${data.userId}` },
+          hoverMessage: { value: `User ${data.userName}` },
         },
       },
     ]);

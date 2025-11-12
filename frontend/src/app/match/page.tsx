@@ -150,6 +150,8 @@ export default function MatchPage() {
         onCancel={handleCancelSearch}
         timeRemaining={timeRemaining}
         isSearching={status === "searching"}
+        difficulty={difficulty}
+        topics={topics}
       />
       <DisconnectAlertDialog
         open={showRejoinRoomDialog}

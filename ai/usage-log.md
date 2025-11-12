@@ -2709,6 +2709,53 @@ Why is there a ydoc sync issue when a new line is entered on ydoc monaco editor 
 
 # Date/Time:
 
+2025-01-12 22:30
+
+# Tool:
+
+Claude Code (model: Claude Sonnet 4.5)
+
+# Prompt/Command:
+
+Request to implement disconnected user detection and cleanup system for matching service to prevent rooms from being created when one user disconnects during matching process.
+
+# Output Summary:
+
+- Added lastPolled timestamp tracking for all users in queue (matching-service.js lines 70, 323)
+- Implemented stale user removal before matching: checks if users haven't polled in 5 seconds and removes them from queue (lines 101-123)
+- Created match acknowledgment system with acknowledged_users array to track which users have polled after being matched (line 170)
+- Delayed room creation until both users acknowledge match within 5 seconds (lines 287-294)
+- Added timeout status for failed matches when partner doesn't acknowledge (lines 296-316)
+- Updated queue entry lastPolled timestamp on each status poll to maintain accurate user activity state (lines 330-345)
+- Modified frontend to handle timeout status with user-friendly error messages (useMatchingService.tsx lines 102-109)
+- Added "timeout" status type to TypeScript MatchStatusResponse interface (matchingServiceApi.ts line 66)
+- Removed immediate room creation on match - room only created when both users actively acknowledge
+- Comprehensive AI disclosure headers added to all modified files documenting the changes
+
+# Action Taken:
+
+- [x] Accepted as-is
+- [ ] Modified
+- [ ] Rejected
+
+# Author Notes:
+
+- Validated complete flow: stale detection (5s) → match creation → acknowledgment timeout (5s) → room creation or timeout
+- Confirmed edge case handling: user disconnects before 5s → stale removal prevents match; user disconnects after match before 5s → timeout prevents room creation
+- Tested with two scenarios: (1) both users active → room created, (2) one user disconnects → match cancelled with timeout status
+- Security implications minimal: server-side validation prevents unauthorized room creation
+- Performance: polling overhead acceptable with 1-second frontend poll interval and 5-second thresholds
+- UX improvement: clear error messages when partner disconnects vs. generic match failures
+- Maintainability: centralized logic in matching service with clear state transitions (searching → matched → active/timeout)
+- Architecture: FIFO queue preserved, timestamp-based cleanup ensures scalability
+- Error handling: timeout status properly propagated to frontend with user-friendly messages
+
+---
+
+## Entry 70
+
+# Date/Time:
+
 2025-11-08 02:00
 
 # Tool:
@@ -2749,7 +2796,7 @@ POST `/questions/attempts`
 
 ---
 
-## Entry 70
+## Entry 71
 
 # Date/Time:
 
@@ -2786,7 +2833,7 @@ Both buttons should turn green afterwards, on both screens, and should not be ab
 
 ---
 
-## Entry 71
+## Entry 72
 
 # Date/Time:
 
@@ -2818,7 +2865,7 @@ box when I make the screen smaller
 
 ---
 
-## Entry 72
+## Entry 73
 
 # Date/Time:
 
@@ -2851,7 +2898,7 @@ Help implement Recent sessions in the History component to reflect data from the
 
 ---
 
-## Entry 73
+## Entry 74
 
 # Date/Time:
 
@@ -2881,7 +2928,7 @@ Help add validation to attempt.js
 
 ---
 
-## Entry 74
+## Entry 75
 
 # Date/Time:
 
@@ -2915,7 +2962,7 @@ Help me to make the collab page dynamic:
 
 ---
 
-## Entry 75
+## Entry 76
 
 # Date/Time:
 
@@ -2945,7 +2992,7 @@ When deleting a question, I should not be allowed to reuse the same question_id
 
 ---
 
-## Entry 76
+## Entry 77
 
 # Date/Time:
 
@@ -2975,7 +3022,7 @@ For roomToData in webSocketServer.js, besides storing session id, can I store qu
 
 ---
 
-## Entry 77
+## Entry 78
 
 # Date/Time:
 

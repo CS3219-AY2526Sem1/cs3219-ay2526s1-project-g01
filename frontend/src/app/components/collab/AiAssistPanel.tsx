@@ -22,13 +22,16 @@ import ReactMarkdown from "react-markdown";
 interface AiAssistPanelProps {
   editorInstance?: monaco.editor.IStandaloneCodeEditor;
   language?: string;
+  messages: ChatMessage[];
+  setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
 }
 
 export default function AiAssistPanel({
   editorInstance,
   language = "javascript",
+  messages,
+  setMessages,
 }: AiAssistPanelProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null);

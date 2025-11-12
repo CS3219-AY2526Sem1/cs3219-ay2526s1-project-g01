@@ -3,6 +3,10 @@
  * Tool: Claude Sonnet 4.5, date: 2025-11-03
  * Purpose: To integrate question data retrieval and display in the collaboration page.
  * Author Review: Verified correctness and functionality of the code.
+ *
+ * Tool: Claude Code (model: Claude Sonnet 4.5), date: 2025-01-12
+ * Purpose: Added timeout status handling for disconnected partner scenarios
+ * Author Review: Error handling and user feedback validated
  */
 
 import { useState, useRef, useCallback, useEffect } from "react";
@@ -99,6 +103,15 @@ export function useMatchingService(userId: string | undefined) {
               setStatus("idle");
               setSessionId(null);
               setTimeRemaining(null);
+            } else if (data.status === "timeout") {
+              clearPolling();
+              setStatus("idle");
+              setSessionId(null);
+              setTimeRemaining(null);
+              setErrorMessage(
+                data.message ||
+                  "Match failed - your partner disconnected before the session could start.",
+              );
             } else if (data.status === "idle") {
               clearPolling();
               setStatus("idle");
