@@ -1,0 +1,40 @@
+{
+  "_aiCredits": "Root package.json with concurrently scripts created with GitHub Copilot assistance - 2025-09-15. Live reload development scripts enhanced with GitHub Copilot assistance - 2025-10-13",
+  "name": "peerprep",
+  "version": "1.0.0",
+  "description": "PeerPrep - Collaborative coding interview platform",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:docker\" \"npm run dev:frontend\"",
+    "dev:docker": "docker compose up api-gateway user-service ai-service matching-service collab-service question-service communication-service redis-collab-service redis-matching-service pg-question-service --build",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:microservices": "docker compose up user-service matching-service collab-service question-service redis-collab-service redis-matching-service pg-question-service --build",
+    "dev:with-db": "concurrently \"npm run dev:docker\" \"npm run dev:frontend\" \"npm run localdb\"",
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:user-service\"",
+    "start:frontend": "cd frontend && npm run start",
+    "start:user-service": "cd user-service && npm run start",
+    "build": "npm run build:frontend && npm run build:user-service",
+    "build:frontend": "cd frontend && npm run build",
+    "build:user-service": "echo 'No build step for user-service'",
+    "install:all": "npm install && cd frontend && npm install && cd ../user-service && npm install && cd ../ai-service && npm install && cd ../matching-service && npm install && cd ../collab-service && npm install && cd ../question-service && npm install",
+    "clean": "cd frontend && rm -rf node_modules && cd ../user-service && rm -rf node_modules && cd ../matching-service && rm -rf node_modules && cd ../collab-service && rm -rf node_modules && cd ../question-service && rm -rf node_modules && rm -rf node_modules",
+    "localdb": "docker compose --profile localdb up mongodb-user-services mongo-express -d",
+    "stop:docker": "docker compose down && docker compose --profile localdb down",
+    "docker:localdb": "docker compose --profile localdb up -d",
+    "logs": "docker compose logs -f",
+    "logs:user": "docker compose logs -f user-service",
+    "logs:matching": "docker compose logs -f matching-service",
+    "logs:collab": "docker compose logs -f collab-service",
+    "logs:question": "docker compose logs -f question-service"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "coding",
+    "interview",
+    "collaboration",
+    "peer-programming"
+  ],
+  "author": "",
+  "license": "ISC"
+}

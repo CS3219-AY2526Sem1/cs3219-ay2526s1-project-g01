@@ -1,0 +1,30 @@
+{
+  "name": "matching-service",
+  "version": "1.0.0",
+  "description": "Matching service for PeerPrep - matches users based on topics/difficulties preferences",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "matching",
+    "redis",
+    "microservice"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jose": "^5.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "redis": "^4.6.13",
+    "uuid": "^9.0.1"
+  }
+}
